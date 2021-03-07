@@ -96,13 +96,11 @@ jobs:
           git pull
           pipenv run python ./checkov/common/util/docs_generator.py >> $scansdoc
 
-          git commit --reuse-message=HEAD@{1} $scansdoc || echo "No changes to commit"
-
           ## update python version
           echo "version = '$new_tag'" > 'checkov/version.py'
           echo "checkov==$new_tag" > 'kubernetes/requirements.txt'
 
-          git commit --reuse-message=HEAD@{1} checkov/version.py kubernetes/requirements.txt coverage.svg || echo "No changes to commit"
+          git commit --reuse-message=HEAD@{1} checkov/version.py kubernetes/requirements.txt coverage.svg $scansdoc || echo "No changes to commit"
           git push origin
           git tag $new_tag
           git push origin $new_tag
