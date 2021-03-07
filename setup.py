@@ -14,7 +14,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 logger = logging.getLogger(__name__)
 spec = util.spec_from_file_location(
-    "checkov2.version", os.path.join("checkov2", "version.py")
+    "checkov2.version", os.path.join("checkov", "version.py")
 )
 # noinspection PyUnresolvedReferences
 mod = util.module_from_spec(spec)
