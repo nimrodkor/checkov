@@ -38,6 +38,17 @@ class TestConfigConfigurationAggregator(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.FAILED, scan_result)
 
+    def test_failure(self):
+        hcl_res = hcl2.loads("""
+                    resource "aws_config_configuration_aggregator" "organization" {
+                    
+                      name = "example"
+                    }
+                """)
+        resource_conf = hcl_res['resource'][0]['aws_config_configuration_aggregator']['organization']
+        scan_result = check.scan_resource_conf(conf=resource_conf)
+        self.assertEqual(CheckResult.FAILED, scan_result)
+
     def test_success_account(self):
         hcl_res = hcl2.loads("""
                     resource "aws_config_configuration_aggregator" "organization" {
