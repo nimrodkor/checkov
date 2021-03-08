@@ -4,7 +4,7 @@ import unittest
 import warnings
 
 import yaml
-from checkov.terraform.checks import graph
+from checkov.graph import checks
 
 
 class TestYamlPolicies(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestYamlPolicies(unittest.TestCase):
         dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 f"resources/{dir_name}")
         assert os.path.exists(dir_path)
-        policy_dir_path = os.path.dirname(graph.__file__)
+        policy_dir_path = os.path.dirname(checks.__file__)
         assert os.path.exists(policy_dir_path)
         policy = load_yaml_data(f"{dir_name}.yaml", policy_dir_path)
         assert policy is not None
