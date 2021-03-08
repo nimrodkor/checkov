@@ -1,5 +1,4 @@
 import unittest
-
 import hcl2
 
 from checkov.terraform.checks.resource.aws.ConfigConfgurationAggregatorAllRegions import check
@@ -7,6 +6,7 @@ from checkov.common.models.enums import CheckResult
 
 
 class TestConfigConfigurationAggregator(unittest.TestCase):
+
     def test_failure_account(self):
         hcl_res = hcl2.loads("""
                     resource "aws_config_configuration_aggregator" "organization" {
@@ -15,7 +15,7 @@ class TestConfigConfigurationAggregator(unittest.TestCase):
                     
                       account_aggregation_source {
                         account_ids = ["123456789012"]
-                        regions     = ["us-east-2"]
+                        regions     = ["us-east-2", "us-east-1", "us-west-1", "us-west-2"]
                       }
                     }
                 """)
@@ -45,8 +45,8 @@ class TestConfigConfigurationAggregator(unittest.TestCase):
                       name = "example"
                     
                       account_aggregation_source {
-                        account_ids = ["123456789012"]
-                        regions     = ["us-east-2", "us-east-1", "us-west-1", "us-west-2"]
+                        account_ids  = ["123456789012"]
+                        all_regions  = true
                       }
                     }
                 """)
