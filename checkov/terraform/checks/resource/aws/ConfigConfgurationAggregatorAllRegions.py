@@ -25,7 +25,7 @@ class ConfigConfigurationAggregator(BaseResourceCheck):
             if all_regions_attr:
                 return CheckResult.PASSED
             return CheckResult.FAILED
-        if "organization_aggregation_source":
+        if "organization_aggregation_source" in conf:
             if conf.get("organization_aggregation_source", {})[0].get("all_regions"):
                 return CheckResult.PASSED
             return CheckResult.FAILED
