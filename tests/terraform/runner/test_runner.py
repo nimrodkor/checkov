@@ -148,7 +148,7 @@ class TestRunnerValid(unittest.TestCase):
                     print(f'{check.id}: {check.name}')
         self.assertEqual(len(bad_checks), 0)
 
-    @pytest.skip
+    @pytest.mark.skip(reason='Re-run once all checks are implemented')
     def test_no_missing_ids(self):
         runner = Runner()
         unique_checks = set()
