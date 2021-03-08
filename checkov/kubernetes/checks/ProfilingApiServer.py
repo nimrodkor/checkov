@@ -11,11 +11,16 @@ class ProfilingApiServer(BaseK8Check):
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
 
     def scan_spec_conf(self, conf):
+        results = []
         if "spec" in conf:
-            if "command" in conf["spec"]:
-                if "--profiling=false" in conf["spec"]["command"]:
-                    return CheckResult.PASSED
+            if "containers" in conf["spec"]:
+                for container in conf["spec"]["containers"]:
+                    if "command" in container:
+                        if "--profiling=false" in container["command"]:
+                            results.append(True)
+                        else results.append(False)
+                    else results.append(False)
            
-        return CheckResult.FAILED
+        return CheckResult.FAILED if False in results else CheckResult.PASSED
 
 check = ProfilingApiServer()
