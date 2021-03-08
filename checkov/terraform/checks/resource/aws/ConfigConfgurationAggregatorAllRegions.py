@@ -2,6 +2,14 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.terraform.checks.resource.base_resource_check import BaseResourceCheck
 
 
+def flat_list(l):
+    new_list = []
+    for sublist in l:
+        for item in sublist:
+            new_list.append(item)
+    return new_list
+
+
 class ConfigConfigurationAggregator(BaseResourceCheck):
     def __init__(self):
         name = "Ensure AWS Config is enabled in all regions"
@@ -21,10 +29,7 @@ class ConfigConfigurationAggregator(BaseResourceCheck):
         self.evaluated_keys = ["account_aggregation_source", "organization_aggregation_source"]
 
         if "account_aggregation_source" in conf:
-            current_regions = []
-            for sublist in conf.get("account_aggregation_source", {})[0].get("regions"):
-                for item in sublist:
-                    current_regions.append(item)
+            current_regions = flat_list(conf.get("account_aggregation_source", {})[0].get("regions"))
             regions = ["us-east-2", "us-east-1", "us-west-1", "us-west-2"]  # do i need to set all of the regions?
             if set(current_regions) == set(regions):
                 return CheckResult.PASSED
