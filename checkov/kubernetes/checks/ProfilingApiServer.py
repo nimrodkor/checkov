@@ -4,8 +4,8 @@ from checkov.kubernetes.base_spec_check import BaseK8Check
 class ProfilingApiServer(BaseK8Check):
     def __init__(self):
         # CIS-1.6 1.2.21
-        id = "CKV2_K8S_42"
-        name = "Ensure that the --profiling argument is set to false (Scored)"
+        id = "CKV_K8S_90"
+        name = "Ensure that the --profiling argument is set to false"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['pod']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
