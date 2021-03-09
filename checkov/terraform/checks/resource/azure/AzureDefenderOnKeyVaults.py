@@ -5,7 +5,7 @@ from checkov.terraform.checks.resource.base_resource_check import BaseResourceCh
 class AzureDefenderOnKeyVaults(BaseResourceCheck):
     def __init__(self):
         name = "Ensure that Azure Defender is set to On for Key Vault"
-        id = "CKV2_AZURE_8"
+        id = "CKV_AZURE_87"
         supported_resources = ['azurerm_security_center_subscription_pricing']
         categories = [CheckCategories.GENERAL_SECURITY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
