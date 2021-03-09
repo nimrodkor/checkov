@@ -14,7 +14,7 @@ class ApiServerAuthorizationModeNotAlwaysAllow(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if "command" in conf:
+        if "command" in conf and conf["command"] is not None:
             if "kube-apiserver" in conf["command"]:
                 for command in conf["command"]:
                     if command.startswith("--authorization-mode"):
