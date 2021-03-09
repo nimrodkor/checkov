@@ -20,7 +20,7 @@ class ApiServerAuditLogMaxAge(BaseK8Check):
                 for command in conf["command"]:
                     if command.startswith("--audit-log-maxage"):
                         value = command.split("=")[1]
-                        hasAuditLog = int(value) >= 30
+                        hasAuditLogMaxAge = int(value) >= 30
                         break
                 return CheckResult.PASSED if hasAuditLogMaxAge else CheckResult.FAILED
            
