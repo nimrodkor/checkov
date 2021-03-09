@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class CustomAttributes(Enum):
+class CustomAttributes:
     BLOCK_NAME = "block_name_"
     BLOCK_TYPE = "block_type_"
     FILE_PATH = "file_path_"
@@ -10,15 +10,16 @@ class CustomAttributes(Enum):
     ID = "id_"
     HASH = "hash"
     RENDERING_BREADCRUMBS = "rendering_breadcrumbs_"
-    SOURCE_MODULE = "source_module_"
     SOURCE = "source_"
     RESOURCE_TYPE = "resource_type"
     RESOURCE_ID = "resource_id"
-    ENCRYPTION = "encryption_"
-    ENCRYPTION_DETAILS = "encryption_details_"
 
 
-reserved_attribute_names = [attribute_name.value for attribute_name in CustomAttributes]
+def props(cls):
+    return [i for i in cls.__dict__.keys() if i[:1] != '_']
+
+
+reserved_attribute_names = props(CustomAttributes)
 
 
 class EncryptionValues(Enum):
