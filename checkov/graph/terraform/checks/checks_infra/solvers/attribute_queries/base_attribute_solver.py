@@ -1,5 +1,5 @@
-from checkov.graph.terraform.checks.checks_infra.enums import SolverType
-from checkov.graph.terraform.checks.checks_infra.solvers.base_solver import BaseSolver
+from checkov.graph.checks.checks_infra.enums import SolverType
+from checkov.graph.checks.checks_infra.solvers.base_solver import BaseSolver
 
 
 class BaseAttributeSolver(BaseSolver):
