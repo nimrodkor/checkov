@@ -32,7 +32,7 @@ class GraphBackendHandler:
         self.graph_connector = None
 
     def load_graph_connector(self, args):
-        backend_module_path, backend_class_name = ''
+        backend_module_path = backend_class_name = ''
         if len(args.graph_backend.split(':')) == 2:
             backend_module_path, backend_class_name = args.graph_backend.split(':')
         else:
