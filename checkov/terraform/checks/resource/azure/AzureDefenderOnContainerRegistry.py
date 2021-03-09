@@ -11,8 +11,8 @@ class AzureDefenderOnContainerRegistry(BaseResourceCheck):
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def scan_resource_conf(self, conf):
-        return CheckResult.PASSED if conf.get('resource_type')[0] != 'ContainerRegistry' \
-                                     or conf.get('tier')[0] == 'Standard' else CheckResult.FAILED
+        return CheckResult.PASSED if conf.get('resource_type', [None])[0] != 'ContainerRegistry' \
+                                     or conf.get('tier', [None])[0] == 'Standard' else CheckResult.FAILED
 
 
 check = AzureDefenderOnContainerRegistry()
