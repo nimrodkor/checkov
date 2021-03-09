@@ -11,12 +11,7 @@ class AzureDefenderOnKubernetes(BaseResourceCheck):
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def scan_resource_conf(self, conf):
-        if conf.get('resource_type')[0] == 'KubernetesService':
-            if conf.get('tier')[0] == 'Standard':
-                return CheckResult.PASSED
-            return CheckResult.FAILED
-
-        return CheckResult.PASSED
+        return CheckResult.PASSED if conf.get('resource_type')[0] != 'KubernetesService' or conf.get('tier')[0] == 'Standard' else CheckResult.FAILED
 
 
 check = AzureDefenderOnKubernetes()
