@@ -1,7 +1,7 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
-class ProfilingApiServer(BaseK8Check):
+class ApiServerProfiling(BaseK8Check):
     def __init__(self):
         # CIS-1.6 1.2.21
         id = "CKV_K8S_90"
@@ -21,4 +21,4 @@ class ProfilingApiServer(BaseK8Check):
            
         return CheckResult.PASSED
 
-check = ProfilingApiServer()
+check = ApiServerProfiling()
