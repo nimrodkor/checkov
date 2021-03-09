@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 from enum import Enum
 
 
+@dataclass
 class CustomAttributes:
     BLOCK_NAME = "block_name_"
     BLOCK_TYPE = "block_type_"
