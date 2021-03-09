@@ -24,6 +24,22 @@ class TestElasticCacheAutomaticBackup(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.FAILED, scan_result)
 
+    def test_failure1(self):
+        hcl_res = hcl2.loads("""
+                resource "aws_elasticache_cluster" "example" {
+                  cluster_id           = "cluster-example"
+                  engine               = "redis"
+                  node_type            = "cache.m4.large"
+                  num_cache_nodes      = 1
+                  parameter_group_name = "default.redis3.2"
+                  engine_version       = "3.2.10"
+                  port                 = 6379
+                }
+        """)
+        resource_conf = hcl_res['resource'][0]['aws_elasticache_cluster']['example']
+        scan_result = check.scan_resource_conf(conf=resource_conf)
+        self.assertEqual(CheckResult.FAILED, scan_result)
+
     def test_success(self):
         hcl_res = hcl2.loads("""
                 resource "aws_elasticache_cluster" "example" {

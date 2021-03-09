@@ -8,7 +8,8 @@ class ElasticCacheAutomaticBackup(BaseResourceNegativeValueCheck):
         id = "CKV_AWS_112"
         supported_resources = ['aws_elasticache_cluster']
         categories = [CheckCategories.BACKUP_AND_RECOVERY]
-        super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
+        super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources,
+                         missing_attribute_result=CheckResult.FAILED)
 
     def get_inspected_key(self):
         return 'snapshot_retention_limit'
