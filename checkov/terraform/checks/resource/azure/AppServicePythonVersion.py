@@ -4,7 +4,7 @@ from checkov.terraform.checks.resource.base_resource_check import BaseResourceCh
 
 class AppServicePythonVersion(BaseResourceCheck):
     def __init__(self):
-        name = "Ensure that 'Python version' is the latest, if used to run the web app (Manual)"
+        name = "Ensure that 'Python version' is the latest, if used to run the web app"
         id = "CKV_AZURE_82"
         supported_resources = ['azurerm_app_service']
         categories = [CheckCategories.GENERAL_SECURITY]

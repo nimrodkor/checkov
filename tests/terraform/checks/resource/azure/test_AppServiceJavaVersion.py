@@ -8,7 +8,7 @@ from checkov.common.models.enums import CheckResult
 
 class TestAppServiceJavaVersion(unittest.TestCase):
 
-    def test_failure(self):
+    def test_failure_old_version(self):
         hcl_res = hcl2.loads("""
             resource "azurerm_app_service" "example" {
               name                = "example-app-service"
@@ -26,7 +26,7 @@ class TestAppServiceJavaVersion(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.FAILED, scan_result)
 
-    def test_success(self):
+    def test_success_latest_version(self):
         hcl_res = hcl2.loads("""
             resource "azurerm_app_service" "example" {
               name                = "example-app-service"
@@ -44,7 +44,7 @@ class TestAppServiceJavaVersion(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.PASSED, scan_result)
 
-    def test_success2(self):
+    def test_success_no_java(self):
         hcl_res = hcl2.loads("""
             resource "azurerm_app_service" "example" {
               name                = "example-app-service"

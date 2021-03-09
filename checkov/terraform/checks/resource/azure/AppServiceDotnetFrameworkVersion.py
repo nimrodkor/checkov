@@ -4,7 +4,7 @@ from checkov.terraform.checks.resource.base_resource_value_check import BaseReso
 
 class AppServiceDotnetFrameworkVersion(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that 'Net Framework' version is the latest, if used as a part of the web app (Manual)"
+        name = "Ensure that 'Net Framework' version is the latest, if used as a part of the web app"
         id = "CKV_AZURE_80"
         supported_resources = ['azurerm_app_service']
         categories = [CheckCategories.GENERAL_SECURITY]
