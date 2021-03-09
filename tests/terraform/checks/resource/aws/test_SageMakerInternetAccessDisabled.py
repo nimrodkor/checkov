@@ -30,7 +30,7 @@ class TestSageMakerInternetAccessDisabled(unittest.TestCase):
                   name          = "my-notebook-instance"
                   role_arn      = aws_iam_role.role.arn
                   instance_type = "ml.t2.medium"
-                  direct_internet_access = Disabled
+                  direct_internet_access = "Disabled"
                                   
                   tags = {
                     Name = "foo"
