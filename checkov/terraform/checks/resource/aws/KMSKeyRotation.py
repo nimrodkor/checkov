@@ -2,7 +2,7 @@ from checkov.terraform.checks.resource.base_resource_value_check import BaseReso
 from checkov.common.models.enums import CheckCategories
 
 
-class APIGatewayKeyRotation(BaseResourceValueCheck):
+class KMSKeyRotation(BaseResourceValueCheck):
 
     def __init__(self):
         name = "Ensure KMS have rotation policy"
@@ -15,4 +15,4 @@ class APIGatewayKeyRotation(BaseResourceValueCheck):
         return "enable_key_rotation"
 
 
-check = APIGatewayKeyRotation()
+check = KMSKeyRotation()
