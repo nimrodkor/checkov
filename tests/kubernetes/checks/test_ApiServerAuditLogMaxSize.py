@@ -6,7 +6,7 @@ from checkov.kubernetes.runner import Runner
 from checkov.runner_filter import RunnerFilter
 
 
-class TestApiServerProfiling(unittest.TestCase):
+class TestApiServerAuditLogMaxSize(unittest.TestCase):
 
     def test_summary(self):
         runner = Runner()
