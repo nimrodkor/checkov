@@ -2,7 +2,6 @@
 import atexit
 
 import argparse
-import logging
 import os
 import shutil
 import sys
@@ -12,7 +11,6 @@ import logging
 from checkov.arm.runner import Runner as arm_runner
 from checkov.cloudformation.runner import Runner as cfn_runner
 from checkov.common.bridgecrew.platform_integration import bc_integration
-from checkov.common.bridgecrew.integration_features.integration_feature_registry import integration_feature_registry
 from checkov.common.goget.github.get_git import GitGetter
 from checkov.common.runners.runner_registry import RunnerRegistry, OUTPUT_CHOICES
 from checkov.common.util.banner import banner as checkov_banner
@@ -20,6 +18,7 @@ from checkov.common.util.consts import DEFAULT_EXTERNAL_MODULES_DIR
 from checkov.common.util.docs_generator import print_checks
 from checkov.common.util.type_forcers import convert_str_to_bool
 from checkov.common.util.runner_dependency_handler import RunnerDependencyHandler
+from checkov.common.util.graph_backend_handler import GraphBackendHandler
 from checkov.kubernetes.runner import Runner as k8_runner
 from checkov.logging_init import init as logging_init
 from checkov.runner_filter import RunnerFilter
@@ -27,6 +26,7 @@ from checkov.serverless.runner import Runner as sls_runner
 from checkov.terraform.plan_runner import Runner as tf_plan_runner
 from checkov.terraform.runner import Runner as tf_runner
 from checkov.helm.runner import Runner as helm_runner
+from checkov.graph.terraform.runner import TerraformGraphRunner as tf_graph_runner
 from checkov.version import version
 
 outer_registry = None
@@ -40,10 +40,14 @@ checkov_runners = ['cloudformation', 'terraform', 'kubernetes', 'serverless', 'a
 runnerDependencyHandler = RunnerDependencyHandler(checkov_runner_module_names, globals())
 runnerDependencyHandler.validate_runner_deps()
 
+graph_backend_handler = GraphBackendHandler()
+
 def run(banner=checkov_banner, argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Infrastructure as code static analysis')
     add_parser_args(parser)
     args = parser.parse_args(argv)
+    graph_backend_handler.load_graph_connector(args)
+    graph_connector = graph_backend_handler.graph_connector
     # Disable runners with missing system dependencies
     args.skip_framework = runnerDependencyHandler.disable_incompatible_runners(args.skip_framework)
     
@@ -56,7 +60,8 @@ def run(banner=checkov_banner, argv=sys.argv[1:]):
         runner_registry.runner_filter = runner_filter
     else:
         runner_registry = RunnerRegistry(banner, runner_filter, tf_runner(), cfn_runner(), k8_runner(), sls_runner(),
-                                         arm_runner(), tf_plan_runner(), helm_runner())
+                                         arm_runner(), tf_plan_runner(), helm_runner(),
+                                         tf_graph_runner(graph_connector=graph_connector))
     if args.version:
         print(version)
         return
@@ -181,6 +186,9 @@ def add_parser_args(parser):
     parser.add_argument('--evaluate-variables',
                         help="evaluate the values of variables and locals",
                         default=True)
+    parser.add_argument('--graph-backend',
+                        help='Graph backend name OR path to graph connector Python package, of format <connector-file-dir>:<connector-class-name>. e.g. graph/db_connectors/networkx:NetworkxConnector',
+                        default='networkx')
 
 
 def get_external_checks_dir(args):

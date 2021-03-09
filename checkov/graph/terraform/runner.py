@@ -19,7 +19,7 @@ from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import conver
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.checks.resource.registry import resource_registry
 from checkov.terraform.runner import Runner as TerraformRunner
-
+from checkov.graph.db_connectors.db_connector import DBConnector
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=LOG_LEVEL)
 
@@ -27,12 +27,12 @@ logging.basicConfig(level=LOG_LEVEL)
 class TerraformGraphRunner(BaseRunner):
     check_type = "graph"
 
-    def __init__(self, parser=TerraformGraphParser()):
+    def __init__(self, graph_connector: DBConnector, parser=TerraformGraphParser()):
         self.parser = parser
         self.tf_definitions = {}
         self.definitions_context = {}
         self.evaluations_context: Dict[str, Dict[str, EvaluationContext]] = {}
-        self.graph_manager = GraphManager(source="Terraform")
+        self.graph_manager = GraphManager(source="Terraform", db_connector=graph_connector)
         self.tf_runner = TerraformRunner()
         self.graph = None
 
@@ -103,7 +103,7 @@ class TerraformGraphRunner(BaseRunner):
 
                     report.add_record(record=record)
         return report
-        
+
     def get_entity_context_and_evaluations(self, entity):
         entity_evaluations = None
         block_type = entity[CustomAttributes.BLOCK_TYPE]
