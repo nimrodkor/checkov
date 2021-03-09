@@ -7,7 +7,7 @@ class AppServiceJavaVersion(BaseResourceCheck):
         name = "Ensure that 'Java version' is the latest, if used to run the web app (Manual)"
         id = "CKV_AZURE_83"
         supported_resources = ['azurerm_app_service']
-        categories = [CheckCategories.APPLICATION_SECURITY]
+        categories = [CheckCategories.GENERAL_SECURITY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def scan_resource_conf(self, conf):

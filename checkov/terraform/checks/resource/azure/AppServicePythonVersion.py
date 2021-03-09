@@ -7,7 +7,7 @@ class AppServicePythonVersion(BaseResourceCheck):
         name = "Ensure that 'Python version' is the latest, if used to run the web app (Manual)"
         id = "CKV_AZURE_82"
         supported_resources = ['azurerm_app_service']
-        categories = [CheckCategories.APPLICATION_SECURITY]
+        categories = [CheckCategories.GENERAL_SECURITY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def scan_resource_conf(self, conf):

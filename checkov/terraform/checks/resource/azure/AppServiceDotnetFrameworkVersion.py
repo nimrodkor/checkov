@@ -7,7 +7,7 @@ class AppServiceDotnetFrameworkVersion(BaseResourceValueCheck):
         name = "Ensure that 'Net Framework' version is the latest, if used as a part of the web app (Manual)"
         id = "CKV_AZURE_80"
         supported_resources = ['azurerm_app_service']
-        categories = [CheckCategories.APPLICATION_SECURITY]
+        categories = [CheckCategories.GENERAL_SECURITY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
