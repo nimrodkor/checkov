@@ -28,7 +28,6 @@ DEFAULT_BACKEND_PACKAGES = {
 class GraphBackendHandler:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.backends_metadata = {backend: {} for backend, _ in GraphBackends.__members__.items()}
         self.graph_connector = None
 
     def load_graph_connector(self, args):
