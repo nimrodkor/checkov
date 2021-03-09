@@ -14,6 +14,7 @@ pipenv-setup = "*"
 GitPython = "*"
 bandit = "*"
 urllib3-mock = "*"
+networkx = "*"
 
 [packages]
 #
@@ -35,6 +36,7 @@ tqdm = "*"
 update_checker = "*"
 semantic_version = "*"
 packaging = "*"
+networkx = "*"
 
 [requires]
 python_version = "3.7"
