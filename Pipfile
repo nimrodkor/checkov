@@ -14,7 +14,6 @@ pipenv-setup = "*"
 GitPython = "*"
 bandit = "*"
 urllib3-mock = "*"
-networkx = "*"
 
 [packages]
 #
