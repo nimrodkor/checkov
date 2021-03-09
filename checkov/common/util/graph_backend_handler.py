@@ -7,8 +7,6 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-GRAPH_BACKEND = os.environ.get('GRAPH_BACKEND', 'NETWORKX')
-
 
 class GraphBackends(Enum):
     TINKERPOP = 'tinkerpop'
