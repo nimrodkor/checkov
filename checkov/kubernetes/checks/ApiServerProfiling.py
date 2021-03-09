@@ -7,20 +7,18 @@ class ProfilingApiServer(BaseK8Check):
         id = "CKV_K8S_90"
         name = "Ensure that the --profiling argument is set to false"
         categories = [CheckCategories.KUBERNETES]
-        supported_entities = ['pod']
+        supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
 
+    def get_resource_id(self, conf):
+        return f'{conf["parent"]} - {conf["name"]}'
+
     def scan_spec_conf(self, conf):
-        results = []
-        if "spec" in conf:
-            if "containers" in conf["spec"]:
-                for container in conf["spec"]["containers"]:
-                    if "command" in container:
-                        if "--profiling=false" in container["command"]:
-                            results.append(True)
-                        else results.append(False)
-                    else results.append(False)
+        if "command" in conf:
+            if "kube-apiserver" in conf["command"]:
+                if "--profiling=true" in conf["command"] or "--profiling=false" not in conf["command"]:
+                    return CheckResult.FAILED
            
-        return CheckResult.FAILED if False in results else CheckResult.PASSED
+        return CheckResult.PASSED
 
 check = ProfilingApiServer()
