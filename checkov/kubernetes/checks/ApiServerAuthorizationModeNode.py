@@ -16,13 +16,13 @@ class ApiServerAuthorizationModeNode(BaseK8Check):
     def scan_spec_conf(self, conf):
         if "command" in conf and conf["command"] is not None:
             if "kube-apiserver" in conf["command"]:
+                hasNodeAuthorizationMode = False
                 for command in conf["command"]:
                     if command.startswith("--authorization-mode"):
                         modes = command.split("=")[1]
-                        if "Node" not in modes.split(","):
-                            return CheckResult.FAILED
-                        break
-                return CheckResult.FAILED
+                        if "Node" in modes.split(","):
+                            hasNodeAuthorizationMode = True
+                return CheckResult.PASSED if hasNodeAuthorizationMode else CheckResult.FAILED
            
         return CheckResult.PASSED
 
