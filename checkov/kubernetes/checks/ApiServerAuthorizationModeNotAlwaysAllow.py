@@ -5,7 +5,7 @@ class ApiServerAuthorizationModeNotAlwaysAllow(BaseK8Check):
     def __init__(self):
         # CIS-1.6 1.2.7
         id = "CKV_K8S_74"
-        name = "Ensure that the --authorization-mode argument is not set to AlwaysAllow  "
+        name = "Ensure that the --authorization-mode argument is not set to AlwaysAllow"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
