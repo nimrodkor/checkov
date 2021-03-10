@@ -1,4 +1,4 @@
-from checkov.graph.terraform.checks_infra.solvers import ArrayContainsAttributeSolver
+from .array_contains_attribute_solver import ArrayContainsAttributeSolver
 
 
 class ArrayNotContainsAttributeSolver(ArrayContainsAttributeSolver):
