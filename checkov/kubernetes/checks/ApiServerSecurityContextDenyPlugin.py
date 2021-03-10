@@ -1,11 +1,11 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
-class ApiServerServiceAccountPlugin(BaseK8Check):
+class ApiServerSecurityContextDenyPlugin(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.14
-        id = "CKV_K8S_82"
-        name = "Ensure that the admission control plugin ServiceAccount is set"
+        # CIS-1.6 1.2.13
+        id = "CKV_K8S_81"
+        name = "Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
@@ -22,8 +22,9 @@ class ApiServerServiceAccountPlugin(BaseK8Check):
                     if "=" in cmd:
                         [field,value] = cmd.split("=")
                         if field == "--enable-admission-plugins":
-                            if "ServiceAccount" not in value:
-                                return CheckResult.FAILED                            
+                            if "PodSecurityPolicy" not in value and "SecurityContextDeny" not in value:
+                                return CheckResult.FAILED 
+                                                     
         return CheckResult.PASSED
 
-check = ApiServerServiceAccountPlugin()
+check = ApiServerSecurityContextDenyPlugin()
