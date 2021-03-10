@@ -19,6 +19,8 @@ class ApiServerRequestTimeout(BaseK8Check):
         if "command" in conf:
             if "kube-apiserver" in conf["command"]:
                 for cmd in conf["command"]:
+                    if cmd == "--request-timeout":
+                        return CheckResult.FAILED  
                     if "=" in cmd:
                         [field,value] = cmd.split("=")
                         if field == "--request-timeout":
