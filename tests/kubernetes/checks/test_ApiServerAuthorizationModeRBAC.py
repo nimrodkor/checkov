@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from checkov.kubernetes.checks.ApiServerAuthorizationModeNode import check
+from checkov.kubernetes.checks.ApiServerAuthorizationModeRBAC import check
 from checkov.kubernetes.runner import Runner
 from checkov.runner_filter import RunnerFilter
 
