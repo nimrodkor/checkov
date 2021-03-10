@@ -1,27 +1,27 @@
 from checkov.graph.checks.checks_infra.base_check import BaseGraphCheck
 from checkov.graph.checks.checks_infra.base_parser import BaseGraphCheckParser
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.any_attribute_solver import AnyResourceSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.array_contains_attribute_solver import ArrayContainsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.array_not_contains_attribute_solver import ArrayNotContainsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.ending_with_attribute_solver import \
+from checkov.graph.terraform.checks_infra.solvers import AnyResourceSolver
+from checkov.graph.terraform.checks_infra.solvers.attribute_queries.array_contains_attribute_solver import ArrayContainsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import ArrayNotContainsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import \
     EndingWithAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.equals_attribute_solver import EqualsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.exists_attribute_solver import ExistsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.not_ending_with_attribute_solver import \
+from checkov.graph.terraform.checks_infra.solvers import EqualsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import ExistsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import \
     NotEndingWithAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.not_equals_attribute_solver import NotEqualsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.not_exists_attribute_solver import NotExistsAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.within_attribute_solver import WithinAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.starting_with_attribute_solver import StartingWithAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.attribute_queries.not_starting_with_attribute_solver import NotStartingWithAttributeSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.complex_queries.and_solver import AndSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.complex_queries.or_solver import OrSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.connections_queries.and_connection_solver import AndConnectionSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.connections_queries.connection_exists_solver import ConnectionExistsSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.connections_queries.connection_not_exists_solver import ConnectionNotExistsSolver
-from checkov.graph.terraform.checks.checks_infra.solvers.connections_queries.or_connection_solver import OrConnectionSolver
+from checkov.graph.terraform.checks_infra.solvers import NotEqualsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import NotExistsAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import WithinAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import StartingWithAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers import NotStartingWithAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers.complex_queries import AndSolver
+from checkov.graph.terraform.checks_infra.solvers.complex_queries import OrSolver
+from checkov.graph.terraform.checks_infra.solvers import AndConnectionSolver
+from checkov.graph.terraform.checks_infra.solvers import ConnectionExistsSolver
+from checkov.graph.terraform.checks_infra.solvers import ConnectionNotExistsSolver
+from checkov.graph.terraform.checks_infra.solvers.connections_queries.or_connection_solver import OrConnectionSolver
 from checkov.graph.checks.checks_infra.enums import SolverType
-from checkov.graph.terraform.checks.checks_infra.solvers.filter_queries.within_filter_solver import WithinFilterSolver
+from checkov.graph.terraform.checks_infra.solvers.filter_queries import WithinFilterSolver
 
 
 operators_to_attributes_query_classes = {

@@ -12,8 +12,8 @@ from checkov.common.variables.context import EvaluationContext
 from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
 from checkov.graph.graph_record import GraphRecord
 from checkov.graph.terraform.parser import TerraformGraphParser
-from checkov.graph.terraform.checks.checks_infra.nx_checks_parser import NXGraphCheckParser
-from checkov.graph.terraform.checks.checks_infra.registry import Registry
+from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
+from checkov.graph.terraform.checks_infra.registry import Registry
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
