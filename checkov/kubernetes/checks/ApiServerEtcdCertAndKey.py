@@ -19,10 +19,10 @@ class ApiServerEtcdCertAndKey(BaseK8Check):
             if "kube-apiserver" in conf["command"]:
                 hasCertCommand = False
                 hasKeyCommand = False
-                for command in conf["command"]):
-                    if command.startsWith("--etcd-certfile"):
+                for command in conf["command"]:
+                    if command.startswith("--etcd-certfile"):
                         hasCertCommand = True
-                    elif command.startsWith("--etcd-keyfile"):
+                    elif command.startswith("--etcd-keyfile"):
                         hasKeyCommand = True
                 return CheckResult.PASSED if hasCertCommand and hasKeyCommand else CheckResult.FAILED
 
