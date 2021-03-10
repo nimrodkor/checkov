@@ -8,7 +8,7 @@ from checkov.graph.terraform.graph_builder.graph_components.attribute_names impo
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.graph.terraform.graph_builder.graph_components.blocks import Block
 from checkov.graph.terraform.graph_builder.graph_components.generic_resource_encryption import ENCRYPTION_BY_RESOURCE_TYPE
-from checkov.graph.parser import TerraformGraphParser
+from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
 from checkov.graph.terraform.graph_manager import GraphManager
 from checkov.graph.terraform.utils.utils import calculate_hash, decode_graph_property_value
