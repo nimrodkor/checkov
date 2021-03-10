@@ -1,13 +1,11 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
-import re
 
-
-class ApiServerRequestTimeout(BaseK8Check):
+class ApiServerNodeRestrictionPlugin(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.26
-        id = "CKV_K8S_95"
-        name = "Ensure that the --request-timeout argument is set as appropriate"
+        # CIS-1.6 1.2.17
+        id = "CKV_K8S_85"
+        name = "Ensure that the admission control plugin NodeRestriction is set"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
@@ -19,15 +17,13 @@ class ApiServerRequestTimeout(BaseK8Check):
         if "command" in conf:
             if "kube-apiserver" in conf["command"]:
                 for cmd in conf["command"]:
-                    if cmd == "--request-timeout":
+                    if cmd == "--enable-admission-plugins":
                         return CheckResult.FAILED  
                     if "=" in cmd:
                         [field,value] = cmd.split("=")
-                        if field == "--request-timeout":
-                            regex = r"^(\d{1,2}[h])(\d{1,2}[m])?(\d{1,2}[s])?$|^(\d{1,2}[m])?(\d{1,2}[s])?$|^(\d{1,2}[s])$"
-                            matches = re.match(regex, value)
-                            if not matches:
+                        if field == "--enable-admission-plugins":
+                            if "NodeRestriction" not in value:
                                 return CheckResult.FAILED                            
         return CheckResult.PASSED
 
-check = ApiServerRequestTimeout()
+check = ApiServerNodeRestrictionPlugin()

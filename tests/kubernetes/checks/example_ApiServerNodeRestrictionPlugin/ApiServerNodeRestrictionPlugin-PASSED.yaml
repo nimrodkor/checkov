@@ -11,7 +11,7 @@ spec:
   containers:
   - command:
     - kube-apiserver
-    - --request-timeout=1s9m3h
+    - --enable-admission-plugins=NodeRestriction
     image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
