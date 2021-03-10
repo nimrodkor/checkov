@@ -18,7 +18,6 @@ from checkov.common.util.consts import DEFAULT_EXTERNAL_MODULES_DIR
 from checkov.common.util.docs_generator import print_checks
 from checkov.common.util.type_forcers import convert_str_to_bool
 from checkov.common.util.runner_dependency_handler import RunnerDependencyHandler
-from checkov.common.util.graph_backend_handler import GraphBackendHandler
 from checkov.kubernetes.runner import Runner as k8_runner
 from checkov.logging_init import init as logging_init
 from checkov.runner_filter import RunnerFilter
@@ -40,17 +39,13 @@ checkov_runners = ['cloudformation', 'terraform', 'kubernetes', 'serverless', 'a
 runnerDependencyHandler = RunnerDependencyHandler(checkov_runner_module_names, globals())
 runnerDependencyHandler.validate_runner_deps()
 
-graph_backend_handler = GraphBackendHandler()
-
 def run(banner=checkov_banner, argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Infrastructure as code static analysis')
     add_parser_args(parser)
     args = parser.parse_args(argv)
-    graph_backend_handler.load_graph_connector(args)
-    graph_connector = graph_backend_handler.graph_connector
     # Disable runners with missing system dependencies
     args.skip_framework = runnerDependencyHandler.disable_incompatible_runners(args.skip_framework)
-    
+
     runner_filter = RunnerFilter(framework=args.framework, skip_framework=args.skip_framework, checks=args.check, skip_checks=args.skip_check,
                                  download_external_modules=convert_str_to_bool(args.download_external_modules),
                                  external_modules_download_path=args.external_modules_download_path,
@@ -61,7 +56,7 @@ def run(banner=checkov_banner, argv=sys.argv[1:]):
     else:
         runner_registry = RunnerRegistry(banner, runner_filter, tf_runner(), cfn_runner(), k8_runner(), sls_runner(),
                                          arm_runner(), tf_plan_runner(), helm_runner(),
-                                         tf_graph_runner(graph_connector=graph_connector))
+                                         tf_graph_runner)
     if args.version:
         print(version)
         return
@@ -186,9 +181,6 @@ def add_parser_args(parser):
     parser.add_argument('--evaluate-variables',
                         help="evaluate the values of variables and locals",
                         default=True)
-    parser.add_argument('--graph-backend',
-                        help='Graph backend name OR path to graph connector Python package, of format <connector-file-dir>:<connector-class-name>. e.g. graph/db_connectors/networkx:NetworkxConnector',
-                        default='networkx')
 
 
 def get_external_checks_dir(args):

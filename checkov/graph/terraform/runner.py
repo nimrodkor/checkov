@@ -9,18 +9,19 @@ from checkov.common.output.record import Record
 from checkov.common.output.report import Report
 from checkov.common.runners.base_runner import BaseRunner
 from checkov.common.variables.context import EvaluationContext
+from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
+from checkov.graph.graph_record import GraphRecord
+from checkov.graph.parser import TerraformGraphParser
 from checkov.graph.terraform.checks.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks.checks_infra.registry import Registry
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
-from checkov.graph.parser import TerraformGraphParser
+from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
 from checkov.graph.terraform.graph_manager import GraphManager
-from checkov.graph.graph_record import GraphRecord
-from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.checks.resource.registry import resource_registry
 from checkov.terraform.runner import Runner as TerraformRunner
-from checkov.graph.db_connectors.db_connector import DBConnector
+
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=LOG_LEVEL)
 
@@ -28,12 +29,12 @@ logging.basicConfig(level=LOG_LEVEL)
 class TerraformGraphRunner(BaseRunner):
     check_type = "graph"
 
-    def __init__(self, graph_connector: DBConnector, parser=TerraformGraphParser()):
+    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector()):
         self.parser = parser
         self.tf_definitions = {}
         self.definitions_context = {}
         self.evaluations_context: Dict[str, Dict[str, EvaluationContext]] = {}
-        self.graph_manager = GraphManager(source="Terraform", db_connector=graph_connector)
+        self.graph_manager = GraphManager(source="Terraform", db_connector=db_connector)
         self.tf_runner = TerraformRunner()
         self.graph = None
 
@@ -51,7 +52,8 @@ class TerraformGraphRunner(BaseRunner):
 
             local_graph = self.graph_manager.build_graph_from_source_directory(root_folder, local_graph_class)
             self.graph = self.graph_manager.save_graph(local_graph)
-            self.tf_runner.tf_definitions, breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices, root_folder)
+            self.tf_runner.tf_definitions, breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices,
+                                                                                                  root_folder)
             self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments)
 
         if files:

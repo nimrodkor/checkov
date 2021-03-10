@@ -8,7 +8,6 @@ from itertools import chain
 from typing import Generator, Tuple
 
 from checkov.common.checks.base_check import BaseCheck
-from checkov.common.util.helpers import _directory_has_init_py, _file_can_be_imported
 from collections import defaultdict
 
 from checkov.runner_filter import RunnerFilter
@@ -116,6 +115,23 @@ class BaseCheckRegistry(object):
                            entity_name=entity_name, entity_type=entity_type, skip_info=skip_info)
         return result
 
+    @staticmethod
+    def _directory_has_init_py(directory):
+        """ Check if a given directory contains a file named __init__.py.
+
+        __init__.py is needed to ensure the directory is a Python module, thus
+        can be imported.
+        """
+        if os.path.exists("{}/__init__.py".format(directory)):
+            return True
+        return False
+
+    @staticmethod
+    def _file_can_be_imported(entry):
+        """ Verify if a directory entry is a non-magic Python file."""
+        if entry.is_file() and not entry.name.startswith('__') and entry.name.endswith('.py'):
+            return True
+        return False
 
     def load_external_checks(self, directory, runner_filter):
         """ Browse a directory looking for .py files to import.
@@ -128,11 +144,11 @@ class BaseCheckRegistry(object):
         sys.path.insert(1, directory)
 
         with os.scandir(directory) as directory_content:
-            if not _directory_has_init_py(directory):
+            if not self._directory_has_init_py(directory):
                 self.logger.info("No __init__.py found in {}. Cannot load any check here.".format(directory))
             else:
                 for entry in directory_content:
-                    if _file_can_be_imported(entry):
+                    if self._file_can_be_imported(entry):
                         check_name = entry.name.replace('.py', '')
 
                         # Filter is set while loading external checks so the filter can be informed
