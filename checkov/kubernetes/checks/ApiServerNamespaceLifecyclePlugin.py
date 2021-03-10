@@ -1,11 +1,11 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
-class ApiServerPodSecurityPolicyPlugin(BaseK8Check):
+class ApiServerNamespaceLifecyclePlugin(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.16
-        id = "CKV_K8S_84"
-        name = "Ensure that the admission control plugin PodSecurityPolicy is set"
+        # CIS-1.6 1.2.15
+        id = "CKV_K8S_83"
+        name = "Ensure that the admission control plugin NamespaceLifecycle is set"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
@@ -22,8 +22,8 @@ class ApiServerPodSecurityPolicyPlugin(BaseK8Check):
                     if "=" in cmd:
                         [field,value] = cmd.split("=")
                         if field == "--enable-admission-plugins":
-                            if "PodSecurityPolicy" not in value:
+                            if "NamespaceLifecycle" not in value:
                                 return CheckResult.FAILED                            
         return CheckResult.PASSED
 
-check = ApiServerPodSecurityPolicyPlugin()
+check = ApiServerNamespaceLifecyclePlugin()
