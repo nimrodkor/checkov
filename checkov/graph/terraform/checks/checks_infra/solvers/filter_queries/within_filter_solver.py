@@ -1,5 +1,5 @@
-from checkov.graph.terraform.checks.checks_infra.solvers.filter_queries.base_filter_solver import BaseFilterSolver
-from checkov.graph.utils.utils import decode_graph_property_value, encode_graph_property_value
+from checkov.graph.checks.checks_infra.solvers.filter_queries.base_filter_solver import BaseFilterSolver
+from checkov.graph.terraform.utils.utils import decode_graph_property_value, encode_graph_property_value
 
 
 class WithinFilterSolver(BaseFilterSolver):

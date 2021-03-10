@@ -1,4 +1,4 @@
-from checkov.graph.terraform.checks.checks_infra.solvers.complex_queries.base_complex_query import BaseComplexSolver
+from checkov.graph.checks.checks_infra.solvers.complex_queries.base_complex_query import BaseComplexSolver
 
 
 class AndSolver(BaseComplexSolver):

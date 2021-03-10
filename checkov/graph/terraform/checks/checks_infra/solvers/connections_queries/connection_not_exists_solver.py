@@ -1,4 +1,4 @@
-from checkov.graph.terraform.checks.checks_infra.solvers.connections_queries.base_connection_solver import BaseConnectionSolver
+from checkov.graph.checks.checks_infra.solvers.connection_queries.base_connection_solver import BaseConnectionSolver
 
 
 class ConnectionNotExistsSolver(BaseConnectionSolver):
