@@ -13,7 +13,7 @@ class EMRClusterKerberosAttributes(BaseResourceCheck):
     def scan_resource_conf(self, conf):
         if 'kerberos_attributes' in conf:
             kerberos_attributes = conf['kerberos_attributes'][0]
-            if hasattr(kerberos_attributes, '__len__') and 'realm' in kerberos_attributes:
+            if len(kerberos_attributes) > 0 and 'realm' in kerberos_attributes:
                 return CheckResult.PASSED
             else:
                 return CheckResult.FAILED
