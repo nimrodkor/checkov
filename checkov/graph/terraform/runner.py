@@ -50,26 +50,26 @@ class Runner(BaseRunner):
         if root_folder:
             root_folder = os.path.abspath(root_folder)
 
-            local_graph, tf_definitions = self.graph_manager.build_graph_from_source_directory(root_folder, local_graph_class)
+            local_graph, _ = self.graph_manager.build_graph_from_source_directory(root_folder, local_graph_class)
             self.graph = self.graph_manager.save_graph(local_graph)
             self.tf_runner.tf_definitions, breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices,
                                                                                                   root_folder)
             self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments)
 
-        if files:
-            # TODO: support parsing a specific file!!
-            files = [os.path.abspath(file) for file in files]
-            root_folder = os.path.split(os.path.commonprefix(files))[0]
-            for file in files:
-                if file.endswith(".tf"):
-                    file_parsing_errors = {}
-                    parse_result = self.parser.parse_file(file=file, parsing_errors=file_parsing_errors)
-                    if parse_result is not None:
-                        self.tf_runner.tf_definitions[file] = parse_result
-                    if file_parsing_errors:
-                        parsing_errors.update(file_parsing_errors)
-                        continue
-                    self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments)
+        # if files:
+        #     # TODO: support parsing a specific file!!
+        #     files = [os.path.abspath(file) for file in files]
+        #     root_folder = os.path.split(os.path.commonprefix(files))[0]
+        #     for file in files:
+        #         if file.endswith(".tf"):
+        #             file_parsing_errors = {}
+        #             parse_result = self.parser.parse_file(file=file, parsing_errors=file_parsing_errors)
+        #             if parse_result is not None:
+        #                 self.tf_runner.tf_definitions[file] = parse_result
+        #             if file_parsing_errors:
+        #                 parsing_errors.update(file_parsing_errors)
+        #                 continue
+        #             self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments)
 
         report.add_parsing_errors(parsing_errors.keys())
 

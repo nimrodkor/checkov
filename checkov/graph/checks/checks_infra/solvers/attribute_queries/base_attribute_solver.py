@@ -11,9 +11,8 @@ class BaseAttributeSolver(BaseSolver):
         self.query_attribute = query_attribute
         self.query_value = query_value
 
-    def run_query(self, graph_connector):
-        # TODO
-        raise NotImplementedError
+    def run(self, graph_connector):
+        return [], []
 
     def get_operation(self, *args):
         # TODO
