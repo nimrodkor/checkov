@@ -26,7 +26,7 @@ LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=LOG_LEVEL)
 
 
-class TerraformGraphRunner(BaseRunner):
+class Runner(BaseRunner):
     check_type = "graph"
 
     def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector()):

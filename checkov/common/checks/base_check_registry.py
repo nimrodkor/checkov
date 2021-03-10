@@ -8,6 +8,7 @@ from itertools import chain
 from typing import Generator, Tuple
 
 from checkov.common.checks.base_check import BaseCheck
+
 from collections import defaultdict
 
 from checkov.runner_filter import RunnerFilter
