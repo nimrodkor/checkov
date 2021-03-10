@@ -37,7 +37,6 @@ operator_to_filter_query_classes = {
     'within': WithinFilterSolver,
 }
 
-
 condition_type_to_query_type = {
     '': SolverType.ATTRIBUTE,
     'attribute': SolverType.ATTRIBUTE,
@@ -118,4 +117,3 @@ def get_complex_operator(raw_check):
         if raw_check.get(operator):
             return operator
     return None
-

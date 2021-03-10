@@ -1,4 +1,4 @@
-from checkov.graph.terraform.checks_infra.solvers import ComplexConnectionSolver
+from checkov.graph.terraform.checks_infra.solvers.connections_queries.complex_connection_solver import ComplexConnectionSolver
 
 
 class OrConnectionSolver(ComplexConnectionSolver):

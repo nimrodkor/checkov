@@ -1,7 +1,6 @@
 import logging
 import os
 
-from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.graph.terraform.graph_builder.graph_components.blocks import Block
 
 
@@ -14,7 +13,7 @@ def convert_graph_vertices_to_tf_definitions(vertices, root_folder):
             print(f'tried to convert vertex to tf_definitions but its path doesnt exist: {vertex}')
             continue
 
-        block_type = vertex.block_type
+        block_type = vertex.block_type.value
         if tf_definitions.get(block_path) is None:
             tf_definitions[block_path] = {}
         if tf_definitions.get(block_path).get(block_type) is None:
