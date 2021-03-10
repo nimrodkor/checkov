@@ -11,7 +11,7 @@ from checkov.common.runners.base_runner import BaseRunner
 from checkov.common.variables.context import EvaluationContext
 from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
 from checkov.graph.graph_record import GraphRecord
-from checkov.graph.parser import TerraformGraphParser
+from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.checks.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks.checks_infra.registry import Registry
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
@@ -27,7 +27,7 @@ logging.basicConfig(level=LOG_LEVEL)
 
 
 class Runner(BaseRunner):
-    check_type = "graph"
+    check_type = "terraform"
 
     def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector()):
         self.parser = parser
@@ -50,7 +50,7 @@ class Runner(BaseRunner):
         if root_folder:
             root_folder = os.path.abspath(root_folder)
 
-            local_graph = self.graph_manager.build_graph_from_source_directory(root_folder, local_graph_class)
+            local_graph, tf_definitions = self.graph_manager.build_graph_from_source_directory(root_folder, local_graph_class)
             self.graph = self.graph_manager.save_graph(local_graph)
             self.tf_runner.tf_definitions, breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices,
                                                                                                   root_folder)

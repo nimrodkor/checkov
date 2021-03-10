@@ -1,4 +1,4 @@
-from checkov.graph.parser import TerraformGraphParser
+from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
 
 
