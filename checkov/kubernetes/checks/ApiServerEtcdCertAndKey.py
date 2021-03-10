@@ -15,7 +15,7 @@ class ApiServerEtcdCertAndKey(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if "command" in conf and conf["command"] is not None:
+        if conf.get("command") is not None:
             if "kube-apiserver" in conf["command"]:
                 hasCertCommand = False
                 hasKeyCommand = False
