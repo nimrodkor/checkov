@@ -28,4 +28,4 @@ class ApiServerAdmissionControlAlwaysAdmit(BaseK8Check):
            
         return CheckResult.PASSED
 
-check = ApiServerProfiling()
+check = ApiServerAdmissionControlAlwaysAdmit()
