@@ -5,7 +5,7 @@ from checkov.common.models.enums import CheckCategories
 class GKEMetadataServerisEnabled(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure the GKE Metadata Server is Enabled"
-        id = "CKV_GCP_61"
+        id = "CKV_GCP_69"
         supported_resources = ['google_container_cluster','google_container_node_pool']
         categories = [CheckCategories.KUBERNETES]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)

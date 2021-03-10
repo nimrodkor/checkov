@@ -6,7 +6,7 @@ from checkov.common.models.consts import ANY_VALUE
 class ReleaseChannel(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure the GKE Release Channel is set"
-        id = "CKV_GCP_64"
+        id = "CKV_GCP_70"
         supported_resources = ['google_container_cluster']
         categories = [CheckCategories.KUBERNETES]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
