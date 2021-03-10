@@ -23,12 +23,12 @@ class TestApiServerSecurityContextDenyPlugin(unittest.TestCase):
         self.assertEqual(summary['parsing_errors'], 0)
         
         for record in report.failed_checks:
-            self.assertTrue('kube-apiserver' in record.resource)
+            self.assertTrue("FAILED" in record.file_path)
             self.assertTrue(record.check_id in [check.id])
             
         for record in report.passed_checks:
-            self.assertTrue('kube-apiserver' in record.resource)
-            self.assertTrue(record.check_id in [check.id])           
+            self.assertTrue("PASSED" in record.file_path)
+            self.assertTrue(record.check_id in [check.id])            
 
 
 if __name__ == '__main__':
