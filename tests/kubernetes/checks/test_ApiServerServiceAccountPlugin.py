@@ -17,11 +17,18 @@ class TestApiServerServiceAccountPlugin(unittest.TestCase):
         report = runner.run(root_folder=test_files_dir,runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
         
-        self.assertEqual(report.failed_checks[0].check_id, check.id)
         self.assertEqual(summary['passed'], 1)
         self.assertEqual(summary['failed'], 1)
         self.assertEqual(summary['skipped'], 0)
         self.assertEqual(summary['parsing_errors'], 0)
+        
+        for record in report.failed_checks:
+            self.assertTrue('kube-apiserver' in record.resource)
+            self.assertTrue(record.check_id in [check.id])
+            
+        for record in report.passed_checks:
+            self.assertTrue('kube-apiserver' in record.resource)
+            self.assertTrue(record.check_id in [check.id])           
 
 
 if __name__ == '__main__':
