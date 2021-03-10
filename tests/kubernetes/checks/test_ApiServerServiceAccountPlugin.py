@@ -1,18 +1,18 @@
 import os
 import unittest
 
-from checkov.kubernetes.checks.ApiServerNamespaceLifecyclePlugin import check
+from checkov.kubernetes.checks.ApiServerServiceAccountPlugin import check
 from checkov.kubernetes.runner import Runner
 from checkov.runner_filter import RunnerFilter
 
 
-class TestApiServerNamespaceLifecyclePlugin(unittest.TestCase):
+class TestApiServerServiceAccountPlugin(unittest.TestCase):
 
     def test_summary(self):
         runner = Runner()
         current_dir = os.path.dirname(os.path.realpath(__file__))
 
-        test_files_dir = current_dir + "/example_ApiServerNamespaceLifecyclePlugin"
+        test_files_dir = current_dir + "/example_ApiServerServiceAccountPlugin"
 
         report = runner.run(root_folder=test_files_dir,runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
