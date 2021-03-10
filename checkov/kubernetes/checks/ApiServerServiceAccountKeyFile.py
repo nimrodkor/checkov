@@ -25,10 +25,8 @@ class ApiServerServiceAccountKeyFile(BaseK8Check):
                         [field,value] = cmd.split("=")
                         if field == "--service-account-key-file":
                             # should be a valid path and to end with .pem
-                            print(value)
                             regex = r"^([\/|\.\/]?[a-z_\-\s0-9\.]+)+\.(pem)$"
                             matches = re.match(regex, value)
-                            print(matches)
                             if not matches:
                                 return CheckResult.FAILED                            
         return CheckResult.PASSED
