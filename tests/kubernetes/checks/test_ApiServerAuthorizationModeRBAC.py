@@ -6,7 +6,7 @@ from checkov.kubernetes.runner import Runner
 from checkov.runner_filter import RunnerFilter
 
 
-class TestApiServerAuthorizationModeNode(unittest.TestCase):
+class TestApiServerAuthorizationModeRBAC(unittest.TestCase):
 
     def test_summary(self):
         runner = Runner()
