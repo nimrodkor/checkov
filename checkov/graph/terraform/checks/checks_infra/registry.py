@@ -7,7 +7,7 @@ from checkov.graph.checks.checks_infra.base_parser import BaseGraphCheckParser
 from checkov.graph.checks.checks_infra.registry import BaseRegistry
 from checkov.graph.terraform.checks.checks_infra.resources_types import resources_types
 
-CHECKS_POSSIBLE_ENDING = [".yaml"]
+CHECKS_POSSIBLE_ENDING = [".yaml", ".yml"]
 
 
 class Registry(BaseRegistry):
@@ -22,6 +22,7 @@ class Registry(BaseRegistry):
                 file_ending = os.path.splitext(file)[1]
                 if file_ending in CHECKS_POSSIBLE_ENDING:
                     with open(file, "r") as f:
+                        print(f"loading {file}")
                         check_yaml = yaml.safe_load(f)
                         check_json = json.loads(json.dumps(check_yaml))
                         check = self.parser.parse_raw_check(check_json, resources_types=self._get_resource_types(check_json))
