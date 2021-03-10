@@ -1,28 +1,7 @@
 from checkov.graph.checks.checks_infra.base_check import BaseGraphCheck
 from checkov.graph.checks.checks_infra.base_parser import BaseGraphCheckParser
-from checkov.graph.terraform.checks_infra.solvers import AnyResourceSolver
-from checkov.graph.terraform.checks_infra.solvers.attribute_queries.array_contains_attribute_solver import ArrayContainsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import ArrayNotContainsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import \
-    EndingWithAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import EqualsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import ExistsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import \
-    NotEndingWithAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import NotEqualsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import NotExistsAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import WithinAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import StartingWithAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers import NotStartingWithAttributeSolver
-from checkov.graph.terraform.checks_infra.solvers.complex_queries import AndSolver
-from checkov.graph.terraform.checks_infra.solvers.complex_queries import OrSolver
-from checkov.graph.terraform.checks_infra.solvers import AndConnectionSolver
-from checkov.graph.terraform.checks_infra.solvers import ConnectionExistsSolver
-from checkov.graph.terraform.checks_infra.solvers import ConnectionNotExistsSolver
-from checkov.graph.terraform.checks_infra.solvers.connections_queries.or_connection_solver import OrConnectionSolver
 from checkov.graph.checks.checks_infra.enums import SolverType
-from checkov.graph.terraform.checks_infra.solvers.filter_queries import WithinFilterSolver
-
+from checkov.graph.terraform.checks_infra.solvers import *
 
 operators_to_attributes_query_classes = {
     'equals': EqualsAttributeSolver,
