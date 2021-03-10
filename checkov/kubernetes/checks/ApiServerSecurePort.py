@@ -16,7 +16,7 @@ class ApiServerSecurePort(BaseK8Check):
     def scan_spec_conf(self, conf):
         if "command" in conf:
             if "kube-apiserver" in conf["command"]:
-                if "--secure-port=0" not in conf["command"]:
+                if "--secure-port=0" in conf["command"]:
                     return CheckResult.FAILED
 
         return CheckResult.PASSED
