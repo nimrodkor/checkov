@@ -1,5 +1,5 @@
 from checkov.graph.checks.checks_infra.solvers.connection_queries.base_connection_solver import BaseConnectionSolver
-from checkov.graph.terraform.checks.checks_infra.enums import SolverType
+from checkov.graph.checks.checks_infra.enums import SolverType
 
 
 class ComplexConnectionSolver(BaseConnectionSolver):
