@@ -23,7 +23,6 @@ class TestApiServerSecurePort(unittest.TestCase):
         self.assertEqual(summary['parsing_errors'], 0)
         
         for record in report.failed_checks:
-            print(record.file_path)
             self.assertTrue("FAILED" in record.file_path)
             self.assertTrue(record.check_id in [check.id])
             
