@@ -1,11 +1,11 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
-class ApiServerNodeRestrictionPlugin(BaseK8Check):
+class ApiServerPodSecurityPolicyPlugin(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.17
-        id = "CKV_K8S_85"
-        name = "Ensure that the admission control plugin NodeRestriction is set"
+        # CIS-1.6 1.2.16
+        id = "CKV_K8S_84"
+        name = "Ensure that the admission control plugin PodSecurityPolicy is set"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
@@ -22,8 +22,8 @@ class ApiServerNodeRestrictionPlugin(BaseK8Check):
                     if "=" in cmd:
                         [field,value] = cmd.split("=")
                         if field == "--enable-admission-plugins":
-                            if "NodeRestriction" not in value:
+                            if "PodSecurityPolicy" not in value:
                                 return CheckResult.FAILED                            
         return CheckResult.PASSED
 
-check = ApiServerNodeRestrictionPlugin()
+check = ApiServerPodSecurityPolicyPlugin()
