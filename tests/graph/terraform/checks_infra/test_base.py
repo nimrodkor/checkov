@@ -14,7 +14,8 @@ class TestBaseSolver(TestCase):
     def setUp(self):
         self.source = SourceTypes.TERRAFORM
         self.registry = Registry(parser=NXGraphCheckParser(), checks_dir=self.checks_dir)
-        self.runner = Runner(checks_registry=self.registry)
+        self.registry.load_checks()
+        self.runner = Runner(external_registries=[self.registry])
         self.runner_filter = RunnerFilter(checks="RUN_ONLY_GRAPH")
 
     def run_test(self, root_folder, expected_results):
