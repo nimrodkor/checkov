@@ -12,7 +12,7 @@ class BaseRegistry:
     def run_checks(self, graph_connector):
         check_results = {}
         for check in self.checks:
-            passed, failed = check.run(graph_connector)
+            passed, failed = check.run(graph_connector=graph_connector)
             check_result = self._process_check_result(passed, [], CheckResult.PASSED)
             check_result = self._process_check_result(failed, check_result, CheckResult.FAILED)
             check_results[check.id] = check_result

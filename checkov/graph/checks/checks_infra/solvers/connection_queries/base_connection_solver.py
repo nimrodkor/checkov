@@ -13,10 +13,10 @@ class BaseConnectionSolver(BaseSolver):
         self.vertices_under_resource_types = vertices_under_resource_types or []
         self.vertices_under_connected_resources_types = vertices_under_connected_resources_types or []
 
-    def run(self, graph_connector):
+    def run(self, **kwargs):
         return [], []
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         pass
 
     def _get_operation(self, *args):

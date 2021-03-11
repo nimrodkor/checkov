@@ -4,9 +4,9 @@ from checkov.graph.checks.checks_infra.solvers.attribute_queries.base_attribute_
 class StartingWithAttributeSolver(BaseAttributeSolver):
     operator = 'starting_with'
 
-    def __init__(self, resource_types, query_attribute, query_value):
+    def __init__(self, resource_types, attribute, value):
         super().__init__(resource_types=resource_types,
-                         query_attribute=query_attribute, query_value=query_value)
+                         attribute=attribute, value=value)
 
     def _get_operation(self):
         # TODO

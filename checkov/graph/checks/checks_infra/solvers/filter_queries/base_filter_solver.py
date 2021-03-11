@@ -12,11 +12,11 @@ class BaseFilterSolver(BaseSolver):
         self.query_value = query_value
         self.vertices = []
 
-    def run(self, graph_connector):
+    def run(self, **kwargs):
         # TODO
         raise NotImplementedError
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         raise NotImplementedError
 
     def _get_operation(self, *args):

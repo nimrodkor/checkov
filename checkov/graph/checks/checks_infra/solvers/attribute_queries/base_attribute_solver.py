@@ -1,27 +1,53 @@
+import re
+
 from checkov.graph.checks.checks_infra.enums import SolverType
-from checkov.graph.checks.checks_infra.solvers.base_solver import BaseSolver
+from checkov.graph.checks.checks_infra.solvers.base_solver import BaseSolver, VERTEX
+
+WILDCARD_PATTERN = re.compile(r"(\S+[.][*][.]*)+")
 
 
 class BaseAttributeSolver(BaseSolver):
     operator = ''
 
-    def __init__(self, resource_types, query_attribute, query_value):
+    def __init__(self, resource_types, attribute, value):
         super().__init__(SolverType.ATTRIBUTE)
         self.resource_types = resource_types
-        self.query_attribute = query_attribute
-        self.query_value = query_value
+        self.attribute = attribute
+        self.value = value
 
-    def run(self, graph_connector):
-        return [], []
+    def run(self, **kwargs):
+        graph_connector = kwargs["graph_connector"]
+        all_vertices_resource_types = [data for _, data in graph_connector.nodes(data=True) if
+                                       self.resource_type_pred(data)]
+        passed_vertices = [data for data in all_vertices_resource_types if self.get_operation(vertex=data)]
+        failed_vertices = [resource for resource in all_vertices_resource_types if resource not in passed_vertices]
+        return passed_vertices, failed_vertices
 
-    def get_operation(self, *args):
-        # TODO
+    def get_operation(self, **kwargs):
+        v = kwargs[VERTEX]
+        if not re.match(WILDCARD_PATTERN, self.attribute):
+            return self.resource_type_pred(v) and self._get_operation(vertex=v, attribute=self.attribute)
+        attribute_pattern = self.get_attribute_pattern(self.attribute)
+        for attr in v:
+            m = re.match(attribute_pattern, attr)
+            print()
+        return self.resource_type_pred(v) and any(self._get_operation(vertex=v, attribute=attr) for attr in v if re.match(attribute_pattern, attr))
+
+    def _get_operation(self, **kwargs):
         raise NotImplementedError
 
-    def get_negative_operation(self, *args):
-        # TODO
-        raise NotImplementedError
+    def resource_type_pred(self, v):
+        return len(self.resource_types) == 0 or v.get('resource_type') in self.resource_types
 
-    def _get_operation(self, *args):
-        raise NotImplementedError
-
+    @staticmethod
+    def get_attribute_pattern(attribute):
+        split_by_dots = attribute.split(".")
+        pattern_parts = []
+        for i, attr_part in enumerate(split_by_dots):
+            if attr_part == "*":
+                pattern_parts.append(r"[\d+]")
+            else:
+                pattern_parts.append(f"[{attr_part}]")
+        pattern = "[.]".join(pattern_parts)
+        p = re.compile(pattern)
+        return p

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+VERTEX = 'vertex'
 
 class BaseSolver:
     operator = ''
@@ -8,14 +9,14 @@ class BaseSolver:
         self.query_type = query_type
 
     @abstractmethod
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         raise NotImplementedError()
 
     @abstractmethod
-    def _get_operation(self, *args):
+    def _get_operation(self, **kwargs):
         raise NotImplementedError()
 
     @abstractmethod
-    def run(self, graph_connector):
+    def run(self, **kwargs):
         raise NotImplementedError()
 

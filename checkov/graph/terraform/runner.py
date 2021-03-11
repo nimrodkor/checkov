@@ -10,6 +10,7 @@ from checkov.common.output.report import Report
 from checkov.common.runners.base_runner import BaseRunner
 from checkov.common.variables.context import EvaluationContext
 from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
+from checkov.graph.graph_builder.graph_components.attribute_names import SourceTypes
 from checkov.graph.graph_record import GraphRecord
 from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
@@ -29,14 +30,15 @@ logging.basicConfig(level=LOG_LEVEL)
 class Runner(BaseRunner):
     check_type = "terraform"
 
-    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector()):
+    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), checks_registry=Registry(parser=NXGraphCheckParser())):
         self.parser = parser
         self.tf_definitions = {}
         self.definitions_context = {}
         self.evaluations_context: Dict[str, Dict[str, EvaluationContext]] = {}
-        self.graph_manager = GraphManager(source="Terraform", db_connector=db_connector)
+        self.graph_manager = GraphManager(source=SourceTypes.TERRAFORM, db_connector=db_connector)
         self.tf_runner = TerraformRunner()
         self.graph = None
+        self.registry = checks_registry
 
     def run(self, root_folder, external_checks_dir=None, files=None, runner_filter=RunnerFilter(),
             collect_skip_comments=True, local_graph_class=LocalGraph):
@@ -82,10 +84,9 @@ class Runner(BaseRunner):
         return report
 
     def get_graph_checks_report(self, root_folder, breadcrumbs):
-        registry = Registry(parser=NXGraphCheckParser())
-        registry.load_checks()
+        self.registry.load_checks()
         report = Report(self.check_type)
-        checks_results = registry.run_checks(self.graph)
+        checks_results = self.registry.run_checks(self.graph)
         for check_id, check_results in checks_results.items():
             for check_result in check_results:
                 entity = check_result['entity']

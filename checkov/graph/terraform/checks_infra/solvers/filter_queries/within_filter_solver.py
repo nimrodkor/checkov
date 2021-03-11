@@ -11,6 +11,6 @@ class WithinFilterSolver(BaseFilterSolver):
         super().__init__(resource_types=resource_types,
                          query_attribute=query_attribute, query_value=query_value)
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         # TODO
         raise NotImplementedError

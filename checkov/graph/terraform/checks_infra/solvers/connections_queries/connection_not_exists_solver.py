@@ -11,6 +11,6 @@ class ConnectionNotExistsSolver(BaseConnectionSolver):
         # TODO
         raise NotImplementedError
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         # TODO
         raise NotImplementedError

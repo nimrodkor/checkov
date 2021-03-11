@@ -35,3 +35,8 @@ class EncryptionTypes(Enum):
     DEFAULT_KMS = "Default KMS"
     AES256 = "AES256"
     AWS_KMS_VALUE = "aws:kms"
+
+
+@dataclass
+class SourceTypes:
+    TERRAFORM = "TERRAFORM"

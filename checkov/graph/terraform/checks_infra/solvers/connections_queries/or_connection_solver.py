@@ -7,7 +7,7 @@ class OrConnectionSolver(ComplexConnectionSolver):
     def __init__(self, queries, operator):
         super().__init__(queries, operator)
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         # TODO
         raise NotImplementedError
 

@@ -12,11 +12,11 @@ class BaseComplexSolver(BaseSolver):
         self.resource_types = resource_types
         super().__init__(SolverType.COMPLEX)
 
-    def run(self, graph_connector):
+    def run(self, **kwargs):
         # TODO
         return [], []
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         # TODO
         raise NotImplementedError
 

@@ -26,7 +26,7 @@ class ComplexConnectionSolver(BaseConnectionSolver):
         # TODO
         raise NotImplementedError
 
-    def get_operation(self, *args):
+    def get_operation(self, **kwargs):
         raise NotImplementedError
 
     def filter_results(self, traversal):
