@@ -18,7 +18,7 @@ class TestGKEEnsureIntegrityMonitoring(unittest.TestCase):
 
         passing_resources = {
             'google_container_cluster.success1',
-            'google_container_cluster.success2'
+            'google_container_cluster.success2',
             'google_container_node_pool.success1',
             'google_container_node_pool.success2',
             
