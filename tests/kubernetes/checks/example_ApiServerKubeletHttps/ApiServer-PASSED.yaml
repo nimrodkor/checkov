@@ -11,6 +11,7 @@ spec:
   containers:
   - command:
     - kube-apiserver
+    - --kubelet-https=true
     image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
@@ -21,7 +22,7 @@ spec:
         scheme: HTTPS
       initialDelaySeconds: 15
       timeoutSeconds: 15
-    name: kube-apiserver-should-fail
+    name: kube-apiserver-should-pass
     resources:
       requests:
         cpu: 250m
