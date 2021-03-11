@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
   - command:
-    - kube-apiserver-should-fail
+    - kube-apiserver
     image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
@@ -21,7 +21,7 @@ spec:
         scheme: HTTPS
       initialDelaySeconds: 15
       timeoutSeconds: 15
-    name: kube-apiserver
+    name: kube-apiserver-should-fail
     resources:
       requests:
         cpu: 250m
