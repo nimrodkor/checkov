@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
   - command:
-    - kube-apiserver
+    - kube-apiserver-should-fail
     image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
