@@ -8,6 +8,5 @@ class AnyResourceSolver(BaseAttributeSolver):
         super().__init__(resource_types=resource_types,
                          attribute=attribute, value=value)
 
-    def _get_operation(self, *args):
-        # TODO
-        raise NotImplementedError
+    def _get_operation(self, vertex, **kwargs):
+        return vertex is not None
