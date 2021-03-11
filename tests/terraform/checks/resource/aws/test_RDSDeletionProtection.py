@@ -41,6 +41,41 @@ class TestRDSDeletionProtection(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.FAILED, scan_result)
 
+    def test_failure_instance(self):
+        hcl_res = hcl2.loads("""
+                resource "aws_db_instance" "default" {
+                      allocated_storage    = 10
+                      engine               = "mysql"
+                      engine_version       = "5.7"
+                      instance_class       = "db.t3.micro"
+                      name                 = "mydb"
+                      username             = "foo"
+                      password             = "foobarbaz"
+                      parameter_group_name = "default.mysql5.7"
+                      deletion_protection = false
+                }
+                """)
+        resource_conf = hcl_res['resource'][0]['aws_db_instance']['default']
+        scan_result = check.scan_resource_conf(conf=resource_conf)
+        self.assertEqual(CheckResult.FAILED, scan_result)
+
+    def test_failure_instance_missing_attribute(self):
+        hcl_res = hcl2.loads("""
+                resource "aws_db_instance" "default" {
+                      allocated_storage    = 10
+                      engine               = "mysql"
+                      engine_version       = "5.7"
+                      instance_class       = "db.t3.micro"
+                      name                 = "mydb"
+                      username             = "foo"
+                      password             = "foobarbaz"
+                      parameter_group_name = "default.mysql5.7"
+                }
+                """)
+        resource_conf = hcl_res['resource'][0]['aws_db_instance']['default']
+        scan_result = check.scan_resource_conf(conf=resource_conf)
+        self.assertEqual(CheckResult.FAILED, scan_result)
+
     def test_success(self):
         hcl_res = hcl2.loads("""
                 resource "aws_rds_cluster" "default" {
@@ -56,6 +91,24 @@ class TestRDSDeletionProtection(unittest.TestCase):
                 }
                 """)
         resource_conf = hcl_res['resource'][0]['aws_rds_cluster']['default']
+        scan_result = check.scan_resource_conf(conf=resource_conf)
+        self.assertEqual(CheckResult.PASSED, scan_result)
+
+    def test_success_instance(self):
+        hcl_res = hcl2.loads("""
+                resource "aws_db_instance" "default" {
+                      allocated_storage    = 10
+                      engine               = "mysql"
+                      engine_version       = "5.7"
+                      instance_class       = "db.t3.micro"
+                      name                 = "mydb"
+                      username             = "foo"
+                      password             = "foobarbaz"
+                      parameter_group_name = "default.mysql5.7"
+                      deletion_protection = true
+                }
+                """)
+        resource_conf = hcl_res['resource'][0]['aws_db_instance']['default']
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.PASSED, scan_result)
 
