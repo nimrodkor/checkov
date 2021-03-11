@@ -44,7 +44,7 @@ class Runner(BaseRunner):
     def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), external_registries=None,
                  source="Terraform", graph_class=LocalGraph, existing_data: PersistentGraphData = None):
         self.existing_data = existing_data
-        self.external_registries = external_registries
+        self.external_registries = [] if external_registries is None else external_registries
         self.graph_class = graph_class
         self.parser = parser
         self.tf_definitions = None if existing_data is None else existing_data.tf_definitions
