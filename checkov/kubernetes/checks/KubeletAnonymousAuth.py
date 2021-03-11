@@ -2,7 +2,7 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
 
-class ApiServerAnonymousAuth(BaseK8Check):
+class KubeletAnonymousAuth(BaseK8Check):
     def __init__(self):
         # CIS-1.6 4.2.1
         id = "CKV_K8S_138"
@@ -23,4 +23,4 @@ class ApiServerAnonymousAuth(BaseK8Check):
         return CheckResult.PASSED
 
 
-check = ApiServerAnonymousAuth()
+check = KubeletAnonymousAuth()
