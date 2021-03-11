@@ -1,7 +1,6 @@
 import os
 from unittest import TestCase
 
-from checkov.graph.graph_builder.graph_components.attribute_names import SourceTypes
 from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks_infra.registry import Registry
 from checkov.graph.terraform.runner import Runner
@@ -12,7 +11,7 @@ class TestBaseSolver(TestCase):
     checks_dir = ""
 
     def setUp(self):
-        self.source = SourceTypes.TERRAFORM
+        self.source = "Terraform"
         self.registry = Registry(parser=NXGraphCheckParser(), checks_dir=self.checks_dir)
         self.registry.load_checks()
         self.runner = Runner(external_registries=[self.registry])

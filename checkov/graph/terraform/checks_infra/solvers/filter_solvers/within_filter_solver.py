@@ -1,4 +1,4 @@
-from checkov.graph.checks.checks_infra.solvers.filter_queries.base_filter_solver import BaseFilterSolver
+from checkov.graph.terraform.checks_infra.solvers.filter_solvers.base_filter_solver import BaseFilterSolver
 from checkov.graph.terraform.utils.utils import decode_graph_property_value, encode_graph_property_value
 
 

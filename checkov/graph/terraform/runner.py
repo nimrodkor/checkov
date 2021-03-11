@@ -10,15 +10,14 @@ from checkov.common.output.report import Report
 from checkov.common.runners.base_runner import BaseRunner
 from checkov.common.variables.context import EvaluationContext
 from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
-from checkov.graph.graph_builder.graph_components.attribute_names import SourceTypes
 from checkov.graph.graph_record import GraphRecord
-from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks_infra.registry import Registry
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
 from checkov.graph.terraform.graph_manager import GraphManager
+from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.checks.resource.registry import resource_registry
 from checkov.terraform.context_parsers.registry import parser_registry
