@@ -23,7 +23,7 @@ class TestYamlPolicies(unittest.TestCase):
     def test_registry_load(self):
         registry = Registry()
         registry.load_checks()
-        # Increase size once we parse yaml checks
+        # TODO: ensure this is more than 0 once check parsing is enabled
         self.assertEqual(len(registry.checks), 0)
 
     @staticmethod

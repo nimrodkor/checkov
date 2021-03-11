@@ -29,9 +29,9 @@ class Registry(BaseRegistry):
                         logging.info(f"loading {file}")
                         check_yaml = yaml.safe_load(f)
                         check_json = json.loads(json.dumps(check_yaml))
-                        # TODO: implement parsing
+                        # TODO: implement
                         # check = self.parser.parse_raw_check(check_json, resources_types=self._get_resource_types(check_json))
-                        # self.checks.append(check_json)
+                        # self.checks.append(check)
 
     @staticmethod
     def _get_resource_types(check_json):
