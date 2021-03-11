@@ -9,7 +9,7 @@ class DBInstanceMonitoring(BaseResourceValueCheck):
         name = "Ensure that that respective logs of Amazon Relational Database Service (Amazon RDS) are enabled"
         id = "CKV_AWS_129"
         supported_resources = ['aws_db_instance']
-        categories = [CheckCategories.BACKUP_AND_RECOVERY]
+        categories = [CheckCategories.IAM]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
