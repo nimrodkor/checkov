@@ -5,7 +5,7 @@ from checkov.common.models.enums import CheckCategories
 class RDSEnableIAMAuthentication(BaseResourceValueCheck):
 
     def __init__(self):
-        name = "Ensure that an Amazon RDS Clusters and Instances have AWS Identity and Access Management (IAM) " \
+        name = "Ensure that an Amazon RDS Clusters have AWS Identity and Access Management (IAM) " \
                "authentication enabled "
         id = "CKV_AWS_128"
         supported_resources = ['aws_rds_cluster']
