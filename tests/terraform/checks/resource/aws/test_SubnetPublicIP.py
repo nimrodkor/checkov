@@ -25,6 +25,7 @@ class TestSubnetPublicIP(unittest.TestCase):
                             resource "aws_subnet" "test" {
                               vpc_id     = aws_vpc.main.id
                               cidr_block = "10.0.1.0/24"
+                              
                             }
         """)
         resource_conf = hcl_res['resource'][0]['aws_subnet']['test']
