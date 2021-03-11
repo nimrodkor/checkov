@@ -26,16 +26,30 @@ from checkov.terraform.runner import Runner as TerraformRunner
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=LOG_LEVEL)
 
+class PersistentGraphData:
+    tf_definitions = None
+    definitions_context = None
+    breadcrumbs = {}
+
+
+TRUE_STRING = "true"
+ONE_STRING = "1"
+FALSE_STRING = "false"
+ZERO_STRING = "0"
+
 
 class Runner(BaseRunner):
     check_type = "terraform"
 
-    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(),
-                 source="Terraform", graph_class=LocalGraph, tf_definitions=None, definitions_context=None):
+    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), external_policies=None,
+                 source="Terraform", graph_class=LocalGraph, existing_data: PersistentGraphData = None):
+        self.existing_data = existing_data
+        self.external_policies = external_policies
         self.graph_class = graph_class
         self.parser = parser
-        self.tf_definitions = tf_definitions
-        self.definitions_context = definitions_context
+        self.tf_definitions = None if existing_data is None else existing_data.tf_definitions
+        self.definitions_context = None if existing_data is None else existing_data.definitions_context
+        self.breadcrumbs = None if existing_data is None else existing_data.breadcrumbs
         self.evaluations_context: Dict[str, Dict[str, EvaluationContext]] = {}
         self.graph_manager = GraphManager(source=source, db_connector=db_connector)
         self.tf_runner = TerraformRunner()
@@ -73,22 +87,23 @@ class Runner(BaseRunner):
                 raise Exception("Root directory was not specified, files were not specified")
 
             self.graph = self.graph_manager.save_graph(local_graph)
-            self.tf_runner.tf_definitions, breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices, root_folder)
+            self.tf_runner.tf_definitions, self.breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices, root_folder)
 
         self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments, self.definitions_context)
 
         report.add_parsing_errors(parsing_errors.keys())
 
-        graph_report = self.get_graph_checks_report(root_folder, breadcrumbs)
+        graph_report = self.get_graph_checks_report(root_folder, self.breadcrumbs)
         merge_reports(report, graph_report)
 
         return report
 
     def get_graph_checks_report(self, root_folder, breadcrumbs):
         registry = Registry(parser=NXGraphCheckParser())
-        registry.load_checks()
+        registry.load_checks(self.external_policies)
         report = Report(self.check_type)
-        checks_results = registry.run_checks(self.graph)
+        # TODO: replace with method call when checks are parsed
+        checks_results = {} #  registry.run_checks(self.graph)
         for check_id, check_results in checks_results.items():
             for check_result in check_results:
                 entity = check_result['entity']

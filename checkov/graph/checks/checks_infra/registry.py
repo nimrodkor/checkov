@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from checkov.common.models.enums import CheckResult
 
 
@@ -6,7 +8,7 @@ class BaseRegistry:
         self.checks = []
         self.parser = parser
 
-    def load_checks(self):
+    def load_checks(self, external_policies: Optional[List[dict]]):
         raise NotImplementedError
 
     def run_checks(self, graph_connector):
