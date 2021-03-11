@@ -1,4 +1,4 @@
-from checkov.graph.checks.checks_infra.solvers.attribute_queries.base_attribute_solver import BaseAttributeSolver
+from checkov.graph.terraform.checks_infra.solvers.attribute_queries.base_attribute_solver import BaseAttributeSolver
 
 
 class NotEqualsAttributeSolver(BaseAttributeSolver):
