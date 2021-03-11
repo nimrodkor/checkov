@@ -31,7 +31,7 @@ class TestCloudfrontDistributionLogging(unittest.TestCase):
     def test_null_var_651(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         valid_dir_path = os.path.join(current_dir,
-                                      "..\\..\\..\\parser\\resources\\parser_scenarios\\null_variables_651")
+                                      "../../../parser/resources/parser_scenarios/null_variables_651")
         valid_dir_path = os.path.normpath(valid_dir_path)
         runner = Runner()
         checks_allowlist = ['CKV_AWS_86']
