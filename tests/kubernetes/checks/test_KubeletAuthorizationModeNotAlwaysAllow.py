@@ -12,7 +12,7 @@ class TestKubeletAuthorizationModeNotAlwaysAllow(unittest.TestCase):
         runner = Runner()
         current_dir = os.path.dirname(os.path.realpath(__file__))
 
-        test_files_dir = current_dir + "/example_ApiServerAuthorizationModeNotAlwaysAllow"
+        test_files_dir = current_dir + "/example_KubeletAuthorizationModeNotAlwaysAllow"
         report = runner.run(root_folder=test_files_dir,runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
 

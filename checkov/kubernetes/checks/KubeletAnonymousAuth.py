@@ -16,8 +16,9 @@ class ApiServerAnonymousAuth(BaseK8Check):
 
     def scan_spec_conf(self, conf):
         if "command" in conf:
-            if "--anonymous-auth=true" in conf["command"] or "--anonymous-auth=false" not in conf["command"]:
-                return CheckResult.FAILED
+            if "kubelet" in conf["command"]:            
+                if "--anonymous-auth=true" in conf["command"] or "--anonymous-auth=false" not in conf["command"]:
+                    return CheckResult.FAILED
 
         return CheckResult.PASSED
 

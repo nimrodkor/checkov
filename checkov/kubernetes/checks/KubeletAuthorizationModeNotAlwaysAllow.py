@@ -15,12 +15,13 @@ class KubeletAuthorizationModeNotAlwaysAllow(BaseK8Check):
 
     def scan_spec_conf(self, conf):
         if conf.get("command") is not None:
-            for command in conf["command"]:
-                if command.startswith("--authorization-mode"):
-                    modes = command.split("=")[1]
-                    if "AlwaysAllow" in modes.split(","):
-                        return CheckResult.FAILED
-                    break
+            if "kubelet" in conf["command"]:
+                for command in conf["command"]:
+                    if command.startswith("--authorization-mode"):
+                        modes = command.split("=")[1]
+                        if "AlwaysAllow" in modes.split(","):
+                            return CheckResult.FAILED
+                        break
            
         return CheckResult.PASSED
 
