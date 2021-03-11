@@ -14,7 +14,7 @@ class ApiServerAuthorizationModeRBAC(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if conf.get("command") is not None
+        if conf.get("command") is not None:
             if "kube-apiserver" in conf["command"]:
                 hasRBACAuthorizationMode = False
                 for command in conf["command"]:
