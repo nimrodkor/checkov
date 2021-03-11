@@ -13,7 +13,7 @@ class ELBCrossZoneEnable(BaseResourceCheck):
 
     def scan_resource_conf(self, conf):
         if "cross_zone_load_balancing" in conf:
-            if conf["cross_zone_load_balancing"] == False:
+            if not conf["cross_zone_load_balancing"]:
                 # No addonProfiles option to configure
                 return CheckResult.FAILED
 
