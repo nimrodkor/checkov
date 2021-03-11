@@ -4,12 +4,16 @@ import concurrent.futures
 import hashlib
 import io
 import json
+import os
 import pickle  # nosec
 import re
+from typing import List, Tuple
 
+from gremlin_python.process.traversal import T
+
+from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, \
+    reserved_attribute_names
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-
-from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 
 BLOCK_TYPES_STRINGS = ['var', 'local', 'module', 'data']
 FUNC_CALL_PREFIX_PATTERN = r'([.a-zA-Z]+)\('
@@ -207,8 +211,7 @@ def restricted_loads(s):
 
 class PythonObjectEncoder(json.JSONEncoder):
     def default(self, obj):
-        return {'_python_object':
-                base64.b64encode(pickle.dumps(obj)).decode('utf-8') }
+        return {'_python_object': base64.b64encode(pickle.dumps(obj)).decode('utf-8')}
 
 
 def as_python_object(dct):
@@ -274,6 +277,7 @@ def filter_sub_keys(key_list):
             filtered_key_list.append(key)
     return filtered_key_list
 
+
 def generate_possible_strings_from_wildcards(origin_string, max_entries=10):
     max_entries = int(os.environ.get("MAX_WILDCARD_ARR_SIZE", max_entries))
     generated_strings = [origin_string]
@@ -292,7 +296,7 @@ def generate_possible_strings_from_wildcards(origin_string, max_entries=10):
         new_generated_strings = []
         for s in generated_strings:
             before_wildcard = s[:wildcard_index]
-            after_wildcard = s[wildcard_index+1:]
+            after_wildcard = s[wildcard_index + 1:]
             for i in range(max_entries):
                 new_generated_strings.append(before_wildcard + str(i) + after_wildcard)
         generated_strings = new_generated_strings
@@ -300,3 +304,55 @@ def generate_possible_strings_from_wildcards(origin_string, max_entries=10):
     # if origin_string == "ingress.*.cidr_blocks", check for "ingress.cidr_blocks" too
     generated_strings.append(''.join(origin_string.split('.*')))
     return generated_strings
+
+
+def match_vertices(old_verticies: List[dict], new_verticies: List[dict]) -> List[Tuple[dict, dict]]:
+    matched = []
+    for new_vertex in new_verticies:
+        vertices_match = ({}, new_vertex)
+        for old_vertex in old_verticies:
+            if (
+                    old_vertex[CustomAttributes.ID] == new_vertex[CustomAttributes.ID]
+                    and old_vertex[CustomAttributes.CUSTOMER_NAME] == new_vertex[
+                CustomAttributes.CUSTOMER_NAME]
+                    and old_vertex[CustomAttributes.ACCOUNT_ID] == new_vertex[
+                CustomAttributes.ACCOUNT_ID]
+                    and old_vertex[CustomAttributes.FILE_PATH] == new_vertex[
+                CustomAttributes.FILE_PATH]
+                    and old_vertex[CustomAttributes.UNIQUE_TAG] == new_vertex[
+                CustomAttributes.UNIQUE_TAG]
+                    and old_vertex[CustomAttributes.BLOCK_NAME] == new_vertex[
+                CustomAttributes.BLOCK_NAME]
+                    and old_vertex[CustomAttributes.BLOCK_TYPE] == new_vertex[
+                CustomAttributes.BLOCK_TYPE]
+            ):
+                vertices_match = (old_vertex, new_vertex)
+                break
+        matched.append(vertices_match)
+    return matched
+
+
+def get_attributes_diff(old_attributes: dict, new_attributes: dict) -> List[dict]:
+    changed_attributes = [
+        {'attribute_name': k, 'old_value': old_attributes.get(k), 'new_value': new_attributes.get(k)}
+        for k in set(list(new_attributes.keys()) + list(old_attributes.keys()))
+        if (
+                k not in reserved_attribute_names
+                and not isinstance(k, T)
+                and encode_graph_property_value(old_attributes.get(k)) != encode_graph_property_value(
+            new_attributes.get(k))
+        )
+    ]
+
+    # Enrich the changed attributes with breadcrums
+    for changed_attribute in changed_attributes:
+        old_value_breadcrumbs = old_attributes.get(CustomAttributes.RENDERING_BREADCRUMBS, {}).get(
+            changed_attribute['attribute_name'])
+        if old_value_breadcrumbs:
+            changed_attribute['old_value_breadcrumbs'] = old_value_breadcrumbs
+        new_value_breadcrumbs = new_attributes.get(CustomAttributes.RENDERING_BREADCRUMBS, {}).get(
+            changed_attribute['attribute_name'])
+        if new_value_breadcrumbs:
+            changed_attribute['new_value_breadcrumbs'] = new_value_breadcrumbs
+
+    return changed_attributes
