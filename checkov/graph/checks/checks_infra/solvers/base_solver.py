@@ -16,6 +16,6 @@ class BaseSolver:
         raise NotImplementedError()
 
     @abstractmethod
-    def run(self, graph_connector, *args, **kwargs):
+    def run(self, graph_connector):
         raise NotImplementedError()
 

@@ -8,5 +8,5 @@ class EqualsAttributeSolver(BaseAttributeSolver):
         super().__init__(resource_types=resource_types,
                          attribute=attribute, value=value)
 
-    def _get_operation(self, vertex, attribute, **kwargs):
+    def _get_operation(self, vertex, attribute):
         return vertex.get(attribute) == self.value

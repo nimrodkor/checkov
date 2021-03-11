@@ -8,6 +8,6 @@ class ArrayContainsAttributeSolver(BaseAttributeSolver):
         super().__init__(resource_types=resource_types,
                          attribute=attribute, value=value)
 
-    def _get_operation(self, vertex, attribute, *args, **kwargs):
+    def _get_operation(self, vertex, attribute):
         return isinstance(vertex.get(attribute), list) and self.value in vertex.get(attribute)
 
