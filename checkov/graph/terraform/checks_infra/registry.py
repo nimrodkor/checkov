@@ -18,7 +18,7 @@ class Registry(BaseRegistry):
         self.checks = []
         self.parser = parser
 
-    def load_checks(self, external_policies: Optional[List[dict]]):
+    def load_checks(self):
         self.checks = []
         checks_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "checks")
         for root, d_names, f_names in os.walk(checks_dir):
@@ -31,11 +31,7 @@ class Registry(BaseRegistry):
                         check_json = json.loads(json.dumps(check_yaml))
                         # TODO: implement parsing
                         # check = self.parser.parse_raw_check(check_json, resources_types=self._get_resource_types(check_json))
-                        self.checks.append(check_json)
-        if external_policies is not None:
-            # TODO: parse
-            # external_checks = list(map(lambda p: self.parser.parse_raw_check(p, resources_types=self._get_resource_types(p)), external_policies))
-            self.checks = self.checks + external_policies
+                        # self.checks.append(check_json)
 
     @staticmethod
     def _get_resource_types(check_json):

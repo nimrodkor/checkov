@@ -22,32 +22,9 @@ class TestYamlPolicies(unittest.TestCase):
 
     def test_registry_load(self):
         registry = Registry()
-        registry.load_checks(None)
-        self.assertGreaterEqual(len(registry.checks), 9)
-
-    def test_registry_load_external(self):
-        external_policies = [
-            {
-                "metadata": {
-                    "id": "CUSTOM_BC_1",
-                    "name": "My Custom Check",
-                    "guidelines": "",
-                    "category": "GENERAL_SECURITY",
-                    "severity": "HIGH"
-                },
-                "scope": {
-                    "provider": "AWS"
-                },
-                "definition": {'cond_type': 'attribute', 'operator': 'equals', 'attribute': 'cidr_block',
-                     'value': '10.0.0.0/16', "resource_types": ["aws_vpc", "aws_flow_log"]}
-            }
-        ]
-
-        registry = Registry()
-        registry.load_checks(None)
-        no_custom_policies = len(registry.checks)
-        registry.load_checks(external_policies)
-        self.assertEqual(no_custom_policies, len(registry.checks) + 1)
+        registry.load_checks()
+        # Increase size once we parse yaml checks
+        self.assertEqual(len(registry.checks), 0)
 
     @staticmethod
     def go(dir_name):

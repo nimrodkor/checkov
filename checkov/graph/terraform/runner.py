@@ -41,10 +41,10 @@ ZERO_STRING = "0"
 class Runner(BaseRunner):
     check_type = "terraform"
 
-    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), external_policies=None,
+    def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), external_registries=None,
                  source="Terraform", graph_class=LocalGraph, existing_data: PersistentGraphData = None):
         self.existing_data = existing_data
-        self.external_policies = external_policies
+        self.external_registries = external_registries
         self.graph_class = graph_class
         self.parser = parser
         self.tf_definitions = None if existing_data is None else existing_data.tf_definitions
@@ -100,10 +100,13 @@ class Runner(BaseRunner):
 
     def get_graph_checks_report(self, root_folder, breadcrumbs):
         registry = Registry(parser=NXGraphCheckParser())
-        registry.load_checks(self.external_policies)
+        registry.load_checks()
         report = Report(self.check_type)
-        # TODO: replace with method call when checks are parsed
-        checks_results = {} #  registry.run_checks(self.graph)
+        checks_results = {}
+        for r in self.external_registries + [registry]:
+            registry_results = r.run_checks(self.graph)
+            checks_results = {**checks_results, **registry_results}
+
         for check_id, check_results in checks_results.items():
             for check_result in check_results:
                 entity = check_result['entity']

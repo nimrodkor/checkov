@@ -8,7 +8,7 @@ class BaseRegistry:
         self.checks = []
         self.parser = parser
 
-    def load_checks(self, external_policies: Optional[List[dict]]):
+    def load_checks(self):
         raise NotImplementedError
 
     def run_checks(self, graph_connector):
