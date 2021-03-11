@@ -15,13 +15,15 @@ class GKEEnsureIntegrityMonitoring(BaseResourceCheck):
             node=conf["node_config"][0]
             if 'shielded_instance_config' in node.keys():
                 monitor=node["shielded_instance_config"][0]
-                if monitor["enable_integrity_monitoring"][0] ==True:
+                if monitor["enable_integrity_monitoring"] == [True]:
                     CheckResult.PASSED
                 else:
                     CheckResult.FAILED
             else:
+                #as default is true this is a pass 
                 CheckResult.PASSED
         else:    
+            # no config is valid it could be in the the node_pool
             return CheckResult.UNKNOWN
 
 
