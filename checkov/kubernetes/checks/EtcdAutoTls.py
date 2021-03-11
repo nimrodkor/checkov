@@ -5,7 +5,7 @@ class EtcdAutoTls(BaseK8Check):
     def __init__(self):
         # CIS-1.6 2.3
         id = "CKV_K8S_118"
-        name = "Ensure that the --auto-tls argument is not set to true  "
+        name = "Ensure that the --auto-tls argument is not set to true"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
