@@ -2,11 +2,11 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
 
-class SchedulerBindAddress(BaseK8Check):
+class SchedulerProfiling(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.4.2
-        id = "CKV_K8S_115"
-        name = "Ensure that the --bind-address argument is set to 127.0.0.1"
+        # CIS-1.6 1.4.1
+        id = "CKV_K8S_114"
+        name = "Ensure that the --profiling argument is set to false"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
@@ -17,10 +17,10 @@ class SchedulerBindAddress(BaseK8Check):
     def scan_spec_conf(self, conf):
         if "command" in conf:
             if "kube-scheduler" in conf["command"]:            
-                if "--bind-address=127.0.0.1" not in conf["command"]:
+                if "--profiling=false" not in conf["command"]:
                     return CheckResult.FAILED
 
         return CheckResult.PASSED
 
 
-check = SchedulerBindAddress()
+check = SchedulerProfiling()
