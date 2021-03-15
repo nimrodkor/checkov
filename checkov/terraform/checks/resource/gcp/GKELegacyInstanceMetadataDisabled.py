@@ -1,5 +1,6 @@
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 from checkov.common.models.enums import CheckResult, CheckCategories
+from checkov.common.util.type_forcers import force_float
 
 class GKELegacyInstanceMetadataDisabled(BaseResourceValueCheck):
 
@@ -19,7 +20,7 @@ class GKELegacyInstanceMetadataDisabled(BaseResourceValueCheck):
         """
         if 'min_master_version' in conf: 
             min_master_version = conf.get('min_master_version')[0]
-            if float(min_master_version) >= 1.12:
+            if force_float(min_master_version) >= 1.12:
                 return CheckResult.PASSED
         
         return CheckResult.FAILED
