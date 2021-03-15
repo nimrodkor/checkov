@@ -50,7 +50,7 @@ class TestRDSClusterEncrypted(unittest.TestCase):
               provider = aws.primary
             
               global_cluster_identifier = "example"
-              test_success_with_source_db_cluster_identifier = "some_arn"
+              source_db_cluster_identifier = "some_arn"
             }
         """)
         resource_conf = hcl_res['resource'][0]['aws_rds_global_cluster']['example']

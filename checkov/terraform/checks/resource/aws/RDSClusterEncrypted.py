@@ -18,7 +18,7 @@ class RDSClusterEncrypted(BaseResourceCheck):
         :return: <CheckResult>
         """
         self.evaluated_keys = 'aws_rds_global_cluster'
-        if "test_success_with_source_db_cluster_identifier" in conf.keys():
+        if "source_db_cluster_identifier" in conf.keys():
             return CheckResult.UNKNOWN
         if "storage_encrypted" in conf.keys():
             if conf["storage_encrypted"][0]:
