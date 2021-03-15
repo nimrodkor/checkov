@@ -15,9 +15,8 @@ class TestPeerClientCertAuthTrue(unittest.TestCase):
         test_files_dir = current_dir + "/example_PeerClientCertAuthTrue"
         report = runner.run(root_folder=test_files_dir, runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
-        print(summary)
         self.assertEqual(1, summary['passed'])
-        self.assertEqual(1, summary['failed'])
+        self.assertEqual(2, summary['failed'])
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-    - name: "kuku1"
+    - name: "kuku3"
       image: "b.gcr.io/kuar/etcd:2.2.0"
       args:
         - "--name=etcd0"
@@ -23,7 +23,6 @@ spec:
         - "--initial-cluster=etcd0=http://10.0.0.1:2380,etcd1=http://10.0.0.2:2380,etcd2=http://10.0.0.2:2380"
         - "--initial-cluster-state=new"
         - "--initial-cluster-token=cluster0"
-        - "--peer-client-cert-auth=false"
       ports:
         - name: client
           containerPort: 2379

@@ -7,7 +7,7 @@ class PeerClientCertAuthTrue(BaseK8Check):
     def __init__(self):
         name = "Ensure that the --peer-client-cert-auth argument is set to true"
         id = "CKV_K8S_121"
-        supported_kind = ['containers']
+        supported_kind = ['Pod']
         categories = [CheckCategories.KUBERNETES]
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_kind)
 
@@ -18,12 +18,13 @@ class PeerClientCertAuthTrue(BaseK8Check):
             return "{}.{}.default".format(conf["kind"], conf["metadata"]["name"])
 
     def scan_spec_conf(self, conf, entity_type=None):
-        # check if name is etcd if not return unknown
-        # check containers for --peer shit is set to true
-        print('============')
-        print(conf)
-        print('============')
-        return CheckResult.FAILED
+        if conf.get("metadata")['name'] == 'etcd':
+            containers = conf.get('spec')['containers']
+            for container in containers:
+                if '--peer-client-cert-auth=true' not in container['args']:
+                    return CheckResult.FAILED
+            return CheckResult.PASSED
+        return CheckResult.UNKNOWN
 
 
 check = PeerClientCertAuthTrue()
