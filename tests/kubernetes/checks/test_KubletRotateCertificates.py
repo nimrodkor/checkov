@@ -16,7 +16,7 @@ class TestKubletRotateCertificates(unittest.TestCase):
         test_files_dir = current_dir + "/example_KubletRotateCertificates"
         report = runner.run(root_folder=test_files_dir, runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
-
+        print(summary)
         self.assertEqual(summary['passed'], 1)
         self.assertEqual(summary['failed'], 1)
         self.assertEqual(summary['skipped'], 0)
@@ -24,6 +24,7 @@ class TestKubletRotateCertificates(unittest.TestCase):
         
         
         for record in report.failed_checks:
+            print(record)
             self.assertTrue("FAILED" in record.file_path)
             self.assertTrue(record.check_id in [check.id])
             

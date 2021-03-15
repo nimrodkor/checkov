@@ -3,16 +3,16 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    component: kube-apiserver
+    component: kubelet
     tier: control-plane
-  name: kube-apiserver
+  name: kubelet
   namespace: kube-system
 spec:
   containers:
   - command:
     - kubelet
     - --feature-gates=RotateKubeletServerCertificate=false
-    image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
+    image: gcr.io/google_containers/kubelet-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
       httpGet:
@@ -22,7 +22,7 @@ spec:
         scheme: HTTPS
       initialDelaySeconds: 15
       timeoutSeconds: 15
-    name: kube-apiserver
+    name: kubelet
     resources:
       requests:
         cpu: 250m

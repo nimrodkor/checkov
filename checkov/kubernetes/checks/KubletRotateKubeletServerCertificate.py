@@ -16,11 +16,13 @@ class KubletRotateKubeletServerCertificate(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
+        print(conf)
         if "command" in conf:
             if "kubelet" in conf["command"]:    
                 for cmd in conf["command"]:
                     if cmd.startswith("--feature-gates"):
                         value = cmd[cmd.index("=")+1:]
+                        print(value)
                         if 'RotateKubeletServerCertificate=false' in value:
                             return CheckResult.FAILED
 

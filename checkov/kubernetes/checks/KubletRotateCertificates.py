@@ -18,7 +18,7 @@ class KubletRotateCertificates(BaseK8Check):
     def scan_spec_conf(self, conf):
         if "command" in conf:
             if "kubelet" in conf["command"]:            
-                if "--rotate-certificates=false" not in conf["command"]:
+                if "--rotate-certificates=false" in conf["command"]:
                     return CheckResult.FAILED
 
         return CheckResult.PASSED
