@@ -3,7 +3,7 @@ from checkov.common.models.enums import CheckResult, CheckCategories
 from checkov.common.models.consts import ANY_VALUE
 
 
-class SSMSecretEncrypted(BaseResourceValueCheck):
+class SecretManagerSecretEncrypted(BaseResourceValueCheck):
 
     def __init__(self):
         name = "Ensure that Secret Manager secret is encrypted using KMS"
@@ -19,4 +19,4 @@ class SSMSecretEncrypted(BaseResourceValueCheck):
         return 'kms_key_id'
 
 
-check = SSMSecretEncrypted()
+check = SecretManagerSecretEncrypted()

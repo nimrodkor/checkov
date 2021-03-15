@@ -1,7 +1,7 @@
 import unittest
 import hcl2
 
-from checkov.terraform.checks.resource.aws.SSMSecretEncrypted import check
+from checkov.terraform.checks.resource.aws.SecretManagerSecretEncrypted import check
 from checkov.common.models.enums import CheckResult
 
 
