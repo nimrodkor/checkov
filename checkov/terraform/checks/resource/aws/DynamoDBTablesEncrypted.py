@@ -1,10 +1,10 @@
 from abc import ABC
 
 from checkov.common.models.enums import CheckCategories, CheckResult
-from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceCheck
+from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class DynamoDBTablesEncrypted(BaseResourceCheck):
+class DynamoDBTablesEncrypted(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure DynamoDB Tables are encrypted"
         id = "CKV_AWS_111"
@@ -12,14 +12,8 @@ class DynamoDBTablesEncrypted(BaseResourceCheck):
         categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
-    def scan_resource_conf(self, conf, entity_type):
-        if 'server_side_encryption' in conf.keys():
-            enabled = conf['server_side_encryption'][0]['enabled'][0]
-            if enabled:
-                return CheckResult.PASSED
-            else:
-                return CheckResult.FAILED
-        return CheckResult.FAILED
+    def get_inspected_key(self):
+        return "server_side_encryption/[0]/enabled"
 
 
 check = DynamoDBTablesEncrypted()
