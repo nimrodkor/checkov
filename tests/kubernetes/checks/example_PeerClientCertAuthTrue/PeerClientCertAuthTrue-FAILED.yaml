@@ -5,7 +5,7 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-    - name: "etcd"
+    - name: kuku1
       image: "b.gcr.io/kuar/etcd:2.2.0"
       args:
         - "--name=etcd0"

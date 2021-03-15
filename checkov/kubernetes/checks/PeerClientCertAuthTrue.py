@@ -7,17 +7,22 @@ class PeerClientCertAuthTrue(BaseK8Check):
     def __init__(self):
         name = "Ensure that the --peer-client-cert-auth argument is set to true"
         id = "CKV_K8S_121"
-        supported_kind = ['Pod']
+        supported_kind = ['containers']
         categories = [CheckCategories.KUBERNETES]
         super().__init__(name=name, id=id, categories=categories, supported_entities=supported_kind)
 
     def get_resource_id(self, conf):
-        print(conf)
-        print('================')
-        # return f'{conf["parent"]} - {conf["name"]}'
-        return "containers"
+        if "namespace" in conf["metadata"]:
+            return "{}.{}.{}".format(conf["kind"], conf["metadata"]["name"], conf["metadata"]["namespace"])
+        else:
+            return "{}.{}.default".format(conf["kind"], conf["metadata"]["name"])
 
     def scan_spec_conf(self, conf, entity_type=None):
+        # check if name is etcd if not return unknown
+        # check containers for --peer shit is set to true
+        print('============')
+        print(conf)
+        print('============')
         return CheckResult.FAILED
 
 
