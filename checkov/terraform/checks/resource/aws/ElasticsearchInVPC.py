@@ -3,7 +3,7 @@ from checkov.common.models.enums import CheckResult, CheckCategories
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class LambdaInVPC(BaseResourceValueCheck):
+class ElasticsearchInVPC(BaseResourceValueCheck):
 
     def __init__(self):
         name = "Ensure that Elasticsearch is configured inside a VPC"
@@ -19,4 +19,4 @@ class LambdaInVPC(BaseResourceValueCheck):
         return ANY_VALUE
 
 
-check = LambdaInVPC()
+check = ElasticsearchInVPC()

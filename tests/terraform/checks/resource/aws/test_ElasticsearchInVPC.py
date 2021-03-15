@@ -6,7 +6,7 @@ from checkov.common.models.enums import CheckResult
 import hcl2
 
 
-class TestLambdaInVPC(unittest.TestCase):
+class TestElasticsearchInVPC(unittest.TestCase):
 
     def test_failure(self):
         hcl_res = hcl2.loads("""
