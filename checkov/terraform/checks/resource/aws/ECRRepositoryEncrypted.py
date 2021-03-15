@@ -5,7 +5,7 @@ from checkov.common.models.consts import ANY_VALUE
 
 class ECRRepositoryEncrypted(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that ECR repositories are encrypted"
+        name = "Ensure that ECR repositories are encrypted using KMS"
         id = "CKV_AWS_154"
         supported_resources = ['aws_ecr_repository']
         categories = [CheckCategories.ENCRYPTION]
@@ -15,7 +15,7 @@ class ECRRepositoryEncrypted(BaseResourceValueCheck):
         return 'encryption_configuration/[0]/encryption_type'
 
     def get_expected_value(self):
-        return ANY_VALUE
+        return "KMS"
 
 
 check = ECRRepositoryEncrypted()
