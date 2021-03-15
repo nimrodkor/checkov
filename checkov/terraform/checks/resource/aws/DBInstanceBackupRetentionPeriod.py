@@ -6,7 +6,7 @@ class DBInstanceBackupRetentionPeriod(BaseResourceCheck):
     def __init__(self):
         name = "Ensure that RDS instances has backup policy"
         id = "CKV_AWS_133"
-        supported_resources = ['aws_db_instance']
+        supported_resources = ['aws_rds_cluster']
         categories = [CheckCategories.BACKUP_AND_RECOVERY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
