@@ -16,11 +16,14 @@ class SchedulerBindAddress(BaseK8Check):
 
     def scan_spec_conf(self, conf):
         if "command" in conf:
-            if "kube-scheduler" in conf["command"]:            
-                if "--bind-address=127.0.0.1" not in conf["command"]:
-                    return CheckResult.FAILED
+            if "kube-scheduler" in conf["command"]:     
+                for cmd in conf["command"]:
+                    if "=" in cmd:
+                        [key,value] = cmd.split("=")
+                        if key == "--bind-address" and value == "127.0.0.1":
+                            return CheckResult.PASSED
 
-        return CheckResult.PASSED
+        return CheckResult.FAILED
 
 
 check = SchedulerBindAddress()
