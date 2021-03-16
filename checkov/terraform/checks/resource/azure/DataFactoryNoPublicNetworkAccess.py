@@ -11,7 +11,7 @@ class DataFactoryNoPublicNetworkAccess(BaseResourceValueCheck):
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
-        return 'public_network_access_enabled'
+        return 'public_network_enabled'
 
     def get_expected_value(self):
         return False
