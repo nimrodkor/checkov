@@ -22,7 +22,6 @@ class KubletRotateKubeletServerCertificate(BaseK8Check):
                 for cmd in conf["command"]:
                     if cmd.startswith("--feature-gates"):
                         value = cmd[cmd.index("=")+1:]
-                        print(value)
                         if 'RotateKubeletServerCertificate=false' in value:
                             return CheckResult.FAILED
 
