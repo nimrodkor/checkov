@@ -15,17 +15,16 @@ class KubeControllerManagerTerminatedPods(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if "command" in conf:
+        if conf.get("command") is not None:
             if "kube-controller-manager" in conf["command"]:
-                index_of_terminated_pod_gc_threshold = [n for n, l in enumerate(conf["command"])
-                                                        if l.startswith('--terminated-pod-gc-threshold')]
-                if len(index_of_terminated_pod_gc_threshold) > 0:
-                    threshold = conf["command"][index_of_terminated_pod_gc_threshold[0]].split("=")
-                    if int(threshold[1]) > 0:
-                        return CheckResult.PASSED
-                    else:
-                        return CheckResult.FAILED
-                return CheckResult.FAILED
+                for command in conf["command"]:
+                    if command.startswith('--terminated-pod-gc-threshold'):
+                        threshold = command.split("=")[1]
+                        if int(threshold) > 0:
+                            return CheckResult.PASSED
+                        else:
+                            return CheckResult.FAILED
+            return CheckResult.FAILED
         return CheckResult.PASSED
 
 
