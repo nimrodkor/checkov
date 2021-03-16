@@ -1,22 +1,13 @@
 import logging
 import os
 from copy import deepcopy
-from dataclasses import dataclass
 
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, calculate_hash, \
-    join_trimmed_strings, remove_interpolation, remove_index_pattern_from_str, remove_function_calls_from_str
+from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, \
+    calculate_hash, \
+    join_trimmed_strings, remove_index_pattern_from_str
 from checkov.graph.terraform.variable_rendering.evaluate_terraform import replace_string_value, evaluate_terraform
-
-
-@dataclass
-class AttributeChange:
-    def __init__(self, substr_to_replace, new_value, vertex_causing_change, vertex_causing_change_attr):
-        self.substr_to_replace = substr_to_replace
-        self.new_value = new_value
-        self.vertex_causing_change = vertex_causing_change
-        self.vertex_causing_change_attr = vertex_causing_change_attr
 
 
 class VariableRenderer:
@@ -36,7 +27,7 @@ class VariableRenderer:
             max_workers = int(max_workers)
         self.max_workers = max_workers
         self.done_edges = []
-        self.attribute_changes = {}
+        self.replace_cache = [{}] * len(local_graph.vertices)
 
     def render_variables_from_local_graph(self):
         # find vertices with out-degree = 0 and in-degree > 0
@@ -60,10 +51,8 @@ class VariableRenderer:
             edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
             edges_to_render = [edge for edge in edges_to_render if edge not in self.done_edges]
 
-        # self.apply_attribute_changes()
         self.local_graph.update_vertices_configs()
         logging.info('done evaluating edges')
-        # self.evaluate_vertices_attributes()
 
     def _edge_evaluation_task(self, edges):
         edges = edges[0]
@@ -74,16 +63,13 @@ class VariableRenderer:
         multiple_edges = len(edge_list) > 1
         edge = edge_list[0]
         origin_vertex_attributes = self.copy_of_local_graph.get_vertex_attributes_by_index(edge.origin)
-        # modified_vertex_attributes = self.copy_of_local_graph.get_vertex_attributes_by_index(edge.origin)
         val_to_eval = deepcopy(origin_vertex_attributes.get(edge.label, ''))
 
         referenced_vertices = get_referenced_vertices_in_value(value=val_to_eval, aliases={},
-                                                               resources_types=self.local_graph.get_resources_types_in_graph(),
-                                                               cleanup_functions=[remove_function_calls_from_str,
-                                                                                  remove_interpolation])
+                                                               resources_types=self.local_graph.get_resources_types_in_graph())
         modified_vertex_attributes = self.local_graph.get_vertex_attributes_by_index(edge.origin)
         val_to_eval = deepcopy(modified_vertex_attributes.get(edge.label, ''))
-
+        origin_val = deepcopy(val_to_eval)
         first_key_path = None
         if referenced_vertices:
             for edge in edge_list:
@@ -98,18 +84,16 @@ class VariableRenderer:
                 evaluated_attribute_value = self.extract_value_from_vertex(key_path_in_dest_vertex,
                                                                            dest_vertex_attributes)
                 if evaluated_attribute_value is not None:
-                    # self.accumulate_changes(vertex_id=edge.origin, attribute_key=edge.label, substr_to_replace=replaced_key, new_value=evaluated_attribute_value, vertex_causing_change=edge.dest, vertex_causing_change_attr=key_path_in_dest_vertex)
-                    val_to_eval = replace_string_value(original_str=val_to_eval, str_to_replace=replaced_key, replaced_value=str(evaluated_attribute_value))
-                if not multiple_edges:
+                    val_to_eval = self.replace_value(edge, val_to_eval, replaced_key, str(evaluated_attribute_value), True)
+                if not multiple_edges and val_to_eval != origin_val:
                     self.update_evaluated_value(changed_attribute_key=edge.label,
                                                 changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=key_path_in_dest_vertex)
-        if multiple_edges:
+        if multiple_edges and val_to_eval != origin_val:
             self.update_evaluated_value(changed_attribute_key=edge.label,
                                         changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=first_key_path)
 
     @staticmethod
     def extract_value_from_vertex(key_path, attributes):
-
         for i in range(len(key_path)):
             key = join_trimmed_strings(char_to_join=".", str_lst=key_path, num_to_trim=i)
             value = attributes.get(key, None)
@@ -158,22 +142,10 @@ class VariableRenderer:
                         return name.split('.'), vertex_reference.origin_value
         return [], ''
 
-    # def update_evaluated_value(self, changed_attribute_key, changed_attribute_value, vertex, change_origin_id, attribute_at_dest=None):
-    #     """
-    #     The function updates the value of changed_attribute_key with changed_attribute_value for vertex
-    #     """
-    #     references_vertices = get_referenced_vertices_in_value(value=changed_attribute_value, aliases={},
-    #                                                            resources_types=self.local_graph.get_resources_types_in_graph())
-    #     if not references_vertices:
-    #         evaluated_attribute_value = evaluate_terraform(f'"{str(changed_attribute_value)}"')
-    #         self.local_graph.update_vertex_attribute(vertex, changed_attribute_key, evaluated_attribute_value, change_origin_id, attribute_at_dest)
-
     def update_evaluated_value(self, changed_attribute_key, changed_attribute_value, vertex, change_origin_id, attribute_at_dest=None):
         """
         The function updates the value of changed_attribute_key with changed_attribute_value for vertex
         """
-        # references_vertices = get_referenced_vertices_in_value(value=changed_attribute_value, aliases={}, resources_types=self.local_graph.get_resources_types_in_graph())
-        # if not references_vertices:
         evaluated_attribute_value = evaluate_terraform(f'"{str(changed_attribute_value)}"')
         self.local_graph.update_vertex_attribute(vertex, changed_attribute_key, evaluated_attribute_value, change_origin_id, attribute_at_dest)
 
@@ -200,23 +172,19 @@ class VariableRenderer:
             edge_groups[origin_and_label_hash].append(edge)
         return list(edge_groups.values())
 
-    def accumulate_changes(self, vertex_id, attribute_key, substr_to_replace, new_value, vertex_causing_change, vertex_causing_change_attr):
-        if not self.attribute_changes.get(vertex_id):
-            self.attribute_changes[vertex_id] = {}
-        if not self.attribute_changes.get(vertex_id).get(attribute_key):
-            self.attribute_changes.get(vertex_id)[attribute_key] = []
-        attribute_change = AttributeChange(substr_to_replace=substr_to_replace, new_value=new_value, vertex_causing_change=vertex_causing_change, vertex_causing_change_attr=vertex_causing_change_attr)
-        self.attribute_changes[vertex_id][attribute_key].append(attribute_change)
-
-    def apply_attribute_changes(self):
-        for vertex_id, attribute_changes in self.attribute_changes.items():
-            for attribute_key, changes in attribute_changes.items():
-                changes_by_id = {}
-                new_attribute_value = self.local_graph.vertices[vertex_id].get_decoded_attribute_dict()[attribute_key]
-                for change in changes:
-                    new_attribute_value = replace_string_value(original_str=new_attribute_value, str_to_replace=change.substr_to_replace,
-                                            replaced_value=str(change.new_value))
-                    changes_by_id[change.vertex_causing_change] = change.vertex_causing_change_attr
-                evaluated_attribute_value = evaluate_terraform(f'"{str(new_attribute_value)}"')
-                self.local_graph.update_vertex_attribute(vertex_id, attribute_key, evaluated_attribute_value,
-                                                         changes_by_id)
+    def replace_value(self, edge, original_str, replaced_key, replaced_value, keep_origin, count=0):
+        if count > 1:
+            return original_str
+        new_val = replace_string_value(original_str=original_str, str_to_replace=replaced_key,
+                                       replaced_value=replaced_value, keep_origin=keep_origin)
+        curr_cache = self.replace_cache[edge.origin].get(edge.label, {}).get(replaced_key, [])
+        not_containing_dot = '.' not in new_val
+        if not_containing_dot or new_val not in curr_cache or (len(curr_cache) > 0 and curr_cache[-1] != new_val):
+            if not self.replace_cache[edge.origin].get(edge.label, {}):
+                self.replace_cache[edge.origin][edge.label] = {}
+            if not curr_cache:
+                self.replace_cache[edge.origin][edge.label] = {replaced_key: []}
+            self.replace_cache[edge.origin][edge.label][replaced_key].append(new_val)
+            return new_val
+        else:
+            return self.replace_value(edge, original_str, replaced_key, replaced_value, not keep_origin, count + 1)

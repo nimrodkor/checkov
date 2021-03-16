@@ -308,7 +308,19 @@ class LocalGraph:
         res = []
         for vertex in end_vertices:
             res.extend(self.in_edges.get(vertex, []))
-        return res
+        return self.sort_edged_by_dest_out_degree(res)
+
+    def sort_edged_by_dest_out_degree(self, edges):
+        edged_by_out_degree = {}
+        for edge in edges:
+            dest_out_degree = len(self.out_edges.get(edge.dest))
+            if not edged_by_out_degree.get(dest_out_degree):
+                edged_by_out_degree[dest_out_degree] = []
+            edged_by_out_degree[dest_out_degree].append(edge)
+        sorted_edges = []
+        for degree in sorted(edged_by_out_degree.keys()):
+            sorted_edges.extend(edged_by_out_degree[degree])
+        return sorted_edges
 
     def update_vertex_attribute(self, vertex_index, attribute_key, attribute_value, change_origin_id,
                                 attribute_at_dest):
@@ -319,15 +331,6 @@ class LocalGraph:
         self.vertices[vertex_index].update_attribute(attribute_key, attribute_value, change_origin_id,
                                                      previous_breadcrumbs)
 
-    # def update_vertex_attribute(self, vertex_index, attribute_key, attribute_value, changes_by_id):
-    #     previous_breadcrumbs = []
-    #     for change_origin_id, attribute_at_dest in changes_by_id.items():
-    #         attribute_at_dest = self.vertices[change_origin_id].find_attribute(attribute_at_dest)
-    #         if attribute_at_dest:
-    #             previous_breadcrumbs = self.vertices[change_origin_id].changed_attributes.get(attribute_at_dest,
-    #                                                                                           [])
-    #         self.vertices[vertex_index].update_attribute(attribute_key, attribute_value, change_origin_id,
-    #                                                      previous_breadcrumbs)
 
     def update_vertices_configs(self):
         for vertex in self.vertices:
@@ -341,8 +344,6 @@ class LocalGraph:
                 if new_value is not None:
                     if vertex.block_type == BlockType.LOCALS:
                         changed_attribute = changed_attribute.replace(vertex.name+".", '')
-                        # updated_config = deepcopy(vertex.config)
-                        # updated_config = update_dictionary_attribute(deepcopy(vertex.config), changed_attribute, new_value)
                         updated_config = update_dictionary_attribute(updated_config, changed_attribute, new_value)
                     else:
                         updated_config = update_dictionary_attribute(updated_config, changed_attribute, [new_value])

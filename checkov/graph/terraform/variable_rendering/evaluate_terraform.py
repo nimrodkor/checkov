@@ -1,5 +1,5 @@
 import re
-
+import json
 from checkov.graph.terraform.utils.utils import INTERPOLATION_PATTERN
 from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 
@@ -8,6 +8,9 @@ CONDITIONAL_EXPR = r'([^\s]+)\?([^\s^\:]+)\:([^\s^\:]+)'
 
 # {key1 = value1, key2 = value2, ...}
 MAP_REGEX = r'\{(?:\s*[\S]+\s*\=\s*[\S]+\s*\,)+(?:\s*[\S]+\s*\=\s*[\S]+\s*)\}'
+
+# {key:val}[key]
+MAP_WITH_ACCESS = r'(?P<d>\{(?:\s*[\S]+\s*\:\s*[\S]+\s*)+(\,?:\s*[\S]+\s*\:\s*[\S]+\s*)*\})\s*(?P<access>\[\S+\])'
 
 KEY_VALUE_REGEX = r'([\S]+)\s*\=\s*([\S]+)'
 
@@ -41,16 +44,16 @@ def _try_evaluate(input_str):
             return input_str
 
 
-def replace_string_value(original_str, str_to_replace, replaced_value):
+def replace_string_value(original_str, str_to_replace, replaced_value, keep_origin=True):
     if type(original_str) is list:
         for i, item in enumerate(original_str):
             original_str[i] = replace_string_value(item, str_to_replace, replaced_value)
             return original_str
 
     if str_to_replace not in original_str:
-        return original_str
+        return original_str if keep_origin else str_to_replace
 
-    string_without_interpolation = re.sub(INTERPOLATION_PATTERN, ' ', original_str)
+    string_without_interpolation = re.sub(r'(?:\$\{(?P<content>[^$]*)\})', r'\g<content>', original_str)
     return string_without_interpolation.replace(str_to_replace, replaced_value).replace(' ', '')
 
 
@@ -154,9 +157,26 @@ def evaluate_directives(input_str):
 def evaluate_map(input_str):
     matching_maps = re.findall(MAP_REGEX, input_str)
     for matching_map in matching_maps:
-        # replaced_matching_map = f'"{matching_map.replace("=", ":")}"'
         replaced_matching_map = matching_map.replace("=", ":")
         input_str = input_str.replace(matching_map, replaced_matching_map)
+
+    map_access_match = re.match(MAP_WITH_ACCESS, input_str)
+    if map_access_match:
+        before_match = input_str[:map_access_match.start()]
+        after_match = input_str[map_access_match.end():]
+        origin_match_str = input_str[map_access_match.start():map_access_match.end()]
+        match_parts = map_access_match.groupdict()
+        access = match_parts.get("access")[1:-1]
+
+        evaluated = _try_evaluate(origin_match_str)
+        if evaluated != origin_match_str:
+            return before_match + evaluated + after_match
+        if not access.startswith('"') and not access.endswith('"'):
+            match_to_eval = origin_match_str.replace(f'[{access}]', f'["{access}"]')
+            evaluated = _try_evaluate(match_to_eval)
+            if f'["{access}"]' not in evaluated:
+                return before_match + evaluated + after_match
+
     return input_str
 
 

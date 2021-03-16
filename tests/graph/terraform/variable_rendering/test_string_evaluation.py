@@ -1,6 +1,6 @@
-from typing import List, Tuple
 from unittest import TestCase
-from checkov.graph.terraform.variable_rendering.evaluate_terraform import evaluate_terraform
+
+from checkov.graph.terraform.variable_rendering.evaluate_terraform import evaluate_terraform, replace_string_value
 
 
 class TestTerraformEvaluation(TestCase):
@@ -230,3 +230,24 @@ class TestTerraformEvaluation(TestCase):
             expected = input_str if case[1] is None else case[1]
             actual = evaluate_terraform(input_str)
             assert actual == expected, f"Case \"{input_str}\" failed. Expected: {expected}  Actual: {actual}"
+
+    def test_map_access(self):
+        input_str = '{\'module-input-bucket\':\'mapped-bucket-name\'}[module-input-bucket]-works-yay'
+        expected = 'mapped-bucket-name-works-yay'
+        self.assertEqual(expected, evaluate_terraform(input_str))
+
+        input_str = '{"module-input-bucket":"mapped-bucket-name"}[module-input-bucket]-works-yay'
+        expected = 'mapped-bucket-name-works-yay'
+        self.assertEqual(expected, evaluate_terraform(input_str))
+
+    def test_replace_with_map(self):
+        original_str = '{\'module-input-bucket\':\'mapped-bucket-name\'}[module.bucket.name]-works-yay'
+        replaced = replace_string_value(original_str, "module.bucket.name", "module-input-bucket", keep_origin=False)
+        expected = '{\'module-input-bucket\':\'mapped-bucket-name\'}[module-input-bucket]-works-yay'
+        self.assertEqual(expected, replaced)
+
+    def test_replace_interpolation(self):
+        original_str = '${mapped-bucket-name}[module.bucket.name]-works-yay'
+        replaced = replace_string_value(original_str, "module.bucket.name", "module-input-bucket", keep_origin=False)
+        expected = 'mapped-bucket-name[module-input-bucket]-works-yay'
+        self.assertEqual(expected, replaced)

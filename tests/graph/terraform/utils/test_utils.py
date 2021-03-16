@@ -73,7 +73,7 @@ class TestUtils(TestCase):
             (
                 "${local.NAME[foo]}-${local.TAIL}${var.gratuitous_var_default}",
                 [
-                    VertexReference(BlockType.LOCALS, sub_parts=["NAME[foo]"], origin_value="local.NAME[foo]"),
+                    VertexReference(BlockType.LOCALS, sub_parts=["NAME"], origin_value="local.NAME"),
                     VertexReference(BlockType.LOCALS, sub_parts=["TAIL"], origin_value="local.TAIL"),
                     VertexReference(BlockType.VARIABLE, sub_parts=["gratuitous_var_default"], origin_value="var.gratuitous_var_default"),
                 ]
@@ -123,7 +123,7 @@ class TestUtils(TestCase):
                 [
                     VertexReference(BlockType.LOCALS, sub_parts=["NAME"],
                                     origin_value="local.NAME"),
-                    VertexReference(BlockType.MODULE, sub_parts=["bucket.bucket_name"],
+                    VertexReference(BlockType.MODULE, sub_parts=["bucket", "bucket_name"],
                                     origin_value="module.bucket.bucket_name"),
                     VertexReference(BlockType.LOCALS, sub_parts=["TAIL"],
                                     origin_value="local.TAIL"),
@@ -136,7 +136,7 @@ class TestUtils(TestCase):
             actual = get_referenced_vertices_in_value(value=case[0], aliases={}, resources_types=[])
             assert actual == case[1], \
                 f"Case \"{case[0]}\" failed ❌:\n" \
-                f"  Expected: \n{pprint.pformat(case[1], indent=2)}\n\n" \
-                f"  Actual: \n{pprint.pformat(actual, indent=2)}"
+                f"  Expected: \n{pprint.pformat([str(c) for c in case[1]], indent=2)}\n\n" \
+                f"  Actual: \n{pprint.pformat([str(c) for c in actual], indent=2)}"
             print(f"Case \"{case[0]}: ✅")
 

@@ -3,6 +3,7 @@ from unittest.case import TestCase
 
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
+from checkov.graph.terraform.graph_builder.utils import remove_module_dependency_in_path
 from checkov.graph.terraform.graph_manager import GraphManager
 from tests.graph.terraform.variable_rendering.expected_data import *
 from tests.terraform.parser.test_parser_scenarios import TestParserScenarios
@@ -72,10 +73,9 @@ class TestRenderer(TestCase):
         graph_manager = GraphManager('acme', ['acme'])
         local_graph, _ = graph_manager.build_graph_from_source_directory(resources_dir, render_variables=True)
 
-        expected_output_bucket_acl = {"value": "z"}
         expected_aws_instance = {"instance_type": "bar"}
-
         self.compare_vertex_attributes(local_graph, expected_aws_instance, BlockType.RESOURCE, "aws_instance.example")
+        expected_output_bucket_acl = {"value": "z"}
         self.compare_vertex_attributes(local_graph, expected_output_bucket_acl, BlockType.OUTPUT,  "bucket_acl")
 
     def compare_vertex_attributes(self, local_graph, expected_attributes, block_type, block_name):
@@ -149,7 +149,8 @@ class TestRenderer(TestCase):
         expected = TestParserScenarios.load_expected_data("expected2.json", resources_dir)
 
         for expected_file, expected_block_type_dict in expected.items():
-            got_file = got_tf_definitions.get(expected_file)
+            module_removed_path, _ = remove_module_dependency_in_path(expected_file)
+            got_file = got_tf_definitions.get(module_removed_path)
             self.assertIsNotNone(got_file)
             for expected_block_type, expected_block_type_list in expected_block_type_dict.items():
                 got_block_type_list = got_file.get(expected_block_type)
@@ -161,6 +162,7 @@ class TestRenderer(TestCase):
                             for got_block_name, got_block_val in got_block_dict.items():
                                 if got_block_name == expected_block_name:
                                     self.assertEqual(expected_block_val, got_block_val)
+                                    print(f"success {got_block_name}: {got_block_val}")
                                     found = True
                                     break
                             if found:

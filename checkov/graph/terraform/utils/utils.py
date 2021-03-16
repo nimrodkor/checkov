@@ -32,6 +32,9 @@ class VertexReference:
             return NotImplemented
         return self.block_type == other.block_type and self.sub_parts == other.sub_parts and self.origin_value == other.origin_value
 
+    def __str__(self):
+        return f"{self.block_type} sub_parts = {self.sub_parts}, origin = {self.origin_value}"
+
 
 def get_vertices_references(str_value, aliases, resources_types):
     vertices_references = []
