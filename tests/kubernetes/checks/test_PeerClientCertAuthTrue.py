@@ -17,6 +17,10 @@ class TestPeerClientCertAuthTrue(unittest.TestCase):
         summary = report.get_summary()
         self.assertEqual(1, summary['passed'])
         self.assertEqual(2, summary['failed'])
+        for failed in report.failed_checks:
+            self.assertTrue("should-fail" in failed.resource)
+        for passed in report.passed_checks:
+            self.assertTrue("should-pass" in passed.resource)
 
 
 if __name__ == '__main__':
