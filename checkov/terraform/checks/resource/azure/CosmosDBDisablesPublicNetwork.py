@@ -7,8 +7,8 @@ class CosmosDBDisablesPublicNetwork(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure that Azure Cosmos DB disables public network access"
         id = "CKV_AZURE_101"
-        supported_resources = ['azurerm_batch_account']
-        categories = [CheckCategories.ENCRYPTION]
+        supported_resources = ['azurerm_cosmosdb_account']
+        categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
