@@ -1,3 +1,4 @@
+from checkov.common.models.consts import ANY_VALUE
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 from checkov.common.models.enums import CheckCategories
 
@@ -12,6 +13,9 @@ class S3BucketReplicationConfiguration(BaseResourceValueCheck):
 
     def get_inspected_key(self):
         return "replication_configuration/[0]/role"
+
+    def get_expected_value(self):
+        return ANY_VALUE
 
 
 check = S3BucketReplicationConfiguration()
