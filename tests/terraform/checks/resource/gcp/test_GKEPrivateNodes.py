@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from checkov.terraform.checks.resource.gcp.GKEReleaseChannel import check
+from checkov.terraform.checks.resource.gcp.GKEPrivateNodes import check
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.runner import Runner
 

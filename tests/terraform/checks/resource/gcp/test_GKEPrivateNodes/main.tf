@@ -19,6 +19,12 @@ resource "google_container_cluster" "success" {
   network    = var.network
   subnetwork = var.subnetwork
 
+  private_cluster_config {
+    enable_private_nodes    = var.private_cluster_config["enable_private_nodes"]
+    enable_private_endpoint = var.private_cluster_config["enable_private_endpoint"]
+    master_ipv4_cidr_block  = var.private_cluster_config["master_ipv4_cidr_block"]
+  }
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block       = var.ip_allocation_policy["cluster_ipv4_cidr_block"]
     cluster_secondary_range_name  = var.ip_allocation_policy["cluster_secondary_range_name"]
