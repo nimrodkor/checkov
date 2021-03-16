@@ -96,6 +96,13 @@ def sort(lst):
     return lst
 
 
+def merge(*args):
+    res = {}
+    for d in args:
+        res = {**res, **d}
+    return res
+
+
 SAFE_EVAL_FUNCTIONS = []
 SAFE_EVAL_DICT = dict([(k, locals().get(k, None)) for k in SAFE_EVAL_FUNCTIONS])
 
@@ -146,7 +153,7 @@ SAFE_EVAL_DICT['length'] = len
 SAFE_EVAL_DICT['list'] = lambda *args: list(args)
 SAFE_EVAL_DICT['lookup'] = lambda map_input, key, default: map_input.get(key, default)
 SAFE_EVAL_DICT['matchkeys'] = matchkeys
-SAFE_EVAL_DICT['merge'] = lambda dict1, dict2: {**dict1, **dict2}
+SAFE_EVAL_DICT['merge'] = merge
 # SAFE_EVAL_DICT['range']
 SAFE_EVAL_DICT['reverse'] = reverse
 SAFE_EVAL_DICT['sort'] = sort

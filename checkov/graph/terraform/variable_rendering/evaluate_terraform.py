@@ -50,8 +50,8 @@ def replace_string_value(original_str, str_to_replace, replaced_value):
     if str_to_replace not in original_str:
         return original_str
 
-    string_without_interpolation = re.sub(INTERPOLATION_PATTERN, '', original_str)
-    return string_without_interpolation.replace(str_to_replace, replaced_value)
+    string_without_interpolation = re.sub(INTERPOLATION_PATTERN, ' ', original_str)
+    return string_without_interpolation.replace(str_to_replace, replaced_value).replace(' ', '')
 
 
 def strip_double_quotes(input_str):

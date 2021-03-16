@@ -84,9 +84,11 @@ class LocalGraph:
                             undetermined_values.append(
                                 {'module_vertex_id': module_vertex_id, 'attribute_name': attribute_name,
                                  'variable_vertex_id': variable_vertex_id})
-                        else:
-                            self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
-                                                         module_vertex_id, attribute_name)
+                        # else:
+                        #     self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
+                        #                                  module_vertex_id, attribute_name)
+                        self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
+                                                     module_vertex_id, attribute_name)
         return undetermined_values
 
     def process_undetermined_values(self, undetermined_values):
@@ -156,6 +158,7 @@ class LocalGraph:
                                                                                    vertex.path)
                         if dest_node_index > -1 and origin_node_index > -1:
                             if vertex_reference.block_type == BlockType.MODULE:
+                                self._create_edge(origin_node_index, dest_node_index, attribute_key)
                                 try:
                                     self._connect_module(sub_values, attribute_key, self.vertices[dest_node_index],
                                                          origin_node_index)
@@ -316,6 +319,16 @@ class LocalGraph:
         self.vertices[vertex_index].update_attribute(attribute_key, attribute_value, change_origin_id,
                                                      previous_breadcrumbs)
 
+    # def update_vertex_attribute(self, vertex_index, attribute_key, attribute_value, changes_by_id):
+    #     previous_breadcrumbs = []
+    #     for change_origin_id, attribute_at_dest in changes_by_id.items():
+    #         attribute_at_dest = self.vertices[change_origin_id].find_attribute(attribute_at_dest)
+    #         if attribute_at_dest:
+    #             previous_breadcrumbs = self.vertices[change_origin_id].changed_attributes.get(attribute_at_dest,
+    #                                                                                           [])
+    #         self.vertices[vertex_index].update_attribute(attribute_key, attribute_value, change_origin_id,
+    #                                                      previous_breadcrumbs)
+
     def update_vertices_configs(self):
         for vertex in self.vertices:
             changed_attributes = list(vertex.changed_attributes.keys())
@@ -326,7 +339,13 @@ class LocalGraph:
             for changed_attribute in changed_attributes:
                 new_value = vertex.attributes.get(changed_attribute, None)
                 if new_value is not None:
-                    updated_config = update_dictionary_attribute(updated_config, changed_attribute, [new_value])
+                    if vertex.block_type == BlockType.LOCALS:
+                        changed_attribute = changed_attribute.replace(vertex.name+".", '')
+                        # updated_config = deepcopy(vertex.config)
+                        # updated_config = update_dictionary_attribute(deepcopy(vertex.config), changed_attribute, new_value)
+                        updated_config = update_dictionary_attribute(updated_config, changed_attribute, new_value)
+                    else:
+                        updated_config = update_dictionary_attribute(updated_config, changed_attribute, [new_value])
 
             update_dictionary_attribute(vertex.config, vertex.name, updated_config)
 

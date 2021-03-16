@@ -117,11 +117,14 @@ def remove_function_calls_from_str(str_value):
 
 
 def remove_index_pattern_from_str(str_value):
-    return re.sub(INDEX_PATTERN, '', str_value)
+    str_value = re.sub(INDEX_PATTERN, '', str_value)
+    str_value = str_value.replace("[", " [ ")
+    str_value = str_value.replace("]", " ] ")
+    return str_value
 
 
-def remove_interpolation(str_value):
-    return re.sub(INTERPOLATION_PATTERN, ' ', str_value)
+def remove_interpolation(str_value, replace_str=' '):
+    return re.sub(INTERPOLATION_PATTERN, replace_str, str_value)
 
 
 def replace_map_attribute_access_with_dot(str_value):
