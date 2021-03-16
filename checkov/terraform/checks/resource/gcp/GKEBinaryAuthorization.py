@@ -13,8 +13,4 @@ class GKEBinaryAuthorization(BaseResourceValueCheck):
     def get_inspected_key(self):
         return 'enable_binary_authorization'
 
-    def get_expected_values(self):
-        return [True]
-
-
 check = GKEBinaryAuthorization()
