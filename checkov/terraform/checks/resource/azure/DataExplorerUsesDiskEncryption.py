@@ -13,8 +13,5 @@ class DataExplorerUsesDiskEncryption(BaseResourceValueCheck):
     def get_inspected_key(self):
         return 'enable_disk_encryption'
 
-    def get_expected_value(self):
-        return True
-
 
 check = DataExplorerUsesDiskEncryption()
