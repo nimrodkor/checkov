@@ -8,16 +8,11 @@ class StorageAccountEnablesSecureTransfer(BaseResourceValueCheck):
         id = "CKV_AZURE_135"
         supported_resources = ['azurerm_storage_account']
         categories = [CheckCategories.NETWORKING]
-        super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
+        super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources,
+                         missing_block_result=CheckResult.PASSED)
 
     def get_inspected_key(self):
         return "enable_https_traffic_only"
-
-    def scan_resource_conf(self, conf):
-        enable_https_traffic_only = conf.get("enable_https_traffic_only", [True])
-        if enable_https_traffic_only[0]:
-            return CheckResult.PASSED
-        return CheckResult.FAILED
 
 
 check = StorageAccountEnablesSecureTransfer()
