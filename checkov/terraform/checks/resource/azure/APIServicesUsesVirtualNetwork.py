@@ -5,7 +5,7 @@ from checkov.terraform.checks.resource.base_resource_value_check import BaseReso
 
 class APIServicesUsesVirtualNetwork(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that API management services uses virtual networks"
+        name = "Ensure that API management services use virtual networks"
         id = "CKV_AZURE_107"
         supported_resources = ['azurerm_api_management']
         categories = [CheckCategories.NETWORKING]
