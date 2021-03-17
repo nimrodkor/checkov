@@ -4,7 +4,7 @@ from checkov.terraform.checks.resource.base_resource_negative_value_check import
 
 class FunctionAppDisallowCORS(BaseResourceNegativeValueCheck):
     def __init__(self):
-        name = "Ensure that CORS disallows every resource to access function apps"
+        name = "Ensure function apps are not accessible from all regions"
         id = "CKV_AZURE_62"
         supported_resources = ['azurerm_function_app']
         categories = [CheckCategories.GENERAL_SECURITY]
