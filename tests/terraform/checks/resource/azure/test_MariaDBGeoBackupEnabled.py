@@ -21,7 +21,7 @@ class MariaDBGeoBackupEnabled(unittest.TestCase):
             version    = "10.2"
             auto_grow_enabled             = true
             backup_retention_days         = 7
-            geo_redundant_backup_enabled  = true
+            geo_redundant_backup_enabled  = false
             public_network_access_enabled = true
             #test this i guess
             ssl_enforcement_enabled = false
@@ -44,7 +44,7 @@ class MariaDBGeoBackupEnabled(unittest.TestCase):
             version    = "10.2"
             auto_grow_enabled             = true
             backup_retention_days         = 7
-            geo_redundant_backup_enabled  = false
+            geo_redundant_backup_enabled  = true
             public_network_access_enabled = false
             #test this i guess
             ssl_enforcement_enabled = true
