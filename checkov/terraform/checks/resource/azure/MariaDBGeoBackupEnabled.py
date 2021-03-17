@@ -10,11 +10,15 @@ class MariaDBGeoBackupEnabled(BaseResourceCheck):
         categories = [CheckCategories.BACKUP_AND_RECOVERY]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
-    def get_inspected_key(self):
-        return 'geo_redundant_backup_enabled'
+    def scan_resource_conf(self, conf):
+        if 'geo_redundant_backup_enabled' not in conf: 
+            return CheckResult.FAILED
+        else:
+            if  conf['geo_redundant_backup_enabled'][0]:
+                return CheckResult.PASSED
+            else:
+                return CheckResult.FAILED
 
-    def get_expected_value(self):
-        return True
     
 
 check = MariaDBGeoBackupEnabled()
