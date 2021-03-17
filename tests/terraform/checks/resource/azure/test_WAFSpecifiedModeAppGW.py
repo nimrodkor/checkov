@@ -3,10 +3,10 @@ import unittest
 import hcl2
 
 from checkov.common.models.enums import CheckResult
-from checkov.terraform.checks.resource.azure.WAFSpecifiedModeAppGW import check
+from checkov.terraform.checks.resource.azure.AppGWUseWAFMode import check
 
 
-class TestWAFSpecifiedModeAppGW(unittest.TestCase):
+class TestAppGWUseWAFMode(unittest.TestCase):
 
     def test_failure1(self):
         hcl_res = hcl2.loads("""

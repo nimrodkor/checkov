@@ -2,7 +2,7 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.terraform.checks.resource.base_resource_check import BaseResourceCheck
 
 
-class WAFSpecifiedModeAppGW(BaseResourceCheck):
+class AppGWUseWAFMode(BaseResourceCheck):
     def __init__(self):
         name = "Ensure that Application Gateway uses WAF in \"Detection\" or \"Prevention\" modes"
         id = "CKV_AZURE_122"
@@ -18,4 +18,4 @@ class WAFSpecifiedModeAppGW(BaseResourceCheck):
         return CheckResult.PASSED
 
 
-check = WAFSpecifiedModeAppGW()
+check = AppGWUseWAFMode()
