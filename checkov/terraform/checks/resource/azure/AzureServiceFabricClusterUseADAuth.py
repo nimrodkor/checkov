@@ -8,7 +8,7 @@ class AzureServiceFabricClusterUseADAuth(BaseResourceValueCheck):
         name = "Ensures that Active Directory is used for authentication for Service Fabric"
         id = "CKV_AZURE_125"
         supported_resources = ['azurerm_service_fabric_cluster']
-        categories = [CheckCategories.GENERAL_SECURITY]
+        categories = [CheckCategories.ENCRYPTION]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
