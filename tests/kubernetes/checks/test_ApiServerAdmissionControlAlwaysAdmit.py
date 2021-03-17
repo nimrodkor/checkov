@@ -16,23 +16,18 @@ class TestApiServerAdmissionControlAlwaysAdmit(unittest.TestCase):
         report = runner.run(root_folder=test_files_dir,runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
 
-        passing_resources = {
-            'kube-apiserver-passed',
-        }
-        failing_resources = {
-            'kube-apiserver-failed',
-        }
-
-        passed_check_resources = set([c.resource for c in report.passed_checks])
-        failed_check_resources = set([c.resource for c in report.failed_checks])
-
         self.assertEqual(summary['passed'], 1)
         self.assertEqual(summary['failed'], 1)
         self.assertEqual(summary['skipped'], 0)
         self.assertEqual(summary['parsing_errors'], 0)
 
-        self.assertEqual(passing_resources, passed_check_resources)
-        self.assertEqual(failing_resources, failed_check_resources)
+        for record in report.failed_checks:
+            self.assertTrue("FAILED" in record.file_path)
+            self.assertTrue(record.check_id in [check.id])
+            
+        for record in report.passed_checks:
+            self.assertTrue("PASSED" in record.file_path)
+            self.assertTrue(record.check_id in [check.id])  
 
 
 if __name__ == '__main__':
