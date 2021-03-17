@@ -2,11 +2,11 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class SQLServerHasPublicAccessDisabled(BaseResourceValueCheck):
+class MySQLServerHasPublicAccessDisabled(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that SQL server disables public network access"
-        id = "CKV_AZURE_131"
-        supported_resources = ['azurerm_mssql_server']
+        name = "Ensure that MySQL server disables public network access"
+        id = "CKV_AZURE_132"
+        supported_resources = ['azurerm_mysql_server']
         categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
@@ -20,4 +20,4 @@ class SQLServerHasPublicAccessDisabled(BaseResourceValueCheck):
         return CheckResult.PASSED
 
 
-check = SQLServerHasPublicAccessDisabled()
+check = MySQLServerHasPublicAccessDisabled()
