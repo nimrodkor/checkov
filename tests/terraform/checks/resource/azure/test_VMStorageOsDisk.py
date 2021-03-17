@@ -8,9 +8,9 @@ from checkov.common.models.enums import CheckResult
 
 class TestVMStorageOsDisk(unittest.TestCase):
 
-    def test_failure(self):
+    def test_success(self):
         hcl_res = hcl2.loads("""
-                            resource "azurerm_virtual_machine" "example" {
+                            resource "azurerm_windows_virtual_machine" "example" {
                               name                  = "${var.prefix}-vm"
                               location              = azurerm_resource_group.main.location
                               resource_group_name   = azurerm_resource_group.main.name
@@ -39,13 +39,13 @@ class TestVMStorageOsDisk(unittest.TestCase):
                               }
                             }    
             """)
-        resource_conf = hcl_res['resource'][0]['azurerm_virtual_machine']['example']
+        resource_conf = hcl_res['resource'][0]['azurerm_windows_virtual_machine']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.FAILED, scan_result)
+        self.assertEqual(CheckResult.PASSED, scan_result)
 
-    def test_failure_no_param(self):
+    def test_success_no_param(self):
         hcl_res = hcl2.loads("""
-                            resource "azurerm_virtual_machine" "example" {
+                            resource "azurerm_linux_virtual_machine" "example" {
                               name                  = "${var.prefix}-vm"
                               location              = azurerm_resource_group.main.location
                               resource_group_name   = azurerm_resource_group.main.name
@@ -68,13 +68,13 @@ class TestVMStorageOsDisk(unittest.TestCase):
                               }
                             }    
             """)
-        resource_conf = hcl_res['resource'][0]['azurerm_virtual_machine']['example']
+        resource_conf = hcl_res['resource'][0]['azurerm_linux_virtual_machine']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.FAILED, scan_result)
+        self.assertEqual(CheckResult.PASSED, scan_result)
 
-    def test_success(self):
+    def test_failure(self):
         hcl_res = hcl2.loads("""
-                            resource "azurerm_virtual_machine" "example" {
+                            resource "azurerm_linux_virtual_machine" "example" {
                               name                  = "${var.prefix}-vm"
                               location              = azurerm_resource_group.main.location
                               resource_group_name   = azurerm_resource_group.main.name
@@ -104,13 +104,13 @@ class TestVMStorageOsDisk(unittest.TestCase):
                               }
                             }    
                 """)
-        resource_conf = hcl_res['resource'][0]['azurerm_virtual_machine']['example']
+        resource_conf = hcl_res['resource'][0]['azurerm_linux_virtual_machine']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.PASSED, scan_result)
+        self.assertEqual(CheckResult.FAILED, scan_result)
 
-    def test_success2(self):
+    def test_failure2(self):
         hcl_res = hcl2.loads("""
-                            resource "azurerm_virtual_machine" "example" {
+                            resource "azurerm_windows_virtual_machine" "example" {
                               name                  = "${var.prefix}-vm"
                               location              = azurerm_resource_group.main.location
                               resource_group_name   = azurerm_resource_group.main.name
@@ -140,9 +140,9 @@ class TestVMStorageOsDisk(unittest.TestCase):
                               }
                             }    
                 """)
-        resource_conf = hcl_res['resource'][0]['azurerm_virtual_machine']['example']
+        resource_conf = hcl_res['resource'][0]['azurerm_windows_virtual_machine']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.PASSED, scan_result)
+        self.assertEqual(CheckResult.FAILED, scan_result)
 
 
 if __name__ == '__main__':
