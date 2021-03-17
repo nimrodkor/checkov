@@ -2,11 +2,11 @@ import unittest
 
 import hcl2
 
-from checkov.terraform.checks.resource.azure.MariaDBPublicAccessDisabled import check
+from checkov.terraform.checks.resource.azure.MariaDBGeoBackupEnabled import check
 from checkov.common.models.enums import CheckResult
 
 
-class TestMariaDBPublicAccessDisabled(unittest.TestCase):
+class MariaDBGeoBackupEnabled(unittest.TestCase):
 
     def test_failure(self):
         hcl_res = hcl2.loads("""
