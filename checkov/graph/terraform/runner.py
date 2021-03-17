@@ -99,7 +99,7 @@ class Runner(BaseRunner):
         checks_results = {}
         for r in self.external_registries + [registry]:
             r.load_checks()
-            registry_results = r.run_checks(self.graph_manager)
+            registry_results = r.run_checks(self.graph_manager.get_reader_traversal())
             checks_results = {**checks_results, **registry_results}
 
         for check_id, check_results in checks_results.items():
