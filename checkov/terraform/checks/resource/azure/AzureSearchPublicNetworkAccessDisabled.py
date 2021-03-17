@@ -7,7 +7,7 @@ class AzureSearchPublicNetworkAccessDisabled(BaseResourceValueCheck):
         name = "Ensure that Azure Cognitive Search disables public network access"
         id = "CKV_AZURE_124"
         supported_resources = ['azurerm_search_service']
-        categories = [CheckCategories.GENERAL_SECURITY]
+        categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
