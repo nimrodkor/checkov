@@ -27,7 +27,7 @@ class TestEventgridDomainNetworkAccess(unittest.TestCase):
               location            = azurerm_resource_group.example.location
               resource_group_name = azurerm_resource_group.example.name
               
-              public_network_access_enabled = true\
+              public_network_access_enabled = true
               }
                 """)
         resource_conf = hcl_res['resource'][0]['azurerm_eventgrid_domain']['example']
