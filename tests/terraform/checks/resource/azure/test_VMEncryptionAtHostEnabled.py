@@ -199,7 +199,7 @@ class TestVMEncryptionAtHostEnabled(unittest.TestCase):
                 }   """)
         resource_conf = hcl_res['resource'][0]['azurerm_windows_virtual_machine_scale_set']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.FAILED, scan_result)
+        self.assertEqual(CheckResult.PASSED, scan_result)
 
     def test_success2(self):
         hcl_res = hcl2.loads("""
@@ -238,7 +238,7 @@ class TestVMEncryptionAtHostEnabled(unittest.TestCase):
                 }   """)
         resource_conf = hcl_res['resource'][0]['azurerm_linux_virtual_machine_scale_set']['example']
         scan_result = check.scan_resource_conf(conf=resource_conf)
-        self.assertEqual(CheckResult.FAILED, scan_result)
+        self.assertEqual(CheckResult.PASSED, scan_result)
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ class VMEncryptionAtHostEnabled(BaseResourceValueCheck):
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
-        return 'encryption_at_host_enabled '
+        return 'encryption_at_host_enabled'
 
 
 check = VMEncryptionAtHostEnabled()
