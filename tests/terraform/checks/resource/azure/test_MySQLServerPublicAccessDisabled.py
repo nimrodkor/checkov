@@ -6,7 +6,7 @@ from checkov.terraform.checks.resource.azure.MySQLServerPublicAccessDisabled imp
 from checkov.common.models.enums import CheckResult
 
 
-class TestSQLServerPublicAccessDisabled(unittest.TestCase):
+class TestMysqlSQLServerPublicAccessDisabled(unittest.TestCase):
 
     def test_failure_1(self):
         hcl_res = hcl2.loads("""
