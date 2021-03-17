@@ -6,7 +6,7 @@ from checkov.terraform.checks.resource.azure.StorageAccountEnablesSecureTransfer
 from checkov.common.models.enums import CheckResult
 
 
-class TestDiskEncryption(unittest.TestCase):
+class TestStorageAccountEnablesSecureTransfer(unittest.TestCase):
 
     def test_failure(self):
         hcl_res = hcl2.loads("""
