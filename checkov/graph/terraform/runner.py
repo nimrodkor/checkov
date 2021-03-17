@@ -11,56 +11,48 @@ from checkov.common.runners.base_runner import BaseRunner
 from checkov.common.variables.context import EvaluationContext
 from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
 from checkov.graph.graph_record import GraphRecord
-from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks_infra.registry import Registry
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
 from checkov.graph.terraform.graph_manager import GraphManager
+from checkov.graph.terraform.parser import TerraformGraphParser
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.checks.resource.registry import resource_registry
-from checkov.terraform.context_parsers.registry import parser_registry
 from checkov.terraform.runner import Runner as TerraformRunner
 
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=LOG_LEVEL)
-
-class PersistentGraphData:
-    tf_definitions = None
-    definitions_context = None
-    breadcrumbs = {}
-
-
-TRUE_STRING = "true"
-ONE_STRING = "1"
-FALSE_STRING = "false"
-ZERO_STRING = "0"
 
 
 class Runner(BaseRunner):
     check_type = "terraform"
 
     def __init__(self, parser=TerraformGraphParser(), db_connector=NetworkxConnector(), external_registries=None,
-                 source="Terraform", graph_class=LocalGraph, existing_data: PersistentGraphData = None):
-        self.existing_data = existing_data
+                 source="Terraform", graph_class=LocalGraph, graph_manager=None):
         self.external_registries = [] if external_registries is None else external_registries
         self.graph_class = graph_class
         self.parser = parser
-        self.tf_definitions = None if existing_data is None else existing_data.tf_definitions
-        self.definitions_context = None if existing_data is None else existing_data.definitions_context
-        self.breadcrumbs = None if existing_data is None else existing_data.breadcrumbs
+        self.tf_definitions = None
+        self.definitions_context = None
+        self.breadcrumbs = None
         self.evaluations_context: Dict[str, Dict[str, EvaluationContext]] = {}
-        self.graph_manager = GraphManager(source=source, db_connector=db_connector)
+        self.graph_manager = graph_manager if graph_manager is not None else GraphManager(source=source, db_connector=db_connector)
         self.tf_runner = TerraformRunner()
         self.graph = None
+
+    def set_external_data(self, tf_definitions: dict, definitions_context: dict, breadcrumbs: dict):
+        self.tf_definitions = tf_definitions
+        self.definitions_context = definitions_context
+        self.breadcrumbs = breadcrumbs
 
     def run(self, root_folder, external_checks_dir=None, files=None, runner_filter=RunnerFilter(),
             collect_skip_comments=True):
         report = Report(self.check_type)
-        self.tf_definitions = {}
         parsing_errors = {}
-        if self.definitions_context is None or self.tf_definitions is None:
+        if self.definitions_context is None or self.tf_definitions is None or self.breadcrumbs is None:
+            self.tf_definitions = {}
             logging.info("Scanning root folder and producing fresh tf_definitions and context")
             if external_checks_dir:
                 for directory in external_checks_dir:
@@ -88,6 +80,9 @@ class Runner(BaseRunner):
 
             self.graph = self.graph_manager.save_graph(local_graph)
             self.tf_runner.tf_definitions, self.breadcrumbs = convert_graph_vertices_to_tf_definitions(local_graph.vertices, root_folder)
+        else:
+            logging.info(f"Scanning root folder using existing tf_definitions")
+            self.tf_runner.tf_definitions = self.tf_definitions
 
         self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments, self.definitions_context)
 
@@ -144,29 +139,6 @@ class Runner(BaseRunner):
                                        entity_context_path)
             entity_context['definition_path'] = definition_path
         return entity_context, entity_evaluations
-
-    def create_definitions_context(self, tf_definitions, evaluate_variables=True, collect_skip_comments=True):
-        definitions_context = {}
-        parser_registry.reset_definitions_context()
-        for definition in tf_definitions.items():
-            definitions_context = parser_registry.enrich_definitions_context(definition, collect_skip_comments=collect_skip_comments)
-        if evaluate_variables:
-            self._evaluate_string_booleans()
-        return tf_definitions, definitions_context
-
-    def _evaluate_string_booleans(self):
-        # Support HCL 0.11 optional boolean syntax - evaluate "true" and "1" to true, "false" and "0" to false
-        for tf_file in self.tf_definitions.keys():
-            for var_path, var_value in dpath.util.search(self.tf_definitions[tf_file], "**",
-                                                         afilter=lambda x: x == TRUE_STRING or x == ONE_STRING,
-                                                         yielded=True):
-                if not var_path.endswith('alias/0'):
-                    dpath.set(self.tf_definitions[tf_file], var_path, True)
-            for var_path, var_value in dpath.util.search(self.tf_definitions[tf_file], "**",
-                                                         afilter=lambda x: x == FALSE_STRING or x == ZERO_STRING,
-                                                         yielded=True):
-                if not var_path.endswith('alias/0'):
-                    dpath.set(self.tf_definitions[tf_file], var_path, False)
 
 
 def merge_reports(base_report, report_to_merge):

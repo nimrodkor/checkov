@@ -24,7 +24,7 @@ resource "google_container_cluster" "fail1" {
   }
 
   release_channel {
-    channel=var.release_channel
+    channel = var.release_channel
   }
 
   master_auth {
@@ -90,9 +90,9 @@ resource "google_container_cluster" "fail2" {
   }
 
   remove_default_node_pool = var.remove_default_node_pool
-  
-  enable_shielded_nodes=false
-  
+
+  enable_shielded_nodes = false
+
   node_config {
     workload_metadata_config {
       node_metadata = "GKE_METADATA_SERVER"
@@ -100,7 +100,7 @@ resource "google_container_cluster" "fail2" {
   }
 
   release_channel {
-    channel=var.release_channel
+    channel = var.release_channel
   }
 
   master_auth {
@@ -166,9 +166,9 @@ resource "google_container_cluster" "success" {
   }
 
   remove_default_node_pool = var.remove_default_node_pool
-  
-  enable_shielded_nodes=true
-  
+
+  enable_shielded_nodes = true
+
   node_config {
     workload_metadata_config {
       node_metadata = "GKE_METADATA_SERVER"
@@ -176,7 +176,7 @@ resource "google_container_cluster" "success" {
   }
 
   release_channel {
-    channel=var.release_channel
+    channel = var.release_channel
   }
 
   master_auth {

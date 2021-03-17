@@ -27,5 +27,3 @@ class NetworkxConnector(DBConnector):
         self.graph.add_edges_from(edges_to_add)
 
         return self.graph
-
-
