@@ -3,7 +3,7 @@ from checkov.common.models.enums import CheckCategories
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class APIServicesUsesVirtualNetwork(BaseResourceValueCheck):
+class APIServicesUseVirtualNetwork(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure that API management services use virtual networks"
         id = "CKV_AZURE_107"
@@ -18,4 +18,4 @@ class APIServicesUsesVirtualNetwork(BaseResourceValueCheck):
         return ANY_VALUE
 
 
-check = APIServicesUsesVirtualNetwork()
+check = APIServicesUseVirtualNetwork()

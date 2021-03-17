@@ -2,11 +2,11 @@ import unittest
 
 import hcl2
 
-from checkov.terraform.checks.resource.azure.APIServicesUsesVirtualNetwork import check
+from checkov.terraform.checks.resource.azure.APIServicesUseVirtualNetwork import check
 from checkov.common.models.enums import CheckResult
 
 
-class TestAPIServicesUsesVirtualNetwork(unittest.TestCase):
+class TestAPIServicesUseVirtualNetwork(unittest.TestCase):
 
     def test_failure(self):
         hcl_res = hcl2.loads("""
