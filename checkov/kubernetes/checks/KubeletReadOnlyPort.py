@@ -19,9 +19,7 @@ def commandsParser(conf):
                             
     
     return keys,values
-                  
-
-
+                
 class KubeletReadOnlyPort(BaseK8Check):
     def __init__(self):
         # CIS-1.6 4.2.4
