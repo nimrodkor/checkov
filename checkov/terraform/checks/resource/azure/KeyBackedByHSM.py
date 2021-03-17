@@ -13,8 +13,11 @@ class KeyBackedByHSM(BaseResourceValueCheck):
     def get_inspected_key(self):
         return 'key_type'
 
+    def get_expected_value(self):
+        return 'RSA-HSM'
+
     def get_expected_values(self):
-        return ['EC-HSM', 'RSA-HSM']
+        return [self.get_expected_value(), 'EC-HSM']
 
 
 check = KeyBackedByHSM()
