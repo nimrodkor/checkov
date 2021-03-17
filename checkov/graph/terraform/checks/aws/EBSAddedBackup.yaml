@@ -3,7 +3,7 @@ metadata:
   id: "CKV2_AWS_9"
   category: "Backup And Recovery"
   supported_resources:
-    - aws_backup_selection
+    - aws_ebs_volume
 scope:
   provider: "AWS"
 definition:
