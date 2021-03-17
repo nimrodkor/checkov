@@ -2,7 +2,7 @@ import unittest
 
 import hcl2
 
-from checkov.terraform.checks.resource.azure.SQLServerPublicAccessDisabled import check
+from checkov.terraform.checks.resource.azure.SQLServerHasPublicAccessDisabled import check
 from checkov.common.models.enums import CheckResult
 
 
