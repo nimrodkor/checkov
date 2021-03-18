@@ -39,7 +39,7 @@ class TestMySQLTreatDetectionEnabled(unittest.TestCase):
         scan_result = check.scan_resource_conf(conf=resource_conf)
         self.assertEqual(CheckResult.FAILED, scan_result)
         
-     def test_failure(self):
+     def test_failure_empty(self):
         hcl_res = hcl2.loads("""
             resource "azurerm_mysql_server" "example" {
               name                = "example-mysqlserver"
