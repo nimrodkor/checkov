@@ -14,7 +14,5 @@ class PostgresSQLTreatDetectionEnabled(BaseResourceValueCheck):
     def get_inspected_key(self):
         return "threat_detection_policy/enabled"
 
-    def get_expected_value(self):
-        return True
 
 check = PostgresSQLTreatDetectionEnabled()
