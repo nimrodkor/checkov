@@ -3,15 +3,14 @@ from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
 
-class ApiServerEncryptionProviders(BaseK8Check):
+class ApiServerEtcdCaFile(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.34
-        id = "CKV_K8S_104"
-        name = "Ensure that the --encryption-provider-config argument is set"
+        # CIS-1.6 1.2.32
+        id = "CKV_K8S_102"
+        name = "Ensure that the --etcd-cafile argument is set as appropriate"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
-        super().__init__(name=name, id=id, categories=categories,
-                         supported_entities=supported_entities)
+        super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
 
     def get_resource_id(self, conf):
         return f'{conf["parent"]} - {conf["name"]}'
@@ -29,11 +28,11 @@ class ApiServerEncryptionProviders(BaseK8Check):
                 else:
                     keys.append(cmd)
                     values.append(None)
-
-        if "kube-apiserver" in keys and "--encryption-provider-config" not in keys:
+        print(keys)
+        if "kube-apiserver" in keys and "--etcd-cafile" not in keys:
             return CheckResult.FAILED
-
+        
         return CheckResult.PASSED
 
 
-check = ApiServerEncryptionProviders()
+check =  ApiServerEtcdCaFile()
