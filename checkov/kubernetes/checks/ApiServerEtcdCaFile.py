@@ -28,7 +28,7 @@ class ApiServerEtcdCaFile(BaseK8Check):
                 else:
                     keys.append(cmd)
                     values.append(None)
-        print(keys)
+
         if "kube-apiserver" in keys and "--etcd-cafile" not in keys:
             return CheckResult.FAILED
         
