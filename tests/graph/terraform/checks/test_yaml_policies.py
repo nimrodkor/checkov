@@ -63,6 +63,9 @@ class TestYamlPolicies(unittest.TestCase):
     def test_GCPProjectHasNoLegacyNetworks(self):
         self.go("GCPProjectHasNoLegacyNetworks")
 
+    def test_AzureStorageAccountsUseCustomerManagedKeyForEncryption(self):
+        self.go("AzureStorageAccountsUseCustomerManagedKeyForEncryption")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()
