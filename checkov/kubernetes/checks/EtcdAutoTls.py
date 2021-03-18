@@ -16,7 +16,7 @@ class EtcdAutoTls(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if "etcd" in conf.get("command", []) and "--auto-tls=true" not in conf.get("command", []):
+        if "etcd" in conf.get("command", []) and "--auto-tls=true" in conf.get("command", []):
             return CheckResult.FAILED
 
         return CheckResult.PASSED
