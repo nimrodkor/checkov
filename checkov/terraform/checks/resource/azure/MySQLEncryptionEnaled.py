@@ -13,11 +13,5 @@ class MySQLEncryptionEnaled(BaseResourceValueCheck):
     def get_inspected_key(self):
         return 'infrastructure_encryption_enabled'
 
-    def get_expected_value(self):
-        """
-        Returns the default expected value, governed by provider best practices
-        """
-        return True
-
 
 check = MySQLEncryptionEnaled()
