@@ -2,10 +2,6 @@ metadata:
   id: "CKV2_GCP_6"
   name: "Ensure that Cloud KMS cryptokeys are not anonymously or publicly accessible"
   category: "ENCRYPTION"
-  supported_resources:
-    - google_kms_crypto_key
-scope:
-  provider: "GCP"
 definition:
   and:
     - cond_type: filter

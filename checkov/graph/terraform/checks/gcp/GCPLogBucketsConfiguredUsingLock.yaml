@@ -6,8 +6,6 @@ metadata:
     - google_logging_organization_sink
     - google_logging_folder_sink
     - google_logging_project_sink
-scope:
-  provider: "GCP"
 definition:
   and:
     - cond_type: filter

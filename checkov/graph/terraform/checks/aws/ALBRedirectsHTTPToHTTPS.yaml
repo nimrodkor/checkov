@@ -2,10 +2,6 @@ metadata:
   id: "CKV2_AWS_20"
   name: "Ensure that ALB redirects HTTP requests into HTTPS ones"
   category: "NETWORKING"
-  supported_resources:
-    - aws_lb
-scope:
-  provider: "AWS"
 definition:
   and:
     - cond_type: filter

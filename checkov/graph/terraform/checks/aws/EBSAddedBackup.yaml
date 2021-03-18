@@ -2,10 +2,6 @@ metadata:
   name: "Ensure that EBS are added in the backup plans of AWS Backup"
   id: "CKV2_AWS_9"
   category: "BACKUP_AND_RECOVERY"
-  supported_resources:
-    - aws_ebs_volume
-scope:
-  provider: "AWS"
 definition:
   and:
     - cond_type: connection

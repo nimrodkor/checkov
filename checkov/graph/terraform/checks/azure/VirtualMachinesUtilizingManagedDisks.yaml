@@ -2,10 +2,6 @@ metadata:
   name: "Ensure Virtual Machines are utilizing Managed Disks"
   category: "GENERAL_SECURITY"
   id: "CKV2_AZURE_9"
-  supported_resources:
-    - azurerm_virtual_machine
-scope:
-  provider: "Azure"
 definition:
   and:
     - cond_type: filter
