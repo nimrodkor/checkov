@@ -2,19 +2,16 @@ from checkov.common.models.enums import CheckCategories
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class CosmosDBDisablesPublicNetwork(BaseResourceValueCheck):
+class KeyVaultEnablesPurgeProtection(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that Azure Cosmos DB disables public network access"
-        id = "CKV_AZURE_101"
-        supported_resources = ['azurerm_cosmosdb_account']
+        name = "Ensure that key vault enables purge protection"
+        id = "CKV_AZURE_110"
+        supported_resources = ['azurerm_key_vault']
         categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
-        return 'public_network_access_enabled'
-
-    def get_expected_value(self):
-        return False
+        return "purge_protection_enabled"
 
 
-check = CosmosDBDisablesPublicNetwork()
+check = KeyVaultEnablesPurgeProtection()

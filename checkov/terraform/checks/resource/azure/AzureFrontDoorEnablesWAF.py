@@ -1,20 +1,21 @@
+from checkov.common.models.consts import ANY_VALUE
 from checkov.common.models.enums import CheckCategories
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceValueCheck
 
 
-class CosmosDBDisablesPublicNetwork(BaseResourceValueCheck):
+class AzureFrontDoorEnablesWAF(BaseResourceValueCheck):
     def __init__(self):
-        name = "Ensure that Azure Cosmos DB disables public network access"
-        id = "CKV_AZURE_101"
-        supported_resources = ['azurerm_cosmosdb_account']
+        name = "Ensure that Azure Front Door enables WAF"
+        id = "CKV_AZURE_121"
+        supported_resources = ['azurerm_frontdoor']
         categories = [CheckCategories.NETWORKING]
         super().__init__(name=name, id=id, categories=categories, supported_resources=supported_resources)
 
     def get_inspected_key(self):
-        return 'public_network_access_enabled'
+        return "web_application_firewall_policy_link_id"
 
     def get_expected_value(self):
-        return False
+        return ANY_VALUE
 
 
-check = CosmosDBDisablesPublicNetwork()
+check = AzureFrontDoorEnablesWAF()

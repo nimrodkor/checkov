@@ -51,12 +51,12 @@ class Runner(BaseRunner):
             collect_skip_comments=True):
         report = Report(self.check_type)
         parsing_errors = {}
+        if external_checks_dir:
+            for directory in external_checks_dir:
+                resource_registry.load_external_checks(directory, runner_filter)
         if self.definitions_context is None or self.tf_definitions is None or self.breadcrumbs is None:
             self.tf_definitions = {}
             logging.info("Scanning root folder and producing fresh tf_definitions and context")
-            if external_checks_dir:
-                for directory in external_checks_dir:
-                    resource_registry.load_external_checks(directory, runner_filter)
             if root_folder:
                 root_folder = os.path.abspath(root_folder)
 
@@ -85,6 +85,7 @@ class Runner(BaseRunner):
             self.tf_runner.tf_definitions = self.tf_definitions
 
         self.tf_runner.check_tf_definition(report, root_folder, runner_filter, collect_skip_comments, self.definitions_context)
+        self.definitions_context = self.tf_runner.definitions_context
 
         report.add_parsing_errors(parsing_errors.keys())
 
@@ -95,11 +96,11 @@ class Runner(BaseRunner):
 
     def get_graph_checks_report(self, root_folder, breadcrumbs):
         registry = Registry(parser=NXGraphCheckParser())
-        registry.load_checks()
         report = Report(self.check_type)
         checks_results = {}
         for r in self.external_registries + [registry]:
-            registry_results = r.run_checks(self.graph)
+            r.load_checks()
+            registry_results = r.run_checks(self.graph_manager.get_reader_traversal())
             checks_results = {**checks_results, **registry_results}
 
         for check_id, check_results in checks_results.items():
@@ -134,9 +135,8 @@ class Runner(BaseRunner):
         definition_path = entity[CustomAttributes.BLOCK_NAME].split('.')
         entity_context = None
         entity_context_path = [block_type] + definition_path
-        if dpath.search(self.tf_runner.definitions_context.get(full_file_path), entity_context_path):
-            entity_context = dpath.get(self.tf_runner.definitions_context[full_file_path],
-                                       entity_context_path)
+        if dpath.search(self.definitions_context.get(full_file_path), entity_context_path):
+            entity_context = dpath.get(self.definitions_context[full_file_path], entity_context_path)
             entity_context['definition_path'] = definition_path
         return entity_context, entity_evaluations
 
