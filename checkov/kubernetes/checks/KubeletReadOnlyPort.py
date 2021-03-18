@@ -1,24 +1,6 @@
 
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
-
-
-def commandsParser(conf):
-    keys=[]
-    values=[]
-    if "command" in conf:
-        for cmd in conf["command"]:
-            if "=" in cmd:
-                firstEqual = cmd.index("=")
-                [key, value] = [cmd[:firstEqual], cmd[firstEqual+1:]]
-                keys.append(key)
-                values.append(value)
-            else:
-                keys.append(cmd)
-                values.append(None)
-                            
-    
-    return keys,values
                 
 class KubeletReadOnlyPort(BaseK8Check):
     def __init__(self):
@@ -34,7 +16,18 @@ class KubeletReadOnlyPort(BaseK8Check):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        [keys,values] = commandsParser(conf)
+        keys=[]
+        values=[]
+        if "command" in conf:
+            for cmd in conf["command"]:
+                if "=" in cmd:
+                    firstEqual = cmd.index("=")
+                    [key, value] = [cmd[:firstEqual], cmd[firstEqual+1:]]
+                    keys.append(key)
+                    values.append(value)
+                else:
+                    keys.append(cmd)
+                    values.append(None)
 
         if "kubelet" in keys:
             if '--read-only-port' in keys and values[keys.index('--read-only-port')] == "0":
