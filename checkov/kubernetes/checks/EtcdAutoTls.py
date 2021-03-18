@@ -1,6 +1,7 @@
 from checkov.common.models.enums import CheckCategories, CheckResult
 from checkov.kubernetes.base_spec_check import BaseK8Check
 
+
 class EtcdAutoTls(BaseK8Check):
     def __init__(self):
         # CIS-1.6 2.3
@@ -8,17 +9,17 @@ class EtcdAutoTls(BaseK8Check):
         name = "Ensure that the --auto-tls argument is not set to true"
         categories = [CheckCategories.KUBERNETES]
         supported_entities = ['containers']
-        super().__init__(name=name, id=id, categories=categories, supported_entities=supported_entities)
+        super().__init__(name=name, id=id, categories=categories,
+                         supported_entities=supported_entities)
 
     def get_resource_id(self, conf):
         return f'{conf["parent"]} - {conf["name"]}'
 
     def scan_spec_conf(self, conf):
-        if conf.get("command") is not None:
-            if "etcd" in conf["command"]:
-                if "--auto-tls=true" in conf["command"]:
-                    return CheckResult.FAILED
-           
+        if "etcd" in conf.get("command", []) and "--auto-tls=true" not in conf.get("command", []):
+            return CheckResult.FAILED
+
         return CheckResult.PASSED
+
 
 check = EtcdAutoTls()
