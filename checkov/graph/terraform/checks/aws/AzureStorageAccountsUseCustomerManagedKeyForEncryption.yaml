@@ -13,7 +13,7 @@ definition:
       operator: exists
       resource_types:
         - azurerm_storage_account
-      connected_resource_types:r
+      connected_resource_types:
         - azurerm_storage_account_customer_managed_key
     - cond_type: attribute
       operator: not_equals
