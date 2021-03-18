@@ -2,7 +2,7 @@ from checkov.common.models.enums import CheckResult, CheckCategories
 from checkov.terraform.checks.resource.base_resource_value_check import BaseResourceCheck
 
 
-class MariaDBGeoBackupEnabled(BaseResourceCheck):
+class MariaDBGeoBackupEnabled(BaseResourceValueCheck):
     def __init__(self):
         name = "Ensure that MariaDB server enables geo-redundant backups"
         id = "CKV_AZURE_129"
