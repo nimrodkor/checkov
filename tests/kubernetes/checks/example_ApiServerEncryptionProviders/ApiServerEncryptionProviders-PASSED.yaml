@@ -11,7 +11,7 @@ spec:
   containers:
   - command:
     - kube-apiserver
-    - --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - --encryption-provider-config=config.file
     image: gcr.io/google_containers/kube-apiserver-amd64:v1.6.0
     livenessProbe:
       failureThreshold: 8
