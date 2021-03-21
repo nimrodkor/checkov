@@ -30,9 +30,8 @@ class ApiServerkubeletCertificateAuthority(BaseK8Check):
                     keys.append(cmd)
                     values.append(None)
 
-        if "kube-apiserver" in keys:
-            if '--kubelet-certificate-authority' not in keys:
-                return CheckResult.FAILED
+        if "kube-apiserver" in keys and '--kubelet-certificate-authority' not in keys:
+            return CheckResult.FAILED
 
         return CheckResult.PASSED
 
