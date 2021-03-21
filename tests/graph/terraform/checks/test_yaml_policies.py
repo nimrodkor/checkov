@@ -96,6 +96,12 @@ class TestYamlPolicies(unittest.TestCase):
     def test_VMHasBackUpMachine(self):
         self.go("VMHasBackUpMachine")
 
+    def test_SubnetHasACL(self):
+        self.go("SubnetHasACL")
+
+    def test_GKEClustersAreNotUsingDefaultServiceAccount(self):
+        self.go("GKEClustersAreNotUsingDefaultServiceAccount")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()

@@ -1,7 +1,6 @@
 metadata:
   id: "CKV2_AWS_22"
   name: "Ensure that IAM groups includes at least one IAM user"
-  guidelines: ""
   category: "IAM"
 scope:
   provider: "AWS"
