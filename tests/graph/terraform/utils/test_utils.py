@@ -62,6 +62,14 @@ class TestUtils(TestCase):
         actual_config = update_dictionary_attribute(origin_config, key_to_update, new_value)
         self.assertEqual(expected_config, actual_config, f'failed to update config.\nexpected: {expected_config}\ngot: {actual_config}')
 
+    def test_update_dictionary_locals(self):
+        origin_config = {'aws_s3_bucket': {'destination': {'bucket': ['tf-test-bucket-destination-12345'], 'acl': ['${var.acl}'], 'versioning': [{'enabled': ['${var.is_enabled}']}]}}}
+        key_to_update = 'acl'
+        new_value = ['public-read']
+        expected_config = {'aws_s3_bucket': {'destination': {'bucket': ['tf-test-bucket-destination-12345'], 'acl': ['public-read'], 'versioning': [{'enabled': ['${var.is_enabled}']}]}}}
+        actual_config = update_dictionary_attribute(origin_config, key_to_update, new_value)
+        self.assertEqual(expected_config, actual_config, f'failed to update config.\nexpected: {expected_config}\ngot: {actual_config}')
+
     def test_generate_possible_strings_from_wildcards(self):
         origin_string = "a.*.b.*.c.*"
         expected_results = [

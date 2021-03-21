@@ -1,6 +1,8 @@
 from unittest import TestCase
 
-from checkov.graph.terraform.variable_rendering.evaluate_terraform import evaluate_terraform, replace_string_value
+from checkov.graph.terraform.variable_rendering.evaluate_terraform import evaluate_terraform, replace_string_value, \
+    remove_interpolation
+from checkov.terraform.parser_utils import find_var_blocks
 
 
 class TestTerraformEvaluation(TestCase):
@@ -145,6 +147,23 @@ class TestTerraformEvaluation(TestCase):
         expected = ['postgresql-tcp', '']
         self.assertEqual(expected, evaluate_terraform(input_str))
 
+    def test_concat_dictionaries(self):
+        input_str = "concat([{'key':'a','value':'a'},{'key':'b','value':'b'}, \"{'key':'d','value':'d'}\"],,[{'key':'c','value':'c'}],)"
+        expected = [{'key':'a','value':'a'},{'key':'b','value':'b'},"{'key':'d','value':'d'}",{'key':'c','value':'c'}]
+        self.assertEqual(expected, evaluate_terraform(input_str))
+
+        input_str = 'concat([\'postgresql-tcp\'],[],[\'\'])'
+        expected = ['postgresql-tcp', '']
+        self.assertEqual(expected, evaluate_terraform(input_str))
+
+    # def test_concat2(self):
+    #     # input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},\"{'key':'a_key','propagate_at_launch':False,'value':'a_value'}\"],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
+    #     input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},'{'key':'a_key','propagate_at_launch':False,'value':'a_value'}'],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
+    #     expected = [{'key': 'interpolation1', 'value': 'value3', 'propagate_at_launch': True}, {'key': 'interpolation2','value': 'value4', 'propagate_at_launch': True}, "{'key':'a_key','propagate_at_launch':False,'value':'a_value'}", {'key': 'Foo', 'value': 'Bar', 'propagate_at_launch': True}, {'key': 'Baz', 'value': 'Bam', 'propagate_at_launch': True}]
+    #     # input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
+    #     # expected = [{'key': 'interpolation1', 'value': 'value3', 'propagate_at_launch': True}, {'key': 'interpolation2','value': 'value4', 'propagate_at_launch': True}, {'key': 'Foo', 'value': 'Bar', 'propagate_at_launch': True}, {'key': 'Baz', 'value': 'Bam', 'propagate_at_launch': True}]
+    #     self.assertEqual(expected, evaluate_terraform(input_str))
+
     def test_distinct(self):
         input_str = 'distinct(["a", "b", "a", "c", "d", "b"])'
         expected = ['a', 'b', 'c', 'd']
@@ -197,6 +216,12 @@ class TestTerraformEvaluation(TestCase):
         expected = {"a":"b", "c":"z","e":"f","r":"o","t":"m"}
         self.assertEqual(expected, evaluate_terraform(input_str))
 
+    def test_merge_multiline(self):
+        input_str = "merge(\n{'Tag1':'one','Tag2':'two'},\n{'Tag4' = 'four'},\n{'Tag2'='multiline_tag2'})"
+        expected = {'Tag1': 'one', 'Tag2': 'multiline_tag2', 'Tag4': 'four'}
+        self.assertEqual(expected, evaluate_terraform(input_str))
+
+
     def test_reverse(self):
         input_str = 'reverse([1, 2, 3])'
         expected = [3, 2, 1]
@@ -223,7 +248,7 @@ class TestTerraformEvaluation(TestCase):
             ('merge({\'a\': \'}, evil\'})',
              {"a": '}, evil'}),
             ('merge(local.common_tags,,{\'Tag4\': \'four\'},,{\'Tag2\': \'Dev\'},)',
-             'merge(local.common_tags,,{\'Tag4\': \'four\'},,{\'Tag2\': \'Dev\'},)')
+             'merge(local.common_tags,{\'Tag4\': \'four\'},{\'Tag2\': \'Dev\'},)')
         ]
         for case in cases:
             input_str = case[0]
@@ -250,4 +275,11 @@ class TestTerraformEvaluation(TestCase):
         original_str = '${mapped-bucket-name}[module.bucket.name]-works-yay'
         replaced = replace_string_value(original_str, "module.bucket.name", "module-input-bucket", keep_origin=False)
         expected = 'mapped-bucket-name[module-input-bucket]-works-yay'
+        self.assertEqual(expected, replaced)
+
+    def test_remove_interpolation1(self):
+        original_str = '${merge(local.common_tags,local.common_data_tags,{\'Name\':\'Bob-${local.static1}-${local.static2}\'})}'
+        x = find_var_blocks(original_str)
+        replaced = remove_interpolation(original_str)
+        expected = 'merge(local.common_tags,local.common_data_tags,{\'Name\':\'Bob-local.static1-local.static2\'})'
         self.assertEqual(expected, replaced)

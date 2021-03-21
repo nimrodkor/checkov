@@ -131,40 +131,8 @@ class TestRenderer(TestCase):
         graph_manager = GraphManager('acme', ['acme'])
         local_graph, _ = graph_manager.build_graph_from_source_directory(resources_dir, render_variables=True)
 
-        expected_aws_lambda_permission = {'count': '${length([])}', 'statement_id': 'test_statement_id', 'action': 'lambda:InvokeFunction', 'function_name': 'my-func', 'principal': 'dumbeldor', 'resource_type': 'aws_lambda_permission'}
+        expected_aws_lambda_permission = {'count': 0, 'statement_id': 'test_statement_id', 'action': 'lambda:InvokeFunction', 'function_name': 'my-func', 'principal': 'dumbeldor', 'resource_type': 'aws_lambda_permission'}
 
         self.compare_vertex_attributes(local_graph, expected_aws_lambda_permission, BlockType.RESOURCE.value, "aws_lambda_permission.test_lambda_permissions")
 
-    @staticmethod
-    def find_vertex_with_block_type(local_graph, block_type):
-        for vertex in local_graph.vertices:
-            if vertex.block_type == block_type:
-                return vertex
 
-    def test_maze_of_variables(self):
-        resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../../../terraform/parser/resources/parser_scenarios/maze_of_variables'))
-        graph_manager = GraphManager('maze_of_variables', ['maze_of_variables'])
-        local_graph, _ = graph_manager.build_graph_from_source_directory(resources_dir, render_variables=True)
-        got_tf_definitions, _ = convert_graph_vertices_to_tf_definitions(local_graph.vertices, resources_dir)
-        expected = TestParserScenarios.load_expected_data("expected2.json", resources_dir)
-
-        for expected_file, expected_block_type_dict in expected.items():
-            module_removed_path, _ = remove_module_dependency_in_path(expected_file)
-            got_file = got_tf_definitions.get(module_removed_path)
-            self.assertIsNotNone(got_file)
-            for expected_block_type, expected_block_type_list in expected_block_type_dict.items():
-                got_block_type_list = got_file.get(expected_block_type)
-                self.assertIsNotNone(got_block_type_list)
-                for expected_block_dict in expected_block_type_list:
-                    for expected_block_name, expected_block_val in expected_block_dict.items():
-                        found = False
-                        for got_block_dict in got_block_type_list:
-                            for got_block_name, got_block_val in got_block_dict.items():
-                                if got_block_name == expected_block_name:
-                                    self.assertEqual(expected_block_val, got_block_val)
-                                    print(f"success {got_block_name}: {got_block_val}")
-                                    found = True
-                                    break
-                            if found:
-                                break
-                        self.assertTrue(found, f"expected to find block {expected_block_dict} from file {expected_file} in graph")

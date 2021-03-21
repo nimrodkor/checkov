@@ -4,6 +4,8 @@ from checkov.graph.terraform.utils.utils import INTERPOLATION_PATTERN
 from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 
 # condition ? true_val : false_val -> (condition, true_val, false_val)
+from checkov.terraform.parser_utils import find_var_blocks
+
 CONDITIONAL_EXPR = r'([^\s]+)\?([^\s^\:]+)\:([^\s^\:]+)'
 
 # {key1 = value1, key2 = value2, ...}
@@ -20,10 +22,14 @@ DIRECTIVE_EXPR = r'\%\{([^\}]*)\}'
 COMPARE_REGEX = re.compile(r'^(?P<a>.+)(?P<operator>==|!=|>=|>|<=|<|&&|\|\|)+(?P<b>.+)$')
 
 
-def evaluate_terraform(input_str):
+def evaluate_terraform(input_str, keep_interpolations=True):
     evaluated_value = _try_evaluate(input_str)
     if type(evaluated_value) is not str:
         return input_str if callable(evaluated_value) else evaluated_value
+    evaluated_value = evaluated_value.replace("\n", "")
+    evaluated_value = evaluated_value.replace(",,", ",")
+    if not keep_interpolations:
+        evaluated_value = remove_interpolation(evaluated_value)
     evaluated_value = evaluate_map(evaluated_value)
     evaluated_value = strip_double_quotes(evaluated_value)
     evaluated_value = evaluate_directives(evaluated_value)
@@ -47,14 +53,27 @@ def _try_evaluate(input_str):
 def replace_string_value(original_str, str_to_replace, replaced_value, keep_origin=True):
     if type(original_str) is list:
         for i, item in enumerate(original_str):
-            original_str[i] = replace_string_value(item, str_to_replace, replaced_value)
+            original_str[i] = replace_string_value(item, str_to_replace, replaced_value, keep_origin)
             return original_str
 
     if str_to_replace not in original_str:
         return original_str if keep_origin else str_to_replace
 
-    string_without_interpolation = re.sub(r'(?:\$\{(?P<content>[^$]*)\})', r'\g<content>', original_str)
+    string_without_interpolation = remove_interpolation(original_str)
     return string_without_interpolation.replace(str_to_replace, replaced_value).replace(' ', '')
+
+
+def remove_interpolation(original_str):
+    var_blocks = find_var_blocks(original_str)
+    var_blocks.reverse()
+    for block in var_blocks:
+        if block.full_str.startswith("${") and block.full_str.endswith("}"):
+            full_str_start = original_str.find(block.full_str)
+            full_str_end = full_str_start + len(block.full_str)
+            if full_str_start > 0 and full_str_end < len(original_str) - 2 and original_str[full_str_start-1] in ["'"] and original_str[full_str_start-1] == original_str[full_str_end] and "." in block.full_str:
+                original_str = original_str[:full_str_start-1] + block.full_str + original_str[full_str_end+1:]
+            original_str = original_str.replace(block.full_str, block.var_only)
+    return original_str
 
 
 def strip_double_quotes(input_str):

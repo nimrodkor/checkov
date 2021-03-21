@@ -84,9 +84,6 @@ class LocalGraph:
                             undetermined_values.append(
                                 {'module_vertex_id': module_vertex_id, 'attribute_name': attribute_name,
                                  'variable_vertex_id': variable_vertex_id})
-                        # else:
-                        #     self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
-                        #                                  module_vertex_id, attribute_name)
                         self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
                                                      module_vertex_id, attribute_name)
         return undetermined_values
@@ -331,23 +328,54 @@ class LocalGraph:
         self.vertices[vertex_index].update_attribute(attribute_key, attribute_value, change_origin_id,
                                                      previous_breadcrumbs)
 
+    # def update_vertices_configs(self):
+    #     for vertex in self.vertices:
+    #         changed_attributes = list(vertex.changed_attributes.keys())
+    #         changed_attributes = filter_sub_keys(changed_attributes)
+    #         self.update_vertex_config(vertex, changed_attributes)
+    #
+    # @staticmethod
+    # def update_vertex_config(vertex, changed_attributes):
+    #     updated_config = deepcopy(vertex.config)
+    #     # if vertex.block_type != BlockType.LOCALS:
+    #     #     for name_part in vertex.name.split('.'):
+    #     #         updated_config = updated_config.get(name_part)
+    #     for name_part in vertex.name.split('.'):
+    #         updated_config = updated_config.get(name_part)
+    #     for changed_attribute in changed_attributes:
+    #         new_value = vertex.attributes.get(changed_attribute, None)
+    #         if new_value is not None:
+    #             if vertex.block_type == BlockType.LOCALS:
+    #                 changed_attribute = changed_attribute.replace(vertex.name + ".", '')
+    #             updated_config = update_dictionary_attribute(updated_config, changed_attribute, new_value)
+    #             # updated_config = update_dictionary_attribute(updated_config, changed_attribute, [new_value])
+    #
+    #     update_dictionary_attribute(vertex.config, vertex.name, updated_config)
 
     def update_vertices_configs(self):
         for vertex in self.vertices:
             changed_attributes = list(vertex.changed_attributes.keys())
             changed_attributes = filter_sub_keys(changed_attributes)
-            updated_config = deepcopy(vertex.config)
+            self.update_vertex_config(vertex, changed_attributes)
+
+    @staticmethod
+    def update_vertex_config(vertex, changed_attributes):
+        updated_config = deepcopy(vertex.config)
+        if vertex.block_type != BlockType.LOCALS:
             for name_part in vertex.name.split('.'):
                 updated_config = updated_config.get(name_part)
-            for changed_attribute in changed_attributes:
-                new_value = vertex.attributes.get(changed_attribute, None)
-                if new_value is not None:
-                    if vertex.block_type == BlockType.LOCALS:
-                        changed_attribute = changed_attribute.replace(vertex.name+".", '')
-                        updated_config = update_dictionary_attribute(updated_config, changed_attribute, new_value)
-                    else:
-                        updated_config = update_dictionary_attribute(updated_config, changed_attribute, [new_value])
+        for changed_attribute in changed_attributes:
+            new_value = vertex.attributes.get(changed_attribute, None)
+            if new_value is not None:
+                if vertex.block_type == BlockType.LOCALS:
+                    changed_attribute = changed_attribute.replace(vertex.name + ".", '')
+                # elif vertex.block_type != BlockType.VARIABLE:
+                #     new_value = [new_value]
+                updated_config = update_dictionary_attribute(updated_config, changed_attribute, new_value)
 
+        if len(changed_attributes) > 0:
+            if vertex.block_type == BlockType.LOCALS:
+                updated_config = updated_config.get(vertex.name)
             update_dictionary_attribute(vertex.config, vertex.name, updated_config)
 
     def get_resources_types_in_graph(self):

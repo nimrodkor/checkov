@@ -59,6 +59,7 @@ class Module:
                     name=name,
                     # config=blocks_section,
                     config={name: blocks_section[name]},
+                    # config=blocks_section[name],
                     path=path,
                     attributes={name: blocks_section[name]},
                     source=self.source
