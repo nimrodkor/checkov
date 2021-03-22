@@ -2,7 +2,8 @@ import logging
 import os
 from copy import deepcopy
 
-from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
+from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, \
+    reserved_attribute_names
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, \
     calculate_hash, \
@@ -197,16 +198,19 @@ class VariableRenderer:
             changed_attributes = {}
             attributes = {}
             vertex.get_origin_attributes(attributes)
-            for attribute in vertex.attributes:
+            for attribute in filter(lambda attr: attr not in reserved_attribute_names, vertex.attributes):
                 curr_val = vertex.attributes.get(attribute)
                 lst_curr_val = curr_val
                 if not isinstance(lst_curr_val, list):
                     lst_curr_val = [lst_curr_val]
                 evaluated_lst = []
                 for inner_val in lst_curr_val:
-                    evaluated = evaluate_terraform(f'"{str(inner_val)}"', keep_interpolations=False)
-                    if evaluated == inner_val:
-                        evaluated = evaluate_terraform(str(inner_val), keep_interpolations=False)
+                    if isinstance(inner_val, str) and not any(c in inner_val for c in ["{", "}", "[", "]", "="]):
+                        evaluated_lst.append(inner_val)
+                        continue
+                    evaluated = evaluate_terraform(str(inner_val), keep_interpolations=False)
+                    if evaluated == inner_val and not isinstance(evaluated, dict):
+                        evaluated = evaluate_terraform(f'"{str(inner_val)}"', keep_interpolations=False)
                     evaluated_lst.append(evaluated)
                 evaluated = evaluated_lst
                 if not isinstance(curr_val, list):

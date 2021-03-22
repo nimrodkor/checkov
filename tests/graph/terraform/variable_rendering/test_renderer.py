@@ -2,11 +2,8 @@ import os
 from unittest.case import TestCase
 
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
-from checkov.graph.terraform.graph_builder.utils import remove_module_dependency_in_path
 from checkov.graph.terraform.graph_manager import GraphManager
 from tests.graph.terraform.variable_rendering.expected_data import *
-from tests.terraform.parser.test_parser_scenarios import TestParserScenarios
 
 TEST_DIRNAME = os.path.dirname(os.path.realpath(__file__))
 
