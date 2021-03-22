@@ -30,8 +30,7 @@ class Registry(BaseRegistry):
                         check_yaml = yaml.safe_load(f)
                         check_json = json.loads(json.dumps(check_yaml))
                         check = self.parser.parse_raw_check(check_json, resources_types=self._get_resource_types(check_json))
-                        # TODO: enable once we support all operators
-                        # self.checks.append(check)
+                        self.checks.append(check)
 
     @staticmethod
     def _get_resource_types(check_json):
