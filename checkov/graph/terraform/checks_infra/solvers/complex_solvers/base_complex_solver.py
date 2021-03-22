@@ -21,6 +21,9 @@ class BaseComplexSolver(BaseSolver):
     def _get_operation(self, *args, **kwargs):
         raise NotImplementedError()
 
+    def _get_negative_op(self, *args):
+        return not self._get_operation(args)
+
     def run(self, graph_connector):
         all_vertices_resource_types = [data for _, data in graph_connector.nodes(data=True) if
                                        self.resource_type_pred(data)]

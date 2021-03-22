@@ -11,6 +11,3 @@ class OrSolver(BaseComplexSolver):
 
     def _get_operation(self, *args):
         return reduce(or_, args)
-
-    def _get_negative_op(self, *args):
-        return not self._get_operation(args)
