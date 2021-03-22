@@ -156,14 +156,6 @@ class TestTerraformEvaluation(TestCase):
         expected = ['postgresql-tcp', '']
         self.assertEqual(expected, evaluate_terraform(input_str))
 
-    # def test_concat2(self):
-    #     # input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},\"{'key':'a_key','propagate_at_launch':False,'value':'a_value'}\"],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
-    #     input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},'{'key':'a_key','propagate_at_launch':False,'value':'a_value'}'],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
-    #     expected = [{'key': 'interpolation1', 'value': 'value3', 'propagate_at_launch': True}, {'key': 'interpolation2','value': 'value4', 'propagate_at_launch': True}, "{'key':'a_key','propagate_at_launch':False,'value':'a_value'}", {'key': 'Foo', 'value': 'Bar', 'propagate_at_launch': True}, {'key': 'Baz', 'value': 'Bam', 'propagate_at_launch': True}]
-    #     # input_str = "concat([{'key':'interpolation1','value':'value3','propagate_at_launch':True},{'key':'interpolation2','value':'value4','propagate_at_launch':True},],,[{'key':'Foo','propagate_at_launch':True,'value':'Bar'},{'key':'Baz','propagate_at_launch':True,'value':'Bam'}],)"
-    #     # expected = [{'key': 'interpolation1', 'value': 'value3', 'propagate_at_launch': True}, {'key': 'interpolation2','value': 'value4', 'propagate_at_launch': True}, {'key': 'Foo', 'value': 'Bar', 'propagate_at_launch': True}, {'key': 'Baz', 'value': 'Bam', 'propagate_at_launch': True}]
-    #     self.assertEqual(expected, evaluate_terraform(input_str))
-
     def test_distinct(self):
         input_str = 'distinct(["a", "b", "a", "c", "d", "b"])'
         expected = ['a', 'b', 'c', 'd']

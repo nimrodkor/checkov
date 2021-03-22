@@ -64,13 +64,16 @@ def replace_string_value(original_str, str_to_replace, replaced_value, keep_orig
 
 
 def remove_interpolation(original_str):
+    # get all variable references in string
+    # remove from the string all ${} or '${}' occurrences
     var_blocks = find_var_blocks(original_str)
     var_blocks.reverse()
     for block in var_blocks:
         if block.full_str.startswith("${") and block.full_str.endswith("}"):
             full_str_start = original_str.find(block.full_str)
             full_str_end = full_str_start + len(block.full_str)
-            if full_str_start > 0 and full_str_end < len(original_str) - 2 and original_str[full_str_start-1] in ["'"] and original_str[full_str_start-1] == original_str[full_str_end] and "." in block.full_str:
+            if full_str_start > 0 and full_str_end < len(original_str) - 2 and original_str[full_str_start-1] == "'" and original_str[full_str_start-1] == original_str[full_str_end] and "." in block.full_str:
+                # checking if ${} is wrapped with '' like : '${}'
                 original_str = original_str[:full_str_start-1] + block.full_str + original_str[full_str_end+1:]
             original_str = original_str.replace(block.full_str, block.var_only)
     return original_str
@@ -174,11 +177,13 @@ def evaluate_directives(input_str):
 
 
 def evaluate_map(input_str):
+    # first replace maps ":" with "="
     matching_maps = re.findall(MAP_REGEX, input_str)
     for matching_map in matching_maps:
         replaced_matching_map = matching_map.replace("=", ":")
         input_str = input_str.replace(matching_map, replaced_matching_map)
 
+    # find map access like {a: b}[a] and extract the right value - b
     map_access_match = re.match(MAP_WITH_ACCESS, input_str)
     if map_access_match:
         before_match = input_str[:map_access_match.start()]

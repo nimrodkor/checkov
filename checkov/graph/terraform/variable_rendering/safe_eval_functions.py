@@ -105,15 +105,11 @@ def merge(*args):
     return res
 
 
-def wrap(f, *args):
+def wrap_func(f, *args):
     res = f(*args)
     if res == FUNCTION_FAILED:
         raise ValueError
     return res
-
-
-def t(*lists):
-    return list(itertools.chain(*lists))
 
 
 SAFE_EVAL_FUNCTIONS = []
@@ -155,8 +151,7 @@ SAFE_EVAL_DICT['chunklist'] = lambda lst, chunk_size: [lst[i:i + chunk_size] for
 SAFE_EVAL_DICT['coalesce'] = coalesce
 SAFE_EVAL_DICT['coalescelist'] = coalesce_list
 SAFE_EVAL_DICT['compact'] = lambda lst: list(filter(lambda l: l != "", lst))
-SAFE_EVAL_DICT['concat'] = t
-# SAFE_EVAL_DICT['concat'] = lambda *lists: list(itertools.chain(*lists))
+SAFE_EVAL_DICT['concat'] = lambda *lists: list(itertools.chain(*lists))
 SAFE_EVAL_DICT['contains'] = lambda lst, value: value in lst
 SAFE_EVAL_DICT['distinct'] = lambda lst: list(dict.fromkeys(lst))
 SAFE_EVAL_DICT['element'] = lambda lst, index: lst[index]
@@ -166,7 +161,7 @@ SAFE_EVAL_DICT['keys'] = lambda map_input: list(map_input.keys())
 SAFE_EVAL_DICT['length'] = len
 SAFE_EVAL_DICT['list'] = lambda *args: list(args)
 SAFE_EVAL_DICT['lookup'] = lambda map_input, key, default: map_input.get(key, default)
-SAFE_EVAL_DICT['map'] = lambda *args: wrap(create_map, list(args))
+SAFE_EVAL_DICT['map'] = lambda *args: wrap_func(create_map, list(args))
 SAFE_EVAL_DICT['matchkeys'] = matchkeys
 SAFE_EVAL_DICT['merge'] = merge
 # SAFE_EVAL_DICT['range']
@@ -175,10 +170,9 @@ SAFE_EVAL_DICT['sort'] = sort
 
 
 # type conversion
-SAFE_EVAL_DICT['tobool'] = lambda arg: wrap(tobool, arg)
+SAFE_EVAL_DICT['tobool'] = lambda arg: wrap_func(tobool, arg)
 SAFE_EVAL_DICT['tolist'] = lambda *args: list(*args)
-SAFE_EVAL_DICT['tomap'] = lambda arg: wrap(tomap, str(arg))
-SAFE_EVAL_DICT['tonumber'] = lambda arg: arg if type(arg) in [int, float] else wrap(tonumber, arg)
+SAFE_EVAL_DICT['tomap'] = lambda arg: wrap_func(tomap, str(arg))
+SAFE_EVAL_DICT['tonumber'] = lambda arg: arg if type(arg) in [int, float] else wrap_func(tonumber, arg)
 SAFE_EVAL_DICT['toset'] = lambda origin: set(origin)
-SAFE_EVAL_DICT['tostring'] = lambda arg: arg if isinstance(arg, str) else wrap(tostring, str(arg))
-# SAFE_EVAL_DICT['tostring'] = lambda arg: wrap(tostring, str(arg))
+SAFE_EVAL_DICT['tostring'] = lambda arg: arg if isinstance(arg, str) else wrap_func(tostring, str(arg))

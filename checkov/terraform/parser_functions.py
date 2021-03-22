@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional, List
+from typing import Dict, List
 
 from checkov.common.util.type_forcers import convert_str_to_bool
 from checkov.terraform.parser_utils import eval_string, split_merge_args, string_to_native, to_string

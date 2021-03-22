@@ -63,21 +63,18 @@ class VariableRenderer:
     def evaluate_vertex_attribute_from_edge(self, edge_list):
         multiple_edges = len(edge_list) > 1
         edge = edge_list[0]
-        # origin_vertex_attributes = self.copy_of_local_graph.get_vertex_attributes_by_index(edge.origin)
         origin_vertex_attributes = self.copy_of_local_graph.vertices[edge.origin].attributes
         val_to_eval = deepcopy(origin_vertex_attributes.get(edge.label, ''))
 
         referenced_vertices = get_referenced_vertices_in_value(value=val_to_eval, aliases={},
                                                                resources_types=self.local_graph.get_resources_types_in_graph())
-        # modified_vertex_attributes = self.local_graph.get_vertex_attributes_by_index(edge.origin)
         modified_vertex_attributes = self.local_graph.vertices[edge.origin].attributes
         val_to_eval = deepcopy(modified_vertex_attributes.get(edge.label, ''))
-        print(f"'1: val_to_eval = {val_to_eval}'")
         origin_val = deepcopy(val_to_eval)
         first_key_path = None
+
         if referenced_vertices:
             for edge in edge_list:
-                print(f"'{edge}'")
                 dest_vertex_attributes = self.local_graph.get_vertex_attributes_by_index(edge.dest)
                 key_path_in_dest_vertex, replaced_key = self.find_path_from_referenced_vertices(referenced_vertices,
                                                                                                   dest_vertex_attributes)
@@ -89,9 +86,7 @@ class VariableRenderer:
                 evaluated_attribute_value = self.extract_value_from_vertex(key_path_in_dest_vertex,
                                                                            dest_vertex_attributes)
                 if evaluated_attribute_value is not None:
-                    print(f"val_to_eval={val_to_eval}, replaced_key={replaced_key}, str(evaluated_attribute_value)={str(evaluated_attribute_value)}")
                     val_to_eval = self.replace_value(edge, val_to_eval, replaced_key, str(evaluated_attribute_value), True)
-                    print(f"'2: val_to_eval = {val_to_eval}'")
                 if not multiple_edges and val_to_eval != origin_val:
                     self.update_evaluated_value(changed_attribute_key=edge.label,
                                                 changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=key_path_in_dest_vertex)
@@ -201,10 +196,8 @@ class VariableRenderer:
         for vertex in self.local_graph.vertices:
             changed_attributes = {}
             attributes = {}
-            vertex.get_origins_attributes(attributes)
+            vertex.get_origin_attributes(attributes)
             for attribute in vertex.attributes:
-            # for attribute in [attr for attr in vertex.attributes if attr not in vertex.changed_attributes.keys()]:
-            # for attribute in [attr for attr in attributes if attr not in vertex.changed_attributes.keys()]:
                 curr_val = vertex.attributes.get(attribute)
                 lst_curr_val = curr_val
                 # curr_val = attributes.get(attribute)
@@ -222,10 +215,4 @@ class VariableRenderer:
                 if evaluated != curr_val:
                     vertex.update_inner_attribute(attribute, vertex.attributes, evaluated)
                     changed_attributes[attribute] = evaluated
-                    # if isinstance(evaluated, list) and len(evaluated) == 1 and isinstance(evaluated[0], str):
-                    #     changed_attributes[attribute] = evaluated[0]
-            #     else:
-            #         evaluated = evaluate_terraform(str(curr_val))
-            #         if evaluated != curr_val:
-    #             changed_attributes[attribute] = evaluated
             self.local_graph.update_vertex_config(vertex, changed_attributes)

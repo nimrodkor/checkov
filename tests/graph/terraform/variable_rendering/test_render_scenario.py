@@ -83,10 +83,6 @@ class TestRendererScenarios(TestCase):
               'scheduler']],
  'type': ['list(string)']}})
 
-    # TODO ROB - Implementation in progress
-    # def test_formatting(self):
-    #     self.go("formatting")
-
     def test_module_reference(self):
         self.go("module_reference")
 

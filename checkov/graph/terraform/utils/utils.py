@@ -257,8 +257,6 @@ def update_dictionary_attribute(config, key_to_update, new_value):
             key = key_parts[0]
             if len(key_parts) == 1:
                 if isinstance(config[key], list) and not isinstance(new_value, list):
-                # if isinstance(config[key], list) and (not isinstance(new_value, list) or (len(config[key]) == 1 and not isinstance(config[key][0], list))):
-                    # or (isinstance(config[key], list) and isinstance(new_value, list) and all(not isinstance(e, list) for e in config[key])):
                     new_value = [new_value]
                 config[key] = new_value
                 return config
@@ -272,32 +270,6 @@ def update_dictionary_attribute(config, key_to_update, new_value):
             config[i] = update_dictionary_attribute(config[i], key_to_update, new_value)
 
     return config
-
-# def update_dictionary_attribute(config, key_to_update, new_value):
-#     updated = False
-#     key_parts = key_to_update.split('.')
-#     if type(config) is dict:
-#         if config.get(key_parts[0]) is not None:
-#             key = key_parts[0]
-#             if len(key_parts) == 1:
-#                 if isinstance(config[key], list) and len(config[key]) == 1 and not isinstance(new_value, list):
-#                     new_value = [new_value]
-#                 config[key] = new_value
-#                 return config, True
-#             else:
-#                 config[key], u = update_dictionary_attribute(config[key], '.'.join(key_parts[1:]), new_value)
-#                 updated = updated or u
-#         else:
-#             for key in config:
-#                 config[key], u = update_dictionary_attribute(config[key], key_to_update, new_value)
-#                 updated = updated or u
-#     if type(config) is list:
-#         for i in range(len(config)):
-#             config[i], u = update_dictionary_attribute(config[i], key_to_update, new_value)
-#             updated = updated or u
-#
-#     return config, updated
-
 
 def join_trimmed_strings(char_to_join, str_lst, num_to_trim):
     return char_to_join.join(str_lst[:len(str_lst) - num_to_trim])
