@@ -2,12 +2,9 @@ import logging
 import os
 from copy import deepcopy
 
-from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, \
-    reserved_attribute_names
+from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, reserved_attribute_names
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, \
-    calculate_hash, \
-    join_trimmed_strings, remove_index_pattern_from_str
+from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, calculate_hash, join_trimmed_strings, remove_index_pattern_from_str
 from checkov.graph.terraform.variable_rendering.evaluate_terraform import replace_string_value, evaluate_terraform
 
 
