@@ -102,6 +102,15 @@ class TestYamlPolicies(unittest.TestCase):
     def test_GKEClustersAreNotUsingDefaultServiceAccount(self):
         self.go("GKEClustersAreNotUsingDefaultServiceAccount")
 
+    def test_AzureMSSQLServerHasSecurityAlertPolicy(self):
+        self.go("AzureMSSQLServerHasSecurityAlertPolicy")
+
+    def test_AzureStorageAccountsUseCustomerManagedKeyForEncryption(self):
+        self.go("AzureStorageAccountsUseCustomerManagedKeyForEncryption")
+
+    def test_AzureSynapseWorkspacesHaveNoIPFirewallRulesAttached(self):
+        self.go("AzureSynapseWorkspacesHaveNoIPFirewallRulesAttached")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()

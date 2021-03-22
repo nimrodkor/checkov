@@ -46,7 +46,7 @@ condition_type_to_query_type = {
 
 
 class NXGraphCheckParser(BaseGraphCheckParser):
-    def parse_raw_check(self, raw_check, **kwargs):
+    def parse_raw_check(self, raw_check, **kwargs) -> BaseGraphCheck:
         policy_query = raw_check.get("definition")
         check = self._parse_raw_check(policy_query, kwargs.get("resources_types"))
         check.id = raw_check.get("metadata", {}).get("id")
@@ -64,7 +64,8 @@ class NXGraphCheckParser(BaseGraphCheckParser):
             sub_queries = raw_check.get(complex_operator)
             for sub_query in sub_queries:
                 check.sub_checks.append(self._parse_raw_check(sub_query, resources_types))
-            resources_types_of_sub_queries = [q.resource_types for q in check.sub_checks]
+            resources_types_of_sub_queries = [q.resource_types for q in check.sub_checks
+                                              if q is not None and q.resource_types is not None]
             check.resource_types = list(set(sum(resources_types_of_sub_queries, [])))
             if any(q.type in [SolverType.CONNECTION, SolverType.COMPLEX_CONNECTION] for q in check.sub_checks):
                 check.type = SolverType.COMPLEX_CONNECTION
