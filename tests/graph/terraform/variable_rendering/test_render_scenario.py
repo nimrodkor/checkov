@@ -111,15 +111,6 @@ class TestRendererScenarios(TestCase):
         self.skipTest("different implementation, we keep the original variable reference")
         self.go("null_variables_651")
 
-    # @unittest.skip
-    # def test_count_index_scenario(self):
-    #     # Run only manually, this test currently fails on multiple issues
-    #     self.go("count_eval")
-
-    # @unittest.skip
-    # def test_json_807(self):
-    #     self.go("json_807")
-
     def test_ternaries(self):
         self.go("ternaries")
 
@@ -127,9 +118,11 @@ class TestRendererScenarios(TestCase):
         self.go("ternary_793")
 
     def test_tfvars(self):
+        self.skipTest("Should be supported!!")
         self.go("tfvars")
 
     def test_account_dirs_and_modules(self):
+        self.skipTest("Should be supported!!")
         self.go("account_dirs_and_modules")
 
     def test_bogus_function(self):
