@@ -63,6 +63,90 @@ class TestYamlPolicies(unittest.TestCase):
     def test_GCPProjectHasNoLegacyNetworks(self):
         self.go("GCPProjectHasNoLegacyNetworks")
 
+    def test_AzureDataFactoriesEncryptedWithCustomerManagedKey(self):
+        self.go("AzureDataFactoriesEncryptedWithCustomerManagedKey")
+
+    def test_AzureUnattachedDisksAreEncrypted(self):
+        self.go("AzureUnattachedDisksAreEncrypted")
+
+    def test_AzureAntimalwareIsConfiguredWithAutoUpdatesForVMs(self):
+        self.go("AzureAntimalwareIsConfiguredWithAutoUpdatesForVMs")
+
+    def test_ALBRedirectsHTTPToHTTPS(self):
+        self.go("ALBRedirectsHTTPToHTTPS")
+
+    def test_GCPLogBucketsConfiguredUsingLock(self):
+        self.go("GCPLogBucketsConfiguredUsingLock")
+
+    def test_GCPAuditLogsConfiguredForAllServicesAndUsers(self):
+        self.go("GCPAuditLogsConfiguredForAllServicesAndUsers")
+
+    def test_GCPKMSCryptoKeysAreNotPubliclyAccessible(self):
+        self.go("GCPKMSCryptoKeysAreNotPubliclyAccessible")
+
+    def test_VirtualMachinesUtilizingManagedDisks(self):
+        self.go("VirtualMachinesUtilizingManagedDisks")
+
+    def test_RDSClusterHasBackupPlan(self):
+        self.go("RDSClusterHasBackupPlan")
+
+    def test_RedshiftClusterHasBackupPlan(self):
+        self.go("RedshiftClusterHasBackupPlan")
+
+    def test_EBSAddedBackup(self):
+        self.go("EBSAddedBackup")
+
+    def test_AMRClustersNotOpenToInternet(self):
+        self.go("AMRClustersNotOpenToInternet")
+
+    def test_AutoScallingEnabledELB(self):
+        self.go("AutoScallingEnabledELB")
+
+    def test_EC2hasVPC(self):
+        self.go("EC2hasVPC")
+
+    def test_IAMGroupHasAtLeastOneUser(self):
+        self.go("IAMGroupHasAtLeastOneUser")
+
+    def test_IAMUsersAreMembersAtLeastOneGroup(self):
+        self.go("IAMUsersAreMembersAtLeastOneGroup")
+
+    def test_DataExplorerEncryptionUsesCustomKey(self):
+        self.go("DataExplorerEncryptionUsesCustomKey")
+
+    def test_MSQLenablesCustomerManagedKey(self):
+        self.go("MSQLenablesCustomerManagedKey")
+
+    def test_PGSQLenablesCustomerManagedKey(self):
+        self.go("PGSQLenablesCustomerManagedKey")
+
+    def test_StorageLoggingIsEnabledForBlobService(self):
+        self.go("StorageLoggingIsEnabledForBlobService")
+
+    def test_StorageLoggingIsEnabledForTableService(self):
+        self.go("StorageLoggingIsEnabledForTableService")
+
+    def test_VMHasBackUpMachine(self):
+        self.go("VMHasBackUpMachine")
+
+    def test_SubnetHasACL(self):
+        self.go("SubnetHasACL")
+
+    def test_GKEClustersAreNotUsingDefaultServiceAccount(self):
+        self.go("GKEClustersAreNotUsingDefaultServiceAccount")
+
+    def test_AzureStorageAccountsUseCustomerManagedKeyForEncryption(self):
+        self.go("AzureStorageAccountsUseCustomerManagedKeyForEncryption")
+
+    def test_AzureMSSQLServerHasSecurityAlertPolicy(self):
+        self.go("AzureMSSQLServerHasSecurityAlertPolicy")
+
+    def test_AzureSynapseWorkspacesHaveNoIPFirewallRulesAttached(self):
+        self.go("AzureSynapseWorkspacesHaveNoIPFirewallRulesAttached")
+
+    def test_EncryptedEBSVolumeOnlyConnectedToEC2s(self):
+        self.go("EncryptedEBSVolumeOnlyConnectedToEC2s")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()
