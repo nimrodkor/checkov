@@ -16,7 +16,7 @@ class TestKubeletCryptographicCiphers(unittest.TestCase):
         report = runner.run(root_folder=test_files_dir,
                             runner_filter=RunnerFilter(checks=[check.id]))
         summary = report.get_summary()
-        print(summary)
+
         self.assertEqual(summary['passed'], 1)
         self.assertEqual(summary['failed'], 1)
         self.assertEqual(summary['skipped'], 0)
