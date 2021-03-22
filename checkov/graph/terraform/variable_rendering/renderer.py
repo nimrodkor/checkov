@@ -200,7 +200,6 @@ class VariableRenderer:
             for attribute in vertex.attributes:
                 curr_val = vertex.attributes.get(attribute)
                 lst_curr_val = curr_val
-                # curr_val = attributes.get(attribute)
                 if not isinstance(lst_curr_val, list):
                     lst_curr_val = [lst_curr_val]
                 evaluated_lst = []
