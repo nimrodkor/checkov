@@ -1,5 +1,6 @@
 from checkov.graph.checks.checks_infra.solvers.base_solver import BaseSolver
 from checkov.graph.checks.checks_infra.enums import SolverType
+from networkx.classes.digraph import DiGraph
 
 
 class BaseConnectionSolver(BaseSolver):
@@ -19,5 +20,5 @@ class BaseConnectionSolver(BaseSolver):
     def _get_operation(self, *args, **kwargs):
         raise NotImplementedError()
 
-    def run(self, graph_connector):
+    def run(self, graph_connector: DiGraph):
         return [], []
