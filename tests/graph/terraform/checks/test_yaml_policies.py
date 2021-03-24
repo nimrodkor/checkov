@@ -147,6 +147,9 @@ class TestYamlPolicies(unittest.TestCase):
     def test_EncryptedEBSVolumeOnlyConnectedToEC2s(self):
         self.go("EncryptedEBSVolumeOnlyConnectedToEC2s")
 
+    def test_AutoScalingEnableOnDynamoDBTables(self):
+        self.go("AutoScalingEnableOnDynamoDBTables")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()
