@@ -60,6 +60,7 @@ class Parser:
             self.out_parsing_errors = {}
         if self.env_vars is None:
             self.env_vars = dict(os.environ)
+        self.var_value_and_file_map = {}
 
     def _check_process_dir(self, directory):
         if directory not in self._parsed_directories:
@@ -281,6 +282,8 @@ class Parser:
                 # If there are more modules to load but no variables were resolved, then to a final module
                 # load, forcing things through without complete resolution.
                 force_final_module_load = True
+
+        self.var_value_and_file_map = var_value_and_file_map
 
     def _process_vars_and_locals(self, directory: str,
                                  var_value_and_file_map: Dict[str, Tuple[Any, str]],

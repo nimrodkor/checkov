@@ -142,13 +142,13 @@ class Module:
                 self.blocks.append(terraform_block)
 
     def _add_tf_var(self, blocks, path):
-        for tf_var_name in blocks:
+        for tf_var_name, attributes in blocks.items():
             tfvar_block = Block(
                 block_type=BlockType.TF_VARIABLE,
                 name=tf_var_name,
-                config=blocks[tf_var_name],
+                config={tf_var_name: attributes},
                 path=path,
-                attributes={tf_var_name: blocks[tf_var_name]},
+                attributes=attributes,
                 source=self.source
             )
             self.blocks.append(tfvar_block)

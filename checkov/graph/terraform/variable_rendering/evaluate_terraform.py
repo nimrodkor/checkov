@@ -1,8 +1,6 @@
 import re
-import json
-from checkov.graph.terraform.utils.utils import INTERPOLATION_PATTERN
-from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 
+from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 # condition ? true_val : false_val -> (condition, true_val, false_val)
 from checkov.terraform.parser_utils import find_var_blocks
 
@@ -12,7 +10,8 @@ CONDITIONAL_EXPR = r'([^\s]+)\?([^\s^\:]+)\:([^\s^\:]+)'
 MAP_REGEX = r'\{(?:\s*[\S]+\s*\=\s*[\S]+\s*\,)+(?:\s*[\S]+\s*\=\s*[\S]+\s*)\}'
 
 # {key:val}[key]
-MAP_WITH_ACCESS = r'(?P<d>\{(?:\s*[\S]+\s*\:\s*[\S]+\s*)+(\,?:\s*[\S]+\s*\:\s*[\S]+\s*)*\})\s*(?P<access>\[\S+\])'
+MAP_WITH_ACCESS = r'(?P<d>\{(?:\s*[\S]+\s*\:\s*[\S]+\s*)+(\,?:\s*[\S]+\s*\:\s*[\S]+\s*)*\})\s*(?P<access>\[[^\]]+\])'
+LIST_WITH_ACCESS = r'(?P<d>\[(?:\s*[^\[\]]+\s*)+(\,?:\s*[^\[\]]+\s*)*\])\s*(?P<access>\[[\d]+\])'
 
 KEY_VALUE_REGEX = r'([\S]+)\s*\=\s*([\S]+)'
 
@@ -31,6 +30,7 @@ def evaluate_terraform(input_str, keep_interpolations=True):
     if not keep_interpolations:
         evaluated_value = remove_interpolation(evaluated_value)
     evaluated_value = evaluate_map(evaluated_value)
+    evaluated_value = evaluate_list_access(evaluated_value)
     evaluated_value = strip_double_quotes(evaluated_value)
     evaluated_value = evaluate_directives(evaluated_value)
     evaluated_value = evaluate_conditional_expression(evaluated_value)
@@ -184,7 +184,7 @@ def evaluate_map(input_str):
         input_str = input_str.replace(matching_map, replaced_matching_map)
 
     # find map access like {a: b}[a] and extract the right value - b
-    map_access_match = re.match(MAP_WITH_ACCESS, input_str)
+    map_access_match = re.search(MAP_WITH_ACCESS, input_str)
     if map_access_match:
         before_match = input_str[:map_access_match.start()]
         after_match = input_str[map_access_match.end():]
@@ -211,3 +211,17 @@ def convert_to_bool(bool_str):
         return False
     else:
         return bool_str
+
+
+def evaluate_list_access(input_str):
+    # find list access like [a, b, c][0] and extract the right value - a
+    list_access_match = re.search(LIST_WITH_ACCESS, input_str)
+    if list_access_match:
+        before_match = input_str[:list_access_match.start()]
+        after_match = input_str[list_access_match.end():]
+        origin_match_str = input_str[list_access_match.start():list_access_match.end()]
+        evaluated = _try_evaluate(origin_match_str)
+        if evaluated != origin_match_str:
+            return before_match + evaluated + after_match
+
+    return input_str
