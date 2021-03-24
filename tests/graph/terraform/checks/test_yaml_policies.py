@@ -147,6 +147,9 @@ class TestYamlPolicies(unittest.TestCase):
     def test_EncryptedEBSVolumeOnlyConnectedToEC2s(self):
         self.go("EncryptedEBSVolumeOnlyConnectedToEC2s")
 
+    def test_EIPAllocatedToVPCAttachedEC2(self):
+        self.go("EIPAllocatedToVPCAttachedEC2")
+
     def test_EFSAddedBackup(self):
         self.go("EFSAddedBackup")
 
