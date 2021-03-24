@@ -11,7 +11,8 @@ MAP_REGEX = r'\{(?:\s*[\S]+\s*\=\s*[\S]+\s*\,)+(?:\s*[\S]+\s*\=\s*[\S]+\s*)\}'
 
 # {key:val}[key]
 MAP_WITH_ACCESS = r'(?P<d>\{(?:\s*[\S]+\s*\:\s*[\S]+\s*)+(\,?:\s*[\S]+\s*\:\s*[\S]+\s*)*\})\s*(?P<access>\[[^\]]+\])'
-LIST_WITH_ACCESS = r'(?P<d>\[(?:\s*[^\[\]]+\s*)+(\,?:\s*[^\[\]]+\s*)*\])\s*(?P<access>\[[\d]+\])'
+
+LIST_PATTERN = r'(?P<d>\[([^\[\]]+?)+(\,[^\[\]]+?)*\])'
 
 KEY_VALUE_REGEX = r'([\S]+)\s*\=\s*([\S]+)'
 
@@ -215,13 +216,17 @@ def convert_to_bool(bool_str):
 
 def evaluate_list_access(input_str):
     # find list access like [a, b, c][0] and extract the right value - a
-    list_access_match = re.search(LIST_WITH_ACCESS, input_str)
-    if list_access_match:
-        before_match = input_str[:list_access_match.start()]
-        after_match = input_str[list_access_match.end():]
-        origin_match_str = input_str[list_access_match.start():list_access_match.end()]
-        evaluated = _try_evaluate(origin_match_str)
-        if evaluated != origin_match_str:
-            return before_match + evaluated + after_match
+    all_square_brackets = re.finditer(LIST_PATTERN, input_str)
+    prev_start = -1
+    prev_end = -1
+    for match in all_square_brackets:
+        if (match.start() == prev_end or all(c == ' ' for c in input_str[prev_end+1:match.start()])) and prev_start != -1:
+            curr_str = input_str[match.start()+1:match.end()-1]
+            if curr_str.isnumeric():
+                evaluated = _try_evaluate(input_str[prev_start:match.end()])
+                if evaluated:
+                    input_str = input_str.replace(input_str[prev_start:match.end()], evaluated)
+        prev_start = match.start()
+        prev_end = match.end()
 
     return input_str
