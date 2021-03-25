@@ -12,7 +12,7 @@ class ConnectionSolver(TestBaseSolver):
     def test_connection_not_found(self):
         root_folder = '../../../resources/ec2_instance_network_interfaces'
         check_id = "NoNetworkInterfaceForInstance"
-        should_pass = ['aws_subnet.my_subnet', 'aws_vpc.my_vpc', 'aws_network_interface.foo', 'aws_subnet.my_subnet', 'aws_network_interface.goo', 'aws_subnet.my_subnet', 'aws_instance.bar', 'aws_vpc.other_vpc']
+        should_pass = ['aws_network_interface.foo', 'aws_network_interface.goo', 'aws_instance.bar']
         should_fail = ['aws_instance.foo', 'aws_network_interface.foo']
         expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
 

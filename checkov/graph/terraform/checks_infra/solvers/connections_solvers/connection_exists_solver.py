@@ -17,12 +17,24 @@ class ConnectionExistsSolver(BaseConnectionSolver):
             destination_attributes = graph_connector.nodes(data=True)[v]
             origin_type = origin_attributes.get(CustomAttributes.RESOURCE_TYPE)
             destination_type = destination_attributes.get(CustomAttributes.RESOURCE_TYPE)
-            if origin_type in self.resource_types and destination_type in self.connected_resources_types:
+            if self.is_associated_edge(origin_type, destination_type):
                 passed.extend([origin_attributes, destination_attributes])
-            else:
-                failed.extend([origin_attributes, destination_attributes])
         for v, v_data in graph_connector.nodes(data=True):
-            if graph_connector.degree(v) == 0:
-                failed.append(v_data)
+            v_type = v_data.get(CustomAttributes.RESOURCE_TYPE)
+            if self.is_associated_vertex(v_type):
+                v_degree = graph_connector.degree(v)
+                if v_degree == 0:
+                    failed.append(v_data)
+                else:
+                    is_associated = False
+                    for s, t, _ in graph_connector.edges(v, data=True):
+                        s_attributes = graph_connector.nodes(data=True)[s]
+                        t_attributes = graph_connector.nodes(data=True)[t]
+                        s_type = s_attributes.get(CustomAttributes.RESOURCE_TYPE)
+                        t_type = t_attributes.get(CustomAttributes.RESOURCE_TYPE)
+                        if self.is_associated_edge(s_type, t_type):
+                            is_associated = True
+                    if not is_associated:
+                        failed.append(v_data)
         # TODO handle output value
         return passed, failed

@@ -22,3 +22,10 @@ class BaseConnectionSolver(BaseSolver):
 
     def run(self, graph_connector: DiGraph):
         return [], []
+
+    def is_associated_edge(self, origin_type: str, destination_type: str):
+        return (origin_type in self.resource_types and destination_type in self.connected_resources_types) or (
+                    origin_type in self.connected_resources_types and destination_type in self.resource_types)
+
+    def is_associated_vertex(self, vertex_type: str):
+        return vertex_type in self.resource_types or vertex_type in self.connected_resources_types
