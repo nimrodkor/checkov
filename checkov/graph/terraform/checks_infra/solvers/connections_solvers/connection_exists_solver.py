@@ -2,6 +2,7 @@ from checkov.graph.terraform.checks_infra.solvers.connections_solvers.base_conne
 from networkx.classes.digraph import DiGraph
 from networkx import edge_dfs
 from checkov.graph.graph_builder.graph_components.attribute_names import CustomAttributes
+from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
 
 
 class ConnectionExistsSolver(BaseConnectionSolver):
@@ -20,7 +21,7 @@ class ConnectionExistsSolver(BaseConnectionSolver):
             if self.is_associated_edge(origin_type, destination_type):
                 passed.extend([origin_attributes, destination_attributes])
             destination_block_type = destination_attributes.get(CustomAttributes.BLOCK_TYPE)
-            if destination_block_type == 'output':
+            if destination_block_type == BlockType.OUTPUT.value:
                 try:
                     output_edges = graph_connector.edges(v, data=True)
                     _, output_destination, _ = next(iter(output_edges))
@@ -47,5 +48,4 @@ class ConnectionExistsSolver(BaseConnectionSolver):
                             is_associated = True
                     if not is_associated:
                         failed.append(v_data)
-        # TODO handle output value
         return passed, failed

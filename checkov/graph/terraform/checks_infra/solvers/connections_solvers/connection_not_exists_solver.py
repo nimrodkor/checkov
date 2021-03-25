@@ -1,5 +1,6 @@
 from checkov.graph.terraform.checks_infra.solvers.connections_solvers.connection_exists_solver import ConnectionExistsSolver
 
+
 class ConnectionNotExistsSolver(ConnectionExistsSolver):
     operator = 'not_exists'
 

@@ -14,12 +14,6 @@ class BaseConnectionSolver(BaseSolver):
         self.vertices_under_resource_types = vertices_under_resource_types or []
         self.vertices_under_connected_resources_types = vertices_under_connected_resources_types or []
 
-    def get_operation(self, *args, **kwargs):
-        raise NotImplementedError()
-
-    def _get_operation(self, *args, **kwargs):
-        raise NotImplementedError()
-
     def run(self, graph_connector: DiGraph):
         return [], []
 

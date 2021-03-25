@@ -3,6 +3,7 @@ resource "aws_vpc" "my_vpc" {
 
   tags = {
     Name = "tf-example"
+    Env = "prod"
   }
 }
 
@@ -13,6 +14,7 @@ resource "aws_subnet" "my_subnet" {
 
   tags = {
     Name = "tf-example"
+    Env = "prod"
   }
 }
 
@@ -22,6 +24,7 @@ resource "aws_network_interface" "foo" {
 
   tags = {
     Name = "primary_network_interface"
+    Env = "prod"
   }
 }
 
@@ -30,7 +33,8 @@ resource "aws_network_interface" "goo" {
   private_ips = ["172.16.10.100"]
 
   tags = {
-    Name = "primary_network_interface"
+    Name = "secondary_network_interface"
+    Env = "dev"
   }
 }
 
@@ -55,10 +59,14 @@ resource "aws_instance" "bar" {
   credit_specification {
     cpu_credits = "unlimited"
   }
+
+  tags = {
+    Env = "prod"
+  }
 }
 
 resource "aws_vpc" "other_vpc" {
-    cidr_block = "124.16.0.0/16"
+  cidr_block = "124.16.0.0/16"
 
   tags = {
     Name = "not_connected"
