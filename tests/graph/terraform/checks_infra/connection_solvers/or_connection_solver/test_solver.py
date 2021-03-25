@@ -12,7 +12,7 @@ class ConnectionSolver(TestBaseSolver):
     def test_or_connection(self):
         root_folder = '../../../resources/ec2_instance_network_interfaces'
         check_id = "SpecificInstanceComplexConnection"
-        should_pass = ['aws_instance.foo', 'aws_network_interface.foo','aws_instance.bar']
+        should_pass = ['aws_instance.foo', 'aws_network_interface.foo', 'aws_instance.bar']
         should_fail = ['aws_network_interface.goo']
         expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
 
