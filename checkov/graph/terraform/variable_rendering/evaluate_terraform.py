@@ -12,7 +12,7 @@ CONDITIONAL_EXPR = r'([^\s]+)\?([^\s^\:]+)\:([^\s^\:]+)'
 MAP_REGEX = r'\{(?:\s*[\S]+\s*\=\s*[\S]+\s*\,)+(?:\s*[\S]+\s*\=\s*[\S]+\s*)\}'
 
 # {key:val}[key]
-MAP_WITH_ACCESS = r'(?P<d>\{(?:.*?\:.*?)+(\,?:.*?\:.*?)*\})\s*(?P<access>\[[^\]]+\])'
+MAP_WITH_ACCESS = re.compile(r'(?P<d>{(?:.*?:.*?)+(,?:.*?:.*?)*})\s*(?P<access>\[[^\]]+\])')
 
 LIST_PATTERN = r'(?P<d>\[([^\[\]]+?)+(\,[^\[\]]+?)*\])'
 
@@ -179,34 +179,6 @@ def evaluate_directives(input_str):
     return ''.join(evaluated_string_parts)
 
 
-# def evaluate_map(input_str):
-#     # first replace maps ":" with "="
-#     matching_maps = re.findall(MAP_REGEX, input_str)
-#     for matching_map in matching_maps:
-#         replaced_matching_map = matching_map.replace("=", ":")
-#         input_str = input_str.replace(matching_map, replaced_matching_map)
-#
-#     # find map access like {a: b}[a] and extract the right value - b
-#     map_access_match = re.match(MAP_WITH_ACCESS, input_str)
-#     while map_access_match:
-#         before_match = input_str[:map_access_match.start()]
-#         after_match = input_str[map_access_match.end():]
-#         origin_match_str = input_str[map_access_match.start():map_access_match.end()]
-#         match_parts = map_access_match.groupdict()
-#         access = match_parts.get("access")[1:-1]
-#
-#         evaluated = _try_evaluate(origin_match_str)
-#         if evaluated != origin_match_str:
-#             input_str = before_match + evaluated + after_match
-#         if not access.startswith('"') and not access.endswith('"'):
-#             match_to_eval = origin_match_str.replace(f'[{access}]', f'["{access}"]')
-#             evaluated = _try_evaluate(match_to_eval)
-#             if f'["{access}"]' not in evaluated:
-#                 input_str = before_match + evaluated + after_match
-#         map_access_match = re.match(MAP_WITH_ACCESS, input_str)
-#
-#     return input_str
-
 def evaluate_map(input_str):
     # first replace maps ":" with "="
     matching_maps = re.findall(MAP_REGEX, input_str)
@@ -215,26 +187,29 @@ def evaluate_map(input_str):
         input_str = input_str.replace(matching_map, replaced_matching_map)
 
     # find map access like {a: b}[a] and extract the right value - b
-    map_access_match = re.search(MAP_WITH_ACCESS, input_str)
-    if map_access_match:
-        before_match = input_str[:map_access_match.start()]
-        after_match = input_str[map_access_match.end():]
-        origin_match_str = input_str[map_access_match.start():map_access_match.end()]
-        match_parts = map_access_match.groupdict()
-        access = match_parts.get("access")[1:-1]
+    all_curly_brackets = find_brackets_pairs(input_str, "{", "}")
+    all_square_brackets = find_brackets_pairs(input_str, "[", "]")
 
-        evaluated = _try_evaluate(origin_match_str)
-        if evaluated != origin_match_str:
-            input_str = before_match + evaluated + after_match
-        if not access.startswith('"') and not access.endswith('"'):
-            match_to_eval = origin_match_str.replace(f'[{access}]', f'["{access}"]')
-            evaluated = _try_evaluate(match_to_eval)
-            if f'["{access}"]' not in evaluated:
-                input_str = before_match + evaluated + after_match
-        # map_access_match = re.match(MAP_WITH_ACCESS, input_str)
+    curr_square_match = 0
+    for curly_match in all_curly_brackets:
+        curly_start = curly_match["start"]
+        curly_end = curly_match["end"]
+        for i in range(curr_square_match, len(all_square_brackets)):
+            curr_square_match = i
+            square_match = all_square_brackets[i]
+            square_start = square_match["start"]
+            square_end = square_match["end"]
+            if square_start > curly_end and (square_start == curly_end + 1 or all(c == ' ' for c in input_str[curly_end + 1:square_start])):
+                origin_match_str = input_str[curly_start:square_end + 1]
+                map_access = input_str[square_start+1:square_end]
+                if not map_access.startswith('"') and not map_access.endswith('"'):
+                    origin_match_str = origin_match_str.replace(f'[{map_access}]', f'["{map_access}"]')
+                evaluated = _try_evaluate(origin_match_str)
+                if evaluated:
+                    input_str = input_str.replace(input_str[curly_start:square_end + 1], evaluated)
+                    break
 
     return input_str
-
 
 
 def convert_to_bool(bool_str):
@@ -249,22 +224,7 @@ def convert_to_bool(bool_str):
 def evaluate_list_access(input_str):
     # find list access like [a, b, c][0] and extract the right value - a
 
-    brackets_pairs = [-1] * len(input_str)
-    unmatched_open = []
-
-    for i, c in enumerate(input_str):
-        if c == '[':
-            unmatched_open.append(i)
-        elif c == ']' and len(unmatched_open) > 0:
-            brackets_pairs[unmatched_open[-1]] = i
-            unmatched_open = unmatched_open[:-1]
-
-    all_square_brackets = []
-    for start, end in enumerate(brackets_pairs):
-        if end != -1:
-            all_square_brackets.append({"start": start, "end": end})
-
-    # all_square_brackets = re.finditer(LIST_PATTERN, input_str)
+    all_square_brackets = find_brackets_pairs(input_str, "[", "]")
     prev_start = -1
     prev_end = -1
     for match in all_square_brackets:
@@ -278,3 +238,21 @@ def evaluate_list_access(input_str):
         prev_end = match["end"]
 
     return input_str
+
+
+def find_brackets_pairs(input_str, starting, closing):
+    brackets_pairs = [-1] * len(input_str)
+    unmatched_open = []
+
+    for i, c in enumerate(input_str):
+        if c == starting:
+            unmatched_open.append(i)
+        elif c == closing and len(unmatched_open) > 0:
+            brackets_pairs[unmatched_open[-1]] = i
+            unmatched_open = unmatched_open[:-1]
+
+    all_brackets = []
+    for start, end in enumerate(brackets_pairs):
+        if end != -1:
+            all_brackets.append({"start": start, "end": end})
+    return all_brackets
