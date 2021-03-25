@@ -77,5 +77,4 @@ class AbsSecurityGroupUnrestrictedIngress(BaseResourceCheck):
             ipv6_cidr_blocks = force_list(conf.get('ipv6_cidr_blocks', [[]])[0])
             if any(ip in ['::/0', '0000:0000:0000:0000:0000:0000:0000:0000/0'] for ip in ipv6_cidr_blocks):
                 return True
-        tests / graph / terraform / variable_rendering / test_renderer.py
         return False
