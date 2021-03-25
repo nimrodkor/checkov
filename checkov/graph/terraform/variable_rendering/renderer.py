@@ -37,6 +37,7 @@ class VariableRenderer:
         # all the edges entering `end_vertices`
         edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
         while len(edges_to_render) > 0:
+            print(f'edges_to_render = {[str(e) for e in edges_to_render]}')
             logging.info(f'evaluating {len(edges_to_render)} edges')
             # group edges that have the same origin and label together
             edges_groups = self.group_edges_by_origin_and_label(edges_to_render)
@@ -75,6 +76,7 @@ class VariableRenderer:
 
         if referenced_vertices:
             for edge in edge_list:
+                print(edge)
                 dest_vertex_attributes = self.local_graph.get_vertex_attributes_by_index(edge.dest)
                 key_path_in_dest_vertex, replaced_key = self.find_path_from_referenced_vertices(referenced_vertices,
                                                                                                   dest_vertex_attributes)
@@ -186,7 +188,7 @@ class VariableRenderer:
             if not self.replace_cache[edge.origin].get(edge.label, {}):
                 self.replace_cache[edge.origin][edge.label] = {}
             if not curr_cache:
-                self.replace_cache[edge.origin][edge.label] = {replaced_key: []}
+                self.replace_cache[edge.origin][edge.label][replaced_key] = []
             self.replace_cache[edge.origin][edge.label][replaced_key].append(new_val)
             return new_val
         else:

@@ -1,4 +1,6 @@
+import enum
 import re
+import sre_compile
 
 from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 # condition ? true_val : false_val -> (condition, true_val, false_val)
@@ -10,7 +12,7 @@ CONDITIONAL_EXPR = r'([^\s]+)\?([^\s^\:]+)\:([^\s^\:]+)'
 MAP_REGEX = r'\{(?:\s*[\S]+\s*\=\s*[\S]+\s*\,)+(?:\s*[\S]+\s*\=\s*[\S]+\s*)\}'
 
 # {key:val}[key]
-MAP_WITH_ACCESS = r'(?P<d>\{(?:\s*[\S]+\s*\:\s*[\S]+\s*)+(\,?:\s*[\S]+\s*\:\s*[\S]+\s*)*\})\s*(?P<access>\[[^\]]+\])'
+MAP_WITH_ACCESS = r'(?P<d>\{(?:.*?\:.*?)+(\,?:.*?\:.*?)*\})\s*(?P<access>\[[^\]]+\])'
 
 LIST_PATTERN = r'(?P<d>\[([^\[\]]+?)+(\,[^\[\]]+?)*\])'
 
@@ -177,6 +179,34 @@ def evaluate_directives(input_str):
     return ''.join(evaluated_string_parts)
 
 
+# def evaluate_map(input_str):
+#     # first replace maps ":" with "="
+#     matching_maps = re.findall(MAP_REGEX, input_str)
+#     for matching_map in matching_maps:
+#         replaced_matching_map = matching_map.replace("=", ":")
+#         input_str = input_str.replace(matching_map, replaced_matching_map)
+#
+#     # find map access like {a: b}[a] and extract the right value - b
+#     map_access_match = re.match(MAP_WITH_ACCESS, input_str)
+#     while map_access_match:
+#         before_match = input_str[:map_access_match.start()]
+#         after_match = input_str[map_access_match.end():]
+#         origin_match_str = input_str[map_access_match.start():map_access_match.end()]
+#         match_parts = map_access_match.groupdict()
+#         access = match_parts.get("access")[1:-1]
+#
+#         evaluated = _try_evaluate(origin_match_str)
+#         if evaluated != origin_match_str:
+#             input_str = before_match + evaluated + after_match
+#         if not access.startswith('"') and not access.endswith('"'):
+#             match_to_eval = origin_match_str.replace(f'[{access}]', f'["{access}"]')
+#             evaluated = _try_evaluate(match_to_eval)
+#             if f'["{access}"]' not in evaluated:
+#                 input_str = before_match + evaluated + after_match
+#         map_access_match = re.match(MAP_WITH_ACCESS, input_str)
+#
+#     return input_str
+
 def evaluate_map(input_str):
     # first replace maps ":" with "="
     matching_maps = re.findall(MAP_REGEX, input_str)
@@ -195,14 +225,16 @@ def evaluate_map(input_str):
 
         evaluated = _try_evaluate(origin_match_str)
         if evaluated != origin_match_str:
-            return before_match + evaluated + after_match
+            input_str = before_match + evaluated + after_match
         if not access.startswith('"') and not access.endswith('"'):
             match_to_eval = origin_match_str.replace(f'[{access}]', f'["{access}"]')
             evaluated = _try_evaluate(match_to_eval)
             if f'["{access}"]' not in evaluated:
-                return before_match + evaluated + after_match
+                input_str = before_match + evaluated + after_match
+        # map_access_match = re.match(MAP_WITH_ACCESS, input_str)
 
     return input_str
+
 
 
 def convert_to_bool(bool_str):
@@ -216,17 +248,33 @@ def convert_to_bool(bool_str):
 
 def evaluate_list_access(input_str):
     # find list access like [a, b, c][0] and extract the right value - a
-    all_square_brackets = re.finditer(LIST_PATTERN, input_str)
+
+    brackets_pairs = [-1] * len(input_str)
+    unmatched_open = []
+
+    for i, c in enumerate(input_str):
+        if c == '[':
+            unmatched_open.append(i)
+        elif c == ']' and len(unmatched_open) > 0:
+            brackets_pairs[unmatched_open[-1]] = i
+            unmatched_open = unmatched_open[:-1]
+
+    all_square_brackets = []
+    for start, end in enumerate(brackets_pairs):
+        if end != -1:
+            all_square_brackets.append({"start": start, "end": end})
+
+    # all_square_brackets = re.finditer(LIST_PATTERN, input_str)
     prev_start = -1
     prev_end = -1
     for match in all_square_brackets:
-        if (match.start() == prev_end or all(c == ' ' for c in input_str[prev_end+1:match.start()])) and prev_start != -1:
-            curr_str = input_str[match.start()+1:match.end()-1]
+        if (match["start"] == prev_end + 1 or all(c == ' ' for c in input_str[prev_end+1:match["start"]])) and prev_start != -1:
+            curr_str = input_str[match["start"]+1:match["end"]]
             if curr_str.isnumeric():
-                evaluated = _try_evaluate(input_str[prev_start:match.end()])
+                evaluated = _try_evaluate(input_str[prev_start:match["end"]+1])
                 if evaluated:
-                    input_str = input_str.replace(input_str[prev_start:match.end()], evaluated)
-        prev_start = match.start()
-        prev_end = match.end()
+                    input_str = input_str.replace(input_str[prev_start:match["end"]+1], evaluated)
+        prev_start = match["start"]
+        prev_end = match["end"]
 
     return input_str

@@ -26,7 +26,7 @@ class GenericResourceEncryption:
         for att, expected_vals in self.attribute_values_map.items():
             att_conf = atts_dict.get(att)
             if att_conf and isinstance(att_conf, str):
-                att_value = att_conf
+                att_value = decode_graph_property_value(att_conf)
                 result &= (len(expected_vals) == 0 and att_value is not None) or att_value in expected_vals
                 if result:
                     if att_value == EncryptionTypes.AES256.value:

@@ -38,6 +38,7 @@ class Parser:
         # This ensures that we don't try to double-load modules
         # Tuple is <file>, <module_index>, <name> (see _load_modules)
         self._loaded_modules: Set[Tuple[str, int, str]] = set()
+        self.var_value_and_file_map = {}
 
     def _init(self, directory: str, out_definitions: Optional[Dict],
               out_evaluations_context: Dict[str, Dict[str, EvaluationContext]],
@@ -60,7 +61,6 @@ class Parser:
             self.out_parsing_errors = {}
         if self.env_vars is None:
             self.env_vars = dict(os.environ)
-        self.var_value_and_file_map = {}
 
     def _check_process_dir(self, directory):
         if directory not in self._parsed_directories:
