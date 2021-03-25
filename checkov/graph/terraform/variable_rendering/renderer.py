@@ -175,11 +175,11 @@ class VariableRenderer:
     def replace_value(self, edge, original_val, replaced_key, replaced_value, keep_origin, count=0):
         if count > 1:
             return original_val
-        if isinstance(original_val, str):
+        if isinstance(original_val, bool) or isinstance(original_val, int):
+            new_val = original_val
+        else:
             new_val = replace_string_value(original_str=original_val, str_to_replace=replaced_key,
                                            replaced_value=replaced_value, keep_origin=keep_origin)
-        else:
-            new_val = original_val
         curr_cache = self.replace_cache[edge.origin].get(edge.label, {}).get(replaced_key, [])
         # not_containing_dot = '.' not in new_val
         not_containing_dot = '.' not in str(new_val)
