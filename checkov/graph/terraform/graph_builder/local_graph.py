@@ -14,7 +14,7 @@ from checkov.graph.terraform.graph_builder.graph_components.generic_resource_enc
 from checkov.graph.terraform.graph_builder.utils import is_local_path
 from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, update_dictionary_attribute, \
     join_trimmed_strings, \
-    filter_sub_keys
+    filter_sub_keys, extend_referenced_vertices_with_tf_vars
 from checkov.graph.terraform.utils.utils import remove_index_pattern_from_str, calculate_hash
 from checkov.graph.terraform.variable_rendering.renderer import VariableRenderer
 
@@ -79,13 +79,17 @@ class LocalGraph:
                     variable_dir = os.path.dirname(variable_vertex.path)
                     if self.module_dependency_map.get(variable_dir) == module_vertex.path:
                         attribute_value = module_vertex.attributes[attribute_name]
-                        if get_referenced_vertices_in_value(value=attribute_value, aliases={},
-                                                            resources_types=self.get_resources_types_in_graph()):
+                        has_var_reference = get_referenced_vertices_in_value(value=attribute_value, aliases={},
+                                                            resources_types=self.get_resources_types_in_graph())
+                        if has_var_reference:
                             undetermined_values.append(
                                 {'module_vertex_id': module_vertex_id, 'attribute_name': attribute_name,
                                  'variable_vertex_id': variable_vertex_id})
-                        self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
-                                                     module_vertex_id, attribute_name)
+                        var_default_value = self.vertices[variable_vertex_id].attributes.get("default")
+                        if not has_var_reference or not var_default_value or get_referenced_vertices_in_value(value=var_default_value, aliases={},
+                                                            resources_types=self.get_resources_types_in_graph()):
+                            self.update_vertex_attribute(variable_vertex_id, 'default', attribute_value,
+                                                         module_vertex_id, attribute_name)
         return undetermined_values
 
     def process_undetermined_values(self, undetermined_values):
@@ -143,7 +147,7 @@ class LocalGraph:
                 referenced_vertices = get_referenced_vertices_in_value(value=vertex.attributes[attribute_key],
                                                                        aliases=aliases,
                                                                        resources_types=self.get_resources_types_in_graph())
-
+                extend_referenced_vertices_with_tf_vars(referenced_vertices)
                 for vertex_reference in referenced_vertices:
                     # for certain blocks such as data and resource, the block name is composed from several parts.
                     # the purpose of the loop is to avoid not finding the node if the name has several parts

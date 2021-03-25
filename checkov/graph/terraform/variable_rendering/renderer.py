@@ -4,7 +4,8 @@ from copy import deepcopy
 
 from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, reserved_attribute_names
 from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, calculate_hash, join_trimmed_strings, remove_index_pattern_from_str
+from checkov.graph.terraform.utils.utils import get_referenced_vertices_in_value, run_function_multithreaded, \
+    calculate_hash, join_trimmed_strings, remove_index_pattern_from_str, extend_referenced_vertices_with_tf_vars
 from checkov.graph.terraform.variable_rendering.evaluate_terraform import replace_string_value, evaluate_terraform
 
 
@@ -66,6 +67,7 @@ class VariableRenderer:
 
         referenced_vertices = get_referenced_vertices_in_value(value=val_to_eval, aliases={},
                                                                resources_types=self.local_graph.get_resources_types_in_graph())
+        extend_referenced_vertices_with_tf_vars(referenced_vertices)
         modified_vertex_attributes = self.local_graph.vertices[edge.origin].attributes
         val_to_eval = deepcopy(modified_vertex_attributes.get(edge.label, ''))
         origin_val = deepcopy(val_to_eval)
@@ -108,7 +110,7 @@ class VariableRenderer:
             if value is not None:
                 return value
 
-        if attributes.get(CustomAttributes.BLOCK_TYPE) == BlockType.VARIABLE.value:
+        if attributes.get(CustomAttributes.BLOCK_TYPE) in [BlockType.VARIABLE.value, BlockType.TF_VARIABLE.value]:
             return attributes.get('default')
         if attributes.get(CustomAttributes.BLOCK_TYPE) == BlockType.OUTPUT.value:
             return attributes.get('value')
@@ -172,11 +174,14 @@ class VariableRenderer:
             edge_groups[origin_and_label_hash].append(edge)
         return list(edge_groups.values())
 
-    def replace_value(self, edge, original_str, replaced_key, replaced_value, keep_origin, count=0):
+    def replace_value(self, edge, original_val, replaced_key, replaced_value, keep_origin, count=0):
         if count > 1:
-            return original_str
-        new_val = replace_string_value(original_str=original_str, str_to_replace=replaced_key,
-                                       replaced_value=replaced_value, keep_origin=keep_origin)
+            return original_val
+        if isinstance(original_val, bool) or isinstance(original_val, int):
+            new_val = original_val
+        else:
+            new_val = replace_string_value(original_str=original_val, str_to_replace=replaced_key,
+                                           replaced_value=replaced_value, keep_origin=keep_origin)
         curr_cache = self.replace_cache[edge.origin].get(edge.label, {}).get(replaced_key, [])
         # not_containing_dot = '.' not in new_val
         not_containing_dot = '.' not in str(new_val)
@@ -184,11 +189,11 @@ class VariableRenderer:
             if not self.replace_cache[edge.origin].get(edge.label, {}):
                 self.replace_cache[edge.origin][edge.label] = {}
             if not curr_cache:
-                self.replace_cache[edge.origin][edge.label] = {replaced_key: []}
+                self.replace_cache[edge.origin][edge.label][replaced_key] = []
             self.replace_cache[edge.origin][edge.label][replaced_key].append(new_val)
             return new_val
         else:
-            return self.replace_value(edge, original_str, replaced_key, replaced_value, not keep_origin, count + 1)
+            return self.replace_value(edge, original_val, replaced_key, replaced_value, not keep_origin, count + 1)
 
     def evaluate_non_rendered_values(self):
         for vertex in self.local_graph.vertices:
@@ -202,7 +207,8 @@ class VariableRenderer:
                     lst_curr_val = [lst_curr_val]
                 evaluated_lst = []
                 for inner_val in lst_curr_val:
-                    if isinstance(inner_val, str) and not any(c in inner_val for c in ["{", "}", "[", "]", "="]):
+                    if isinstance(inner_val, str) and not any(c in inner_val for c in ["{", "}", "[", "]", "="])\
+                            or attribute == 'template_body':
                         evaluated_lst.append(inner_val)
                         continue
                     evaluated = evaluate_terraform(str(inner_val), keep_interpolations=False)
