@@ -100,7 +100,7 @@ class TerraformGraphParser(Parser):
 
     @staticmethod
     def get_new_module(source_dir):
-        return Module(source_dir)
+        return Module(source_dir, encode=False)
 
     def add_tfvars(self, module, source):
         if not self.var_value_and_file_map:
