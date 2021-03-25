@@ -15,7 +15,7 @@ class BaseConnectionSolver(BaseSolver):
         self.vertices_under_connected_resources_types = vertices_under_connected_resources_types or []
 
     def run(self, graph_connector: DiGraph):
-        return [], []
+        raise NotImplementedError()
 
     def is_associated_edge(self, origin_type: str, destination_type: str):
         return (origin_type in self.resource_types and destination_type in self.connected_resources_types) or (
