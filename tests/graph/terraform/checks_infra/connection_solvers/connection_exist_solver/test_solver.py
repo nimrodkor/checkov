@@ -12,7 +12,16 @@ class ConnectionSolver(TestBaseSolver):
     def test_connection_found(self):
         root_folder = '../../../resources/ec2_instance_network_interfaces'
         check_id = "NetworkInterfaceForInstance"
-        should_pass = ['aws_instance.foo']
+        should_pass = ['aws_instance.foo', 'aws_network_interface.foo']
+        should_fail = []
+        expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
+
+        self.run_test(root_folder=root_folder, expected_results=expected_results)
+
+    def test_output_connection(self):
+        root_folder = '../../../resources/output_example'
+        check_id = "VPCForSubnet"
+        should_pass = ['aws_vpc.my_vpc']
         should_fail = []
         expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
 

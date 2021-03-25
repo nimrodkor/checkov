@@ -19,6 +19,17 @@ class ConnectionExistsSolver(BaseConnectionSolver):
             destination_type = destination_attributes.get(CustomAttributes.RESOURCE_TYPE)
             if self.is_associated_edge(origin_type, destination_type):
                 passed.extend([origin_attributes, destination_attributes])
+            destination_block_type = destination_attributes.get(CustomAttributes.BLOCK_TYPE)
+            if destination_block_type == 'output':
+                try:
+                    output_edges = graph_connector.edges(v, data=True)
+                    _, output_destination, _ = next(iter(output_edges))
+                    output_destination = graph_connector.nodes(data=True)[output_destination]
+                    output_destination_type = output_destination.get(CustomAttributes.RESOURCE_TYPE)
+                    if self.is_associated_edge(origin_type, output_destination_type):
+                        passed.extend([origin_attributes, output_destination])
+                except StopIteration:
+                    continue
         for v, v_data in graph_connector.nodes(data=True):
             v_type = v_data.get(CustomAttributes.RESOURCE_TYPE)
             if self.is_associated_vertex(v_type):
