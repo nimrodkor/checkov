@@ -36,6 +36,7 @@ class VariableRenderer:
 
         # all the edges entering `end_vertices`
         edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
+        loops = 0
         while len(edges_to_render) > 0:
             logging.info(f'evaluating {len(edges_to_render)} edges')
             # group edges that have the same origin and label together
@@ -49,6 +50,10 @@ class VariableRenderer:
             end_vertices_indexes = list(set([edge.origin for edge in edges_to_render]))
             edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
             edges_to_render = [edge for edge in edges_to_render if edge not in self.done_edges]
+            loops += 1
+            if loops >= 50:
+                logging.warning(f"Reached 50 graph edge iterations, breaking. Module: {self.local_graph.module.source_dir}")
+                break
 
         self.local_graph.update_vertices_configs()
         logging.info('done evaluating edges')
