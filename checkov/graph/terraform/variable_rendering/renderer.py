@@ -101,8 +101,7 @@ class VariableRenderer:
             self.update_evaluated_value(changed_attribute_key=edge.label,
                                         changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=first_key_path)
 
-    @staticmethod
-    def extract_value_from_vertex(key_path, attributes):
+    def extract_value_from_vertex(self, key_path, attributes):
         for i in range(len(key_path)):
             key = join_trimmed_strings(char_to_join=".", str_lst=key_path, num_to_trim=i)
             value = attributes.get(key, None)
@@ -118,7 +117,11 @@ class VariableRenderer:
                 return value
 
         if attributes.get(CustomAttributes.BLOCK_TYPE) in [BlockType.VARIABLE.value, BlockType.TF_VARIABLE.value]:
-            return attributes.get('default')
+            default_val = attributes.get('default')
+            value = None
+            if isinstance(default_val, dict):
+                value = self.extract_value_from_vertex(key_path, default_val)
+            return default_val if not value else value
         if attributes.get(CustomAttributes.BLOCK_TYPE) == BlockType.OUTPUT.value:
             return attributes.get('value')
         return None

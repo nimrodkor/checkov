@@ -39,3 +39,14 @@ expected_eks = {
     }
 }
 
+
+expected_provider = {
+    "provider": {
+        "aws": {
+            "access_key": ["AKIAVAN"],
+            "secret_key": ["0CU4jk0"],
+            "region": ["us-west-2"],
+        }
+    }
+}
+
