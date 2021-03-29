@@ -211,7 +211,7 @@ def evaluate_map(input_str):
                     origin_match_str = origin_match_str.replace(f'[{map_access}]', f'["{map_access}"]')
                 evaluated = _try_evaluate(origin_match_str)
                 if evaluated:
-                    input_str = input_str.replace(input_str[curly_start:square_end + 1], evaluated)
+                    input_str = input_str.replace(input_str[curly_start:square_end + 1], str(evaluated))
                     break
 
     return input_str
