@@ -80,7 +80,7 @@ def remove_interpolation(original_str):
         if block.full_str.startswith("${") and block.full_str.endswith("}"):
             full_str_start = original_str.find(block.full_str)
             full_str_end = full_str_start + len(block.full_str)
-            if full_str_start > 0 and full_str_end < len(original_str) - 2 and original_str[full_str_start-1] == "'" and original_str[full_str_start-1] == original_str[full_str_end] and "." in block.full_str:
+            if full_str_start > 0 and full_str_end <= len(original_str) - 2 and original_str[full_str_start-1] == "'" and original_str[full_str_start-1] == original_str[full_str_end] and "." in block.full_str:
                 # checking if ${} is wrapped with '' like : '${}'
                 original_str = original_str[:full_str_start-1] + block.full_str + original_str[full_str_end+1:]
             original_str = original_str.replace(block.full_str, block.var_only)
