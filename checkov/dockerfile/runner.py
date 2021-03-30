@@ -13,7 +13,7 @@ DOCKER_FILE_MASK = [DOCKERFILE_FILENAME]
 
 
 class Runner(BaseRunner):
-    check_type = "docker"
+    check_type = "dockerfile"
 
     def run(self, root_folder, external_checks_dir=None, files=None, runner_filter=RunnerFilter(),
             collect_skip_comments=True):
@@ -62,19 +62,29 @@ class Runner(BaseRunner):
                 results = registry.scan(docker_file_path, instructions, skipped_checks,
                                         runner_filter)
                 for check, check_result in results.items():
+                    result_configuration = check_result['results_configuration']
+                    startline = result_configuration['startline']
+                    endline = result_configuration['endline']
+                    result_instruction = result_configuration["instruction"]
+
+                    codeblock = []
+                    self.calc_record_codeblock(codeblock, definitions_raw, docker_file_path, endline, startline)
                     record = Record(check_id=check.id, check_name=check.name, check_result=check_result,
-                                    code_block=check_result['results_configuration']["content"],
+                                    code_block=codeblock,
                                     file_path=docker_file_path,
-                                    file_line_range=[check_result['results_configuration']["startline"],
-                                                     check_result['results_configuration']["endline"]],
-                                    resource="{}.{}".format(check_result['results_configuration'],
-                                                            check_result['results_configuration']["instruction"],
-                                                            check_result['results_configuration']["startline"]),
+                                    file_line_range=[startline,
+                                                     endline],
+                                    resource="{}.{}".format(docker_file_path,
+                                                            result_instruction,
+                                                            startline),
                                     evaluations=None, check_class=check.__class__.__module__,
                                     file_abs_path=file_abs_path, entity_tags=None)
                     report.add_record(record=record)
         report.print_console()
         return report
 
+    def calc_record_codeblock(self, codeblock, definitions_raw, docker_file_path, endline, startline):
+        for line in range(startline, endline + 1):
+            codeblock.append((line, definitions_raw[docker_file_path][line]))
 
-Runner().run(root_folder=None, files=["/Users/barak/Documents/dev/bridgecrew/checkov2/Dockerfile"])
+
