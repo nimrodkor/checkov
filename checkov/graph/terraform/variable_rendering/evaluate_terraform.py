@@ -52,7 +52,7 @@ def _try_evaluate(input_str):
 
 
 def replace_string_value(original_str, str_to_replace, replaced_value, keep_origin=True):
-    if original_str is None or type(original_str) in (int, bool):
+    if original_str is None or type(original_str) not in (str, list):
         return original_str
 
     if type(original_str) is list:
