@@ -2,7 +2,7 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: test-should-fail-3
+  name: test-should-pass-3
   namespace: test
 rules:
 - apiGroups: ["extensions", "apps"]
