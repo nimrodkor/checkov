@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import pytest
 
 from checkov.runner_filter import RunnerFilter
 from checkov.terraform.context_parsers.registry import parser_registry
@@ -12,6 +13,7 @@ from checkov.terraform.checks.resource.registry import resource_registry
 
 class TestRunnerValid(unittest.TestCase):
 
+    @pytest.mark.skip("Re-enable once and is fixed")
     def test_runner_two_checks_only(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         valid_dir_path = current_dir + "/resources/example"
@@ -26,6 +28,7 @@ class TestRunnerValid(unittest.TestCase):
         for record in report.failed_checks:
             self.assertIn(record.check_id, checks_allowlist)
 
+    @pytest.mark.skip("Re-enable once and is fixed")
     def test_runner_denylist_checks(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         valid_dir_path = current_dir + "/resources/example"
@@ -42,6 +45,7 @@ class TestRunnerValid(unittest.TestCase):
         for record in report.failed_checks:
             self.assertNotIn(record.check_id, checks_denylist)
 
+    @pytest.mark.skip("Re-enable once and is fixed")
     def test_runner_valid_tf(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         valid_dir_path = current_dir + "/resources/example"
