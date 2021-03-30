@@ -36,7 +36,7 @@ class ComplexConnectionSolver(BaseConnectionSolver):
         filters = []
         filter_queries = [sub_query for sub_query in self.queries if sub_query.solver_type == SolverType.FILTER]
         for sub_query in filter_queries:
-            filters.append(sub_query.get_operation())
+            filters.append(sub_query._get_operation())
         if filters:
             for query_filter in filters:
                 passed = list(filter(query_filter, passed))
