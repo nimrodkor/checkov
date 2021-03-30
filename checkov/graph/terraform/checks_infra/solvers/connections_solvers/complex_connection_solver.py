@@ -8,6 +8,7 @@ class ComplexConnectionSolver(BaseConnectionSolver):
     operator = ''
 
     def __init__(self, queries, operator):
+        self.solver_type = SolverType.COMPLEX_CONNECTION
         if queries is None:
             queries = []
         self.queries = queries
@@ -19,7 +20,7 @@ class ComplexConnectionSolver(BaseConnectionSolver):
             if sub_query.solver_type in [SolverType.CONNECTION, SolverType.COMPLEX_CONNECTION]:
                 resource_types.extend(sub_query.resource_types)
                 connected_resources_types.extend(sub_query.connected_resources_types)
-            if sub_query.solver_type in [SolverType.ATTRIBUTE]:
+            elif sub_query.solver_type in [SolverType.ATTRIBUTE]:
                 resource_types.extend(sub_query.resource_types)
         resource_types = list(set(resource_types))
         connected_resources_types = list(set(connected_resources_types))

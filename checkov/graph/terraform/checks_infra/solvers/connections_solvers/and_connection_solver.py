@@ -9,7 +9,6 @@ class AndConnectionSolver(ComplexConnectionSolver):
 
     def __init__(self, queries, operator):
         super().__init__(queries, operator)
-        self.solver_type = SolverType.COMPLEX_CONNECTION
 
     def run(self, graph_connector: DiGraph):
         attribute_queries = [sub_query for sub_query in self.queries if

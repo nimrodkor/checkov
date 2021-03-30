@@ -10,7 +10,6 @@ class OrConnectionSolver(ComplexConnectionSolver):
 
     def __init__(self, queries, operator):
         super().__init__(queries, operator)
-        self.solver_type = SolverType.COMPLEX_CONNECTION
 
     def run(self, graph_connector: DiGraph):
 
