@@ -1,6 +1,6 @@
 import re
 
-from checkov.graph.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
+from checkov.terraform.variable_rendering.safe_eval_functions import SAFE_EVAL_DICT
 # condition ? true_val : false_val -> (condition, true_val, false_val)
 from checkov.terraform.parser_utils import find_var_blocks
 
