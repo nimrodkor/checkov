@@ -1,5 +1,9 @@
-FROM gliderlabs/alpine:3.3
-RUN apk --no-cache add nginx
-EXPOSE 3000 80 443 22
-#ckv.skip=123
-CMD ["nginx", "-g", "daemon off;"]
+FROM python:3.8-slim-buster
+
+RUN apt-get update && apt install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install -U checkov
+
+ENTRYPOINT ["checkov"]
