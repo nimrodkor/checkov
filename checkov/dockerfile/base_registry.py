@@ -1,4 +1,5 @@
 from checkov.common.checks.base_check_registry import BaseCheckRegistry
+from checkov.common.models.enums import CheckResult
 
 
 class Registry(BaseCheckRegistry):
@@ -26,6 +27,12 @@ class Registry(BaseCheckRegistry):
             if runner_filter.should_run_check(check.id):
                 result = self.run_check(check, entity_configuration, entity_name, entity_type, scanned_file, skip_info)
                 results[check] = {}
-                results[check]['results_configuration'] = result['result'][1]
-                results[check]['result'] = result['result'][0]
+                if result['result'] == CheckResult.SKIPPED:
+                    results[check]['result'] = result['result']
+                    results[check]['suppress_comment'] = result['suppress_comment']
+                    results[check]['results_configuration'] = None
+                else:
+                    results[check]['result'] = result['result'][0]
+                    results[check]['results_configuration'] = result['result'][1]
+
         return results
