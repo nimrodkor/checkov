@@ -1,4 +1,8 @@
-FROM gliderlabs/alpine:3.3
-RUN apk --no-cache add nginx
-EXPOSE 3000 80 443 22
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:alpine
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
+CMD ["node","app.js"]

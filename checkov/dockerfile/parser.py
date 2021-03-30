@@ -10,6 +10,10 @@ from checkov.common.comment.enum import COMMENT_REGEX
 
 def parse(filename):
     dfp = DockerfileParser(path=filename)
+    return dfp_group_by_instructions(dfp)
+
+
+def dfp_group_by_instructions(dfp):
     result = OrderedDict()
     for instruction in dfp.structure:
         instruction_literal = instruction["instruction"]
@@ -17,6 +21,7 @@ def parse(filename):
             result[instruction_literal] = []
         result[instruction_literal].append(instruction)
     return result, dfp.lines
+
 
 def collect_skipped_checks(parse_result):
     skipped_checks = []
