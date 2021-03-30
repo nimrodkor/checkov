@@ -33,5 +33,3 @@ def collect_skipped_checks(parse_result):
                 )
     return skipped_checks
 
-
-parse("/Users/barak/Documents/dev/bridgecrew/checkov2/Dockerfile")
