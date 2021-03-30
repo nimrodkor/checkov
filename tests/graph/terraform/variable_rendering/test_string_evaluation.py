@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from checkov.graph.terraform.variable_rendering.evaluate_terraform import evaluate_terraform, replace_string_value, \
-    remove_interpolation, evaluate_map
-from checkov.terraform.parser_utils import find_var_blocks
+    remove_interpolation
 
 
 class TestTerraformEvaluation(TestCase):
