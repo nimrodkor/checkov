@@ -7,6 +7,10 @@ import yaml
 from checkov.graph.terraform import checks
 from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
 from checkov.graph.terraform.checks_infra.registry import Registry
+from checkov.common.models.enums import CheckResult
+from typing import List
+from checkov.graph.terraform.runner import Runner
+from checkov.runner_filter import RunnerFilter
 
 
 class TestYamlPolicies(unittest.TestCase):
@@ -180,7 +184,37 @@ class TestYamlPolicies(unittest.TestCase):
                     assert policy is not None
                     expected = load_yaml_data("expected.yaml", dir_path)
                     assert expected is not None
+                    report = get_policy_results(dir_path, policy)
+                    expected = load_yaml_data("expected.yaml", dir_path)
+
+                    policy_results = report.passed_checks
+                    expected_to_fail = expected['fail']
+                    expected_to_pass = expected['pass']
+                    assert_entities(expected_to_pass, policy_results, True)
+                    assert_entities(expected_to_fail, policy_results, False)
+
         assert found
+
+
+def assert_entities(expected_entities: List[str], report: List[CheckResult], assertion: bool):
+    for expected_entity in expected_entities:
+        found = False
+        for check_result in report:
+            entity_id = check_result.resource
+            found = entity_id == expected_entity
+        assert (found == assertion)
+
+
+def get_policy_results(root_folder, policy):
+    check_id = policy['metadata']['id']
+    graph_runner = Runner()
+    report = graph_runner.run(root_folder,runner_filter=RunnerFilter(checks=[check_id]))
+    return report
+
+
+def wrap_policy(policy):
+    policy['query'] = policy['definition']
+    del policy['definition']
 
 
 def load_yaml_data(source_file_name, dir_path):

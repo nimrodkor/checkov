@@ -46,6 +46,6 @@ class ConnectionExistsSolver(BaseConnectionSolver):
                         t_type = t_attributes.get(CustomAttributes.RESOURCE_TYPE)
                         if self.is_associated_edge(s_type, t_type):
                             is_associated = True
-                    if not is_associated:
-                        failed.append(v_data)
+                        if not is_associated:
+                            failed.append(v_data)
         return passed, failed

@@ -9,9 +9,12 @@ class BaseRegistry:
     def load_checks(self):
         raise NotImplementedError
 
-    def run_checks(self, graph_connector):
+    def run_checks(self, graph_connector, runner_filter):
         check_results = {}
-        for check in self.checks:
+        filtered_checks = self.checks
+        if runner_filter.checks:
+            filtered_checks = [check for check in self.checks if check.id in runner_filter.checks]
+        for check in filtered_checks:
             passed, failed = check.run(graph_connector)
             check_result = self._process_check_result(passed, [], CheckResult.PASSED)
             check_result = self._process_check_result(failed, check_result, CheckResult.FAILED)

@@ -89,18 +89,18 @@ class Runner(BaseRunner):
 
         report.add_parsing_errors(parsing_errors.keys())
 
-        graph_report = self.get_graph_checks_report(root_folder, self.breadcrumbs)
+        graph_report = self.get_graph_checks_report(root_folder, self.breadcrumbs, runner_filter)
         merge_reports(report, graph_report)
 
         return report
 
-    def get_graph_checks_report(self, root_folder, breadcrumbs):
+    def get_graph_checks_report(self, root_folder, breadcrumbs, runner_filter):
         registry = Registry(parser=NXGraphCheckParser())
         report = Report(self.check_type)
         checks_results = {}
         for r in self.external_registries + [registry]:
             r.load_checks()
-            registry_results = r.run_checks(self.graph_manager.get_reader_traversal())
+            registry_results = r.run_checks(self.graph_manager.get_reader_traversal(), runner_filter)
             checks_results = {**checks_results, **registry_results}
 
         for check_id, check_results in checks_results.items():
