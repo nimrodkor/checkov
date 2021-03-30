@@ -1,18 +1,17 @@
-import json
 import os
 from unittest import TestCase
 
-from checkov.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
-from checkov.graph.graph_builder.graph_components.attribute_names import EncryptionValues, EncryptionTypes
-from checkov.graph.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
-from checkov.graph.terraform.graph_builder.graph_components.block_types import BlockType
-from checkov.graph.terraform.graph_builder.graph_components.blocks import Block
-from checkov.graph.terraform.graph_builder.graph_components.generic_resource_encryption import ENCRYPTION_BY_RESOURCE_TYPE
-from checkov.graph.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
-from checkov.graph.terraform.parser import TerraformGraphParser
-from checkov.graph.terraform.graph_builder.local_graph import LocalGraph
-from checkov.graph.terraform.graph_manager import GraphManager
-from checkov.graph.terraform.utils.utils import calculate_hash, decode_graph_property_value
+from checkov.common.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
+from checkov.common.graph.graph_builder import EncryptionValues, EncryptionTypes
+from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
+from checkov.terraform.graph_builder.graph_components.block_types import BlockType
+from checkov.terraform.graph_builder.graph_components.blocks import Block
+from checkov.terraform.graph_builder.graph_components.generic_resource_encryption import ENCRYPTION_BY_RESOURCE_TYPE
+from checkov.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
+from checkov.terraform.parser import Parser
+from checkov.terraform.graph_builder.local_graph import LocalGraph
+from checkov.terraform.graph_manager import GraphManager
+from checkov.terraform.checks.utils.utils import calculate_hash, decode_graph_property_value
 
 TEST_DIRNAME = os.path.dirname(os.path.realpath(__file__))
 
@@ -21,22 +20,6 @@ class TestLocalGraph(TestCase):
 
     def setUp(self) -> None:
         self.source = "TERRAFORM"
-
-    def test__attribute_has_nested_attributes_dictionary(self):
-        local_graph = LocalGraph(module={}, module_dependency_map={})
-
-        attributes = {'name': ['${var.lb_name}'], 'internal': [True], 'security_groups': ['${var.lb_security_group_ids}'], 'subnets': ['${var.subnet_id}'], 'enable_deletion_protection': [True], 'tags': {'Terraform': True, 'Environment': 'sophi-staging'}, 'resource_type': ['aws_alb'], 'tags.Terraform': True, 'tags.Environment': 'sophi-staging'}
-        self.assertTrue(local_graph._attribute_has_nested_attributes(attribute_key='tags', attributes=attributes))
-        self.assertFalse(local_graph._attribute_has_nested_attributes(attribute_key='name', attributes=attributes))
-        self.assertFalse(local_graph._attribute_has_nested_attributes(attribute_key='tags.Environment', attributes=attributes))
-
-    def test__attribute_has_nested_attributes_list(self):
-        local_graph = LocalGraph(module={}, module_dependency_map={})
-
-        attributes = {'most_recent': [True], 'filter': [{'name': 'name', 'values': ['amzn-ami-hvm-*-x86_64-gp2']}, {'name': 'owner-alias', 'values': ['amazon']}], 'filter.0': {'name': 'name', 'values': ['amzn-ami-hvm-*-x86_64-gp2']}, 'filter.0.name': 'name', 'filter.0.values': ['amzn-ami-hvm-*-x86_64-gp2'], 'filter.0.values.0': 'amzn-ami-hvm-*-x86_64-gp2', 'filter.1': {'name': 'owner-alias', 'values': ['amazon']}, 'filter.1.name': 'owner-alias', 'filter.1.values': ['amazon'], 'filter.1.values.0': 'amazon'}
-        self.assertTrue(local_graph._attribute_has_nested_attributes(attribute_key='filter', attributes=attributes))
-        self.assertTrue(local_graph._attribute_has_nested_attributes(attribute_key='filter.1.values', attributes=attributes))
-        self.assertFalse(local_graph._attribute_has_nested_attributes(attribute_key='filter.1.values.0', attributes=attributes))
 
     def test_update_vertices_configs_attribute_like_resource_name(self):
         config = {"resource_type": {"resource_name": {"attribute1": 1, "attribute2": 2, "resource_name": ["caution!"]}}}
@@ -69,7 +52,7 @@ class TestLocalGraph(TestCase):
     def test_set_variables_values_from_modules(self):
         resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME,
                                                       '../resources/variable_rendering/render_from_module_vpc'))
-        hcl_config_parser = TerraformGraphParser()
+        hcl_config_parser = Parser()
         module, module_dependency_map, tf_definitions = hcl_config_parser.parse_hcl_module(resources_dir,
                                                                                            source=self.source)
         local_graph = LocalGraph(module, module_dependency_map)
@@ -121,7 +104,7 @@ class TestLocalGraph(TestCase):
 
     def test_encryption_aws(self):
         resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../resources/encryption'))
-        hcl_config_parser = TerraformGraphParser()
+        hcl_config_parser = Parser()
         module, module_dependency_map, _ = hcl_config_parser.parse_hcl_module(resources_dir,
                                                                               self.source)
         local_graph = LocalGraph(module, module_dependency_map)
@@ -150,7 +133,7 @@ class TestLocalGraph(TestCase):
     def test_vertices_from_local_graph(self):
         resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME,
                                                       '../resources/variable_rendering/render_from_module_vpc'))
-        hcl_config_parser = TerraformGraphParser()
+        hcl_config_parser = Parser()
         module, module_dependency_map, _ = hcl_config_parser.parse_hcl_module(resources_dir,
                                                                               self.source)
         local_graph = LocalGraph(module, module_dependency_map)
