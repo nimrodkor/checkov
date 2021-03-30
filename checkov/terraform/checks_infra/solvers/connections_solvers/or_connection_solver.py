@@ -1,7 +1,4 @@
 from networkx.classes.digraph import DiGraph
-from checkov.graph.terraform.checks_infra.solvers.connections_solvers.complex_connection_solver import \
-    ComplexConnectionSolver
-
 from checkov.common.graph.checks_infra.enums import SolverType
 from checkov.terraform.checks_infra.solvers.connections_solvers.complex_connection_solver import ComplexConnectionSolver
 from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes

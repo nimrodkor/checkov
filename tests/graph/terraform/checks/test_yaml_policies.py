@@ -9,7 +9,7 @@ from checkov.terraform.checks_infra.checks_parser import NXGraphCheckParser
 from checkov.terraform.checks_infra.registry import Registry
 from checkov.common.models.enums import CheckResult
 from typing import List
-from checkov.graph.terraform.runner import Runner
+from checkov.terraform.runner import Runner
 from checkov.runner_filter import RunnerFilter
 
 
