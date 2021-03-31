@@ -12,12 +12,6 @@ class BaseComplexSolver(BaseSolver):
         self.resource_types = resource_types
         super().__init__(SolverType.COMPLEX)
 
-    # def get_operation(self, vertex):
-    #     predicates = []
-    #     for i, query in enumerate(self.queries):
-    #         predicates.append(query.get_operation(vertex))
-    #     return self._get_operation(*predicates)
-
     def _get_operation(self, *args, **kwargs):
         raise NotImplementedError()
 

@@ -22,7 +22,6 @@ class AndConnectionSolver(ComplexConnectionSolver):
             passed_attributes = [p for p in passed_attributes if
                       p[CustomAttributes.ID] not in [f[CustomAttributes.ID] for f in failed_attributes]]
 
-
         passed, failed = passed_attributes, failed_attributes
         connection_queries = self.get_sorted_connection_queries()
         passed_connections, failed_connections = [], []
@@ -46,20 +45,6 @@ class AndConnectionSolver(ComplexConnectionSolver):
 
     def _get_operation(self, *args, **kwargs):
         pass
-
-    # @staticmethod
-    # def get_resources_predicates(resources, sub_queries):
-    #     predicates_by_resource_type = {}
-    #     for resource in resources:
-    #         predicates_by_resource_type[resource] = [has("resource_type", resource)]
-    #     for sub_query in sub_queries:
-    #         for resource in sub_query.resource_types:
-    #             if resource in resources:
-    #                 predicates_by_resource_type[resource].append(sub_query._get_operation())
-    #     predicates = []
-    #     for predicates_for_resource in predicates_by_resource_type.values():
-    #         predicates.append(and_(predicates_for_resource))
-    #     return or_(*predicates)
 
 
 
