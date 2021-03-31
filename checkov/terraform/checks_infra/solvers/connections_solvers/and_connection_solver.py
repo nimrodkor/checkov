@@ -7,21 +7,21 @@ from checkov.terraform.graph_builder.graph_components.attribute_names import Cus
 class AndConnectionSolver(ComplexConnectionSolver):
     operator = 'and'
 
-    def __init__(self, queries, operator):
-        super().__init__(queries, operator)
+    def __init__(self, solvers, operator):
+        super().__init__(solvers, operator)
 
     def get_operation(self, graph_connector: DiGraph):
-        passed_attributes, failed_attributes = self.run_attribute_queries(graph_connector)
+        passed_attributes, failed_attributes = self.run_attribute_solvers(graph_connector)
         passed_attributes = [p for p in passed_attributes if
                              p[CustomAttributes.ID] not in [f[CustomAttributes.ID] for f in failed_attributes]]
         passed, failed = passed_attributes, failed_attributes
-        connection_queries = self.get_sorted_connection_queries()
+        connection_solvers = self.get_sorted_connection_solvers()
         passed_connections, failed_connections = [], []
-        for connection_query in connection_queries:
-            connection_query.set_vertices(graph_connector, failed_attributes+failed_connections)
-            passed_query, failed_query = connection_query.get_operation(graph_connector)
-            passed_connections.extend(passed_query)
-            failed_connections.extend(failed_query)
+        for connection_solver in connection_solvers:
+            connection_solver.set_vertices(graph_connector, failed_attributes+failed_connections)
+            passed_solver, failed_solver = connection_solver.get_operation(graph_connector)
+            passed_connections.extend(passed_solver)
+            failed_connections.extend(failed_solver)
             passed_connections = [p for p in passed_connections if
                       p[CustomAttributes.ID] not in [f[CustomAttributes.ID] for f in failed_connections]]
 

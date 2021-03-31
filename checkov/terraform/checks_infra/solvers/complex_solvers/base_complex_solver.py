@@ -5,10 +5,10 @@ from checkov.common.graph.checks_infra.solvers.base_solver import BaseSolver
 class BaseComplexSolver(BaseSolver):
     operator = ''
 
-    def __init__(self, queries, resource_types):
-        if queries is None:
-            queries = []
-        self.queries = queries
+    def __init__(self, solvers, resource_types):
+        if solvers is None:
+            solvers = []
+        self.solvers = solvers
         self.resource_types = resource_types
         super().__init__(SolverType.COMPLEX)
 
