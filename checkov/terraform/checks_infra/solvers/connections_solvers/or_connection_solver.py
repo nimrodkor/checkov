@@ -11,16 +11,9 @@ class OrConnectionSolver(ComplexConnectionSolver):
         super().__init__(queries, operator)
 
     def get_operation(self, graph_connector: DiGraph):
-        attribute_queries = [sub_query for sub_query in self.queries if
-                             sub_query.solver_type in [SolverType.ATTRIBUTE, SolverType.COMPLEX]]
-        passed_attributes, failed_attributes = [], []
-        for attribute_query in attribute_queries:
-            passed_query, failed_query = attribute_query.run(graph_connector)
-            passed_attributes.extend(passed_query)
-            failed_attributes.extend(failed_query)
-            failed_attributes = [f for f in failed_attributes if
-                                 f[CustomAttributes.ID] not in [p[CustomAttributes.ID] for p in passed_attributes]]
-
+        passed_attributes, failed_attributes = self.run_attribute_queries(graph_connector)
+        failed_attributes = [f for f in failed_attributes if
+                             f[CustomAttributes.ID] not in [p[CustomAttributes.ID] for p in passed_attributes]]
         passed, failed = passed_attributes, failed_attributes
         connection_queries = [sub_query for sub_query in self.queries if
                               sub_query.solver_type in [SolverType.CONNECTION, SolverType.COMPLEX_CONNECTION]]

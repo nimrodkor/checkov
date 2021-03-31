@@ -67,3 +67,13 @@ class ComplexConnectionSolver(BaseConnectionSolver):
 
         sorted_connection_queries.extend(connection_queries_with_filtered_resource_types)
         return sorted_connection_queries
+
+    def run_attribute_queries(self, graph_connector):
+        attribute_queries = [sub_query for sub_query in self.queries if
+                             sub_query.solver_type in [SolverType.ATTRIBUTE, SolverType.COMPLEX]]
+        passed_attributes, failed_attributes = [], []
+        for attribute_query in attribute_queries:
+            passed_query, failed_query = attribute_query.run(graph_connector)
+            passed_attributes.extend(passed_query)
+            failed_attributes.extend(failed_query)
+        return passed_attributes, failed_attributes
