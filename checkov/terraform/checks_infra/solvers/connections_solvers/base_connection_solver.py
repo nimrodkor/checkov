@@ -16,9 +16,7 @@ class BaseConnectionSolver(BaseSolver):
         self.vertices_under_connected_resources_types = vertices_under_connected_resources_types or []
 
     def run(self, graph_connector: DiGraph):
-        self.vertices_under_resource_types = [v for _, v in graph_connector.nodes(data=True) if self.resource_type_pred(v, self.resource_types)]
-        self.vertices_under_connected_resources_types = [v for _, v in graph_connector.nodes(data=True) if self.resource_type_pred(v, self.connected_resources_types)]
-
+        self.set_vertices(graph_connector, [])
         return self.get_operation(graph_connector)
 
     def is_associated_edge(self, origin_type: str, destination_type: str):
@@ -33,6 +31,7 @@ class BaseConnectionSolver(BaseSolver):
                                               self.resource_type_pred(v, self.resource_types) and v not in exclude_vertices]
         self.vertices_under_connected_resources_types = [v for _, v in graph_connector.nodes(data=True) if
                                                          self.resource_type_pred(v, self.connected_resources_types) and v not in exclude_vertices]
+
     def get_operation(self, graph_connector):
         pass
 
