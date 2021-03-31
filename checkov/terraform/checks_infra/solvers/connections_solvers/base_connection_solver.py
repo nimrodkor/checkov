@@ -33,7 +33,7 @@ class BaseConnectionSolver(BaseSolver):
                                                          self.resource_type_pred(v, self.connected_resources_types) and v not in exclude_vertices]
 
     def get_operation(self, graph_connector):
-        pass
+        raise NotImplementedError
 
     def _get_operation(self, *args, **kwargs):
-        pass
+        raise NotImplementedError
