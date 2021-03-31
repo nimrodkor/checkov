@@ -5,14 +5,13 @@ from checkov.terraform.checks_infra.solvers.connections_solvers.complex_connecti
 from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 
 
-
 class AndConnectionSolver(ComplexConnectionSolver):
     operator = 'and'
 
     def __init__(self, queries, operator):
         super().__init__(queries, operator)
 
-    def run(self, graph_connector: DiGraph):
+    def get_operation(self, graph_connector: DiGraph):
         attribute_queries = [sub_query for sub_query in self.queries if
                              sub_query.solver_type in [SolverType.ATTRIBUTE, SolverType.COMPLEX]]
         passed_attributes, failed_attributes = [], []
@@ -25,11 +24,11 @@ class AndConnectionSolver(ComplexConnectionSolver):
 
 
         passed, failed = passed_attributes, failed_attributes
-        connection_queries = [sub_query for sub_query in self.queries if
-                              sub_query.solver_type in [SolverType.CONNECTION, SolverType.COMPLEX_CONNECTION]]
+        connection_queries = self.get_sorted_connection_queries()
         passed_connections, failed_connections = [], []
         for connection_query in connection_queries:
-            passed_query, failed_query = connection_query.run(graph_connector)
+            connection_query.set_vertices(graph_connector, failed_attributes+failed_connections)
+            passed_query, failed_query = connection_query.get_operation(graph_connector)
             passed_connections.extend(passed_query)
             failed_connections.extend(failed_query)
             passed_connections = [p for p in passed_connections if
@@ -44,3 +43,23 @@ class AndConnectionSolver(ComplexConnectionSolver):
                       CustomAttributes.ID] in [pt[CustomAttributes.ID] for pt in passed_connections]]
 
         return self.filter_results(passed, failed)
+
+    def _get_operation(self, *args, **kwargs):
+        pass
+
+    # @staticmethod
+    # def get_resources_predicates(resources, sub_queries):
+    #     predicates_by_resource_type = {}
+    #     for resource in resources:
+    #         predicates_by_resource_type[resource] = [has("resource_type", resource)]
+    #     for sub_query in sub_queries:
+    #         for resource in sub_query.resource_types:
+    #             if resource in resources:
+    #                 predicates_by_resource_type[resource].append(sub_query._get_operation())
+    #     predicates = []
+    #     for predicates_for_resource in predicates_by_resource_type.values():
+    #         predicates.append(and_(predicates_for_resource))
+    #     return or_(*predicates)
+
+
+

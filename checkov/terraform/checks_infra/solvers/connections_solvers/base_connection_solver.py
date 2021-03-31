@@ -4,9 +4,10 @@ from networkx import DiGraph
 
 from checkov.common.graph.checks_infra.enums import SolverType
 from checkov.common.graph.checks_infra.solvers.base_solver import BaseSolver
+from checkov.common.graph.graph_builder import CustomAttributes
 
 
-class BaseConnectionSolver(BaseSolver, ABC):
+class BaseConnectionSolver(BaseSolver):
 
     operator = ''
 
@@ -18,7 +19,10 @@ class BaseConnectionSolver(BaseSolver, ABC):
         self.vertices_under_connected_resources_types = vertices_under_connected_resources_types or []
 
     def run(self, graph_connector: DiGraph):
-        raise NotImplementedError()
+        self.vertices_under_resource_types = [v for _, v in graph_connector.nodes(data=True) if self.resource_type_pred(v, self.resource_types)]
+        self.vertices_under_connected_resources_types = [v for _, v in graph_connector.nodes(data=True) if self.resource_type_pred(v, self.connected_resources_types)]
+
+        return self.get_operation(graph_connector)
 
     def is_associated_edge(self, origin_type: str, destination_type: str):
         return (origin_type in self.resource_types and destination_type in self.connected_resources_types) or (
@@ -26,3 +30,23 @@ class BaseConnectionSolver(BaseSolver, ABC):
 
     def is_associated_vertex(self, vertex_type: str):
         return vertex_type in self.resource_types or vertex_type in self.connected_resources_types
+
+    def get_operation(self, graph_connector):
+        pass
+
+    def _get_operation(self, *args, **kwargs):
+        pass
+
+    def set_vertices(self, graph_connector, exclude_vertices):
+        self.vertices_under_resource_types = [v for _, v in graph_connector.nodes(data=True) if
+                                              self.resource_type_pred(v, self.resource_types) and v not in exclude_vertices]
+        self.vertices_under_connected_resources_types = [v for _, v in graph_connector.nodes(data=True) if
+                                                         self.resource_type_pred(v, self.connected_resources_types) and v not in exclude_vertices]
+
+    def remove_vertices(self, vertices_to_remove):
+        for vertex in vertices_to_remove:
+            resource_type = vertex.get(CustomAttributes.RESOURCE_TYPE)
+            if resource_type in self.resource_types:
+                self.vertices_under_resource_types = [v for v in self.vertices_under_resource_types if v != vertex]
+            if resource_type in self.connected_resources_types:
+                self.vertices_under_resource_types = [v for v in self.vertices_under_connected_resources_types if v != vertex]

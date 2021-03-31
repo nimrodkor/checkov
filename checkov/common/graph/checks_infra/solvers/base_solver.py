@@ -19,3 +19,5 @@ class BaseSolver:
     def run(self, graph_connector):
         raise NotImplementedError()
 
+    def resource_type_pred(self, v, resource_types):
+        return len(resource_types) == 0 or v.get('resource_type') in resource_types

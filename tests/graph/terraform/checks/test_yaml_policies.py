@@ -168,8 +168,7 @@ class TestYamlPolicies(unittest.TestCase):
         registry.load_checks()
         self.assertGreater(len(registry.checks), 0)
 
-    @staticmethod
-    def go(dir_name):
+    def go(self, dir_name):
         dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 f"resources/{dir_name}")
         assert os.path.exists(dir_path)
@@ -187,22 +186,23 @@ class TestYamlPolicies(unittest.TestCase):
                     report = get_policy_results(dir_path, policy)
                     expected = load_yaml_data("expected.yaml", dir_path)
 
-                    policy_results = report.passed_checks
                     expected_to_fail = expected['fail']
                     expected_to_pass = expected['pass']
-                    assert_entities(expected_to_pass, policy_results, True)
-                    assert_entities(expected_to_fail, policy_results, False)
+                    self.assert_entities(expected_to_pass, report.passed_checks, True)
+                    self.assert_entities(expected_to_fail, report.failed_checks, False)
 
         assert found
 
-
-def assert_entities(expected_entities: List[str], report: List[CheckResult], assertion: bool):
-    for expected_entity in expected_entities:
-        found = False
-        for check_result in report:
-            entity_id = check_result.resource
-            found = entity_id == expected_entity
-        assert (found == assertion)
+    def assert_entities(self, expected_entities: List[str], results: List[CheckResult], assertion: bool):
+        self.assertEqual(len(expected_entities), len(results), f"mismatch in number of results in {'passed' if assertion else 'failed'}, expected: {len(expected_entities)}, got: {len(results)}")
+        for expected_entity in expected_entities:
+            found = False
+            for check_result in results:
+                entity_id = check_result.resource
+                if entity_id == expected_entity:
+                    found = True
+                    break
+            self.assertTrue(found, f"expected to find entity {expected_entity} in {'passed' if assertion else 'failed'}")
 
 
 def get_policy_results(root_folder, policy):

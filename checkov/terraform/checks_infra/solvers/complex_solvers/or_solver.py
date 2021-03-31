@@ -11,3 +11,10 @@ class OrSolver(BaseComplexSolver):
 
     def _get_operation(self, *args):
         return reduce(or_, args)
+
+    def get_operation(self, vertex):
+        for i, query in enumerate(self.queries):
+            pred_result = query.get_operation(vertex)
+            if pred_result:
+                return pred_result
+        return False

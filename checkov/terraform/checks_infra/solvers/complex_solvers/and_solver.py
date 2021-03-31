@@ -11,3 +11,10 @@ class AndSolver(BaseComplexSolver):
 
     def _get_operation(self, *args):
         return reduce(and_, args)
+
+    def get_operation(self, vertex):
+        for i, query in enumerate(self.queries):
+            pred_result = query.get_operation(vertex)
+            if not pred_result:
+                return pred_result
+        return True

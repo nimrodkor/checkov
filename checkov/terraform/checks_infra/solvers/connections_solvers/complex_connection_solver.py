@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 from checkov.common.graph.checks_infra.enums import SolverType
 from checkov.terraform.checks_infra.solvers.connections_solvers.base_connection_solver import BaseConnectionSolver
 from networkx.classes.digraph import DiGraph
@@ -28,9 +30,6 @@ class ComplexConnectionSolver(BaseConnectionSolver):
 
         super().__init__(resource_types, connected_resources_types)
 
-    def run(self, graph_connector: DiGraph):
-        raise NotImplementedError
-
     @staticmethod
     def filter_duplicates(checks):
         return list({check[CustomAttributes.ID]: check for check in checks}.values())
@@ -47,3 +46,24 @@ class ComplexConnectionSolver(BaseConnectionSolver):
         passed = self.filter_duplicates(passed)
         failed = self.filter_duplicates(failed)
         return passed, failed
+
+    def get_sorted_connection_queries(self):
+        connection_queries = [sub_query for sub_query in self.queries if
+                              sub_query.solver_type in [SolverType.CONNECTION, SolverType.COMPLEX_CONNECTION]]
+        filter_queries = [sub_query for sub_query in self.queries if sub_query.solver_type == SolverType.FILTER]
+
+        resource_types_to_filter = []
+        for filter_query in filter_queries:
+            if filter_query.query_attribute == 'resource_type':
+                resource_types_to_filter.extend(filter_query.query_value)
+
+        sorted_connection_queries = []
+        connection_queries_with_filtered_resource_types = []
+        for connection_query in connection_queries:
+            if any(r in resource_types_to_filter for r in connection_query.resource_types + connection_query.connected_resources_types):
+                connection_queries_with_filtered_resource_types.append(connection_query)
+            else:
+                sorted_connection_queries.append(connection_query)
+
+        sorted_connection_queries.extend(connection_queries_with_filtered_resource_types)
+        return sorted_connection_queries
