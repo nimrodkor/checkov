@@ -20,25 +20,26 @@ class Registry(BaseCheckRegistry):
             return results
         for instruction, checks in self.checks.items():
             skip_info = {}
+            if instruction in entity:
 
-            for check in checks:
-                if check.id in [x['id'] for x in skipped_checks]:
-                    skip_info = [x for x in skipped_checks if x['id'] == check.id][0]
+                for check in checks:
+                    if check.id in [x['id'] for x in skipped_checks]:
+                        skip_info = [x for x in skipped_checks if x['id'] == check.id][0]
 
-                if runner_filter.should_run_check(check.id):
-                    entity_name = instruction
-                    entity_type = instruction
-                    entity_configuration = entity[instruction]
-                    result = self.run_check(check, entity_configuration, entity_name, entity_type, scanned_file,
-                                            skip_info)
-                    results[check] = {}
-                    if result['result'] == CheckResult.SKIPPED:
-                        results[check]['result'] = result['result']
-                        results[check]['suppress_comment'] = result['suppress_comment']
-                        results[check]['results_configuration'] = None
-                    else:
-                        results[check]['result'] = result['result'][0]
-                        results[check]['results_configuration'] = result['result'][1]
+                    if runner_filter.should_run_check(check.id):
+                        entity_name = instruction
+                        entity_type = instruction
+                        entity_configuration = entity[instruction]
+                        result = self.run_check(check, entity_configuration, entity_name, entity_type, scanned_file,
+                                                skip_info)
+                        results[check] = {}
+                        if result['result'] == CheckResult.SKIPPED:
+                            results[check]['result'] = result['result']
+                            results[check]['suppress_comment'] = result['suppress_comment']
+                            results[check]['results_configuration'] = None
+                        else:
+                            results[check]['result'] = result['result'][0]
+                            results[check]['results_configuration'] = result['result'][1]
 
         for check in self.wildcard_checks["*"]:
             if skipped_checks:
