@@ -13,7 +13,7 @@ class AddExists(BaseDockerfileCheck):
     def scan_entity_conf(self, conf):
         i=0
         for instruction in conf:
-            if instruction['instruction'] is "ADD":
+            if instruction['instruction'] == "ADD":
                 return CheckResult.FAILED, conf[i]
         return CheckResult.PASSED,None
 

@@ -57,37 +57,37 @@ class Runner(BaseRunner):
 
             file_abs_path = os.path.abspath(path_to_convert)
             skipped_checks = collect_skipped_checks(definitions[docker_file_path])
-            for instructions in definitions[docker_file_path].values():
+            instructions = definitions[docker_file_path]
 
-                results = registry.scan(docker_file_path, instructions, skipped_checks,
-                                        runner_filter)
-                for check, check_result in results.items():
-                    result_configuration = check_result['results_configuration']
-                    startline = 0
-                    endline = 0
-                    result_instruction = ""
-                    if result_configuration:
-                        startline = result_configuration['startline']
-                        endline = result_configuration['endline']
-                        result_instruction = result_configuration["instruction"]
+            results = registry.scan(docker_file_path, instructions, skipped_checks,
+                                    runner_filter)
+            for check, check_result in results.items():
+                result_configuration = check_result['results_configuration']
+                startline = 0
+                endline = 0
+                result_instruction = ""
+                if result_configuration:
+                    startline = result_configuration['startline']
+                    endline = result_configuration['endline']
+                    result_instruction = result_configuration["instruction"]
 
-                    codeblock = []
-                    self.calc_record_codeblock(codeblock, definitions_raw, docker_file_path, endline, startline)
-                    record = Record(check_id=check.id, check_name=check.name, check_result=check_result,
-                                    code_block=codeblock,
-                                    file_path=docker_file_path,
-                                    file_line_range=[startline,
-                                                     endline],
-                                    resource="{}.{}".format(docker_file_path,
-                                                            result_instruction,
-                                                            startline),
-                                    evaluations=None, check_class=check.__class__.__module__,
-                                    file_abs_path=file_abs_path, entity_tags=None)
-                    report.add_record(record=record)
+                codeblock = []
+                self.calc_record_codeblock(codeblock, definitions_raw, docker_file_path, endline, startline)
+                record = Record(check_id=check.id, check_name=check.name, check_result=check_result,
+                                code_block=codeblock,
+                                file_path=docker_file_path,
+                                file_line_range=[startline,
+                                                 endline],
+                                resource="{}.{}".format(docker_file_path,
+                                                        result_instruction,
+                                                        startline),
+                                evaluations=None, check_class=check.__class__.__module__,
+                                file_abs_path=file_abs_path, entity_tags=None)
+                report.add_record(record=record)
+
         return report
+
 
     def calc_record_codeblock(self, codeblock, definitions_raw, docker_file_path, endline, startline):
         for line in range(startline, endline + 1):
             codeblock.append((line, definitions_raw[docker_file_path][line]))
-
-

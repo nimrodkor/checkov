@@ -4,6 +4,7 @@ from dockerfile_parse import DockerfileParser
 
 from checkov.common.models.enums import CheckResult
 from checkov.dockerfile.checks.UserExists import check
+from checkov.dockerfile.parser import dfp_group_by_instructions
 
 
 class TestUserExists(unittest.TestCase):
@@ -14,7 +15,8 @@ class TestUserExists(unittest.TestCase):
         From  base
         LABEL foo="bar baz"
         """
-        scan_result = check.scan_entity_conf(dfp.structure)
+        conf = dfp_group_by_instructions(dfp)[0]
+        scan_result = check.scan_entity_conf(conf)
         self.assertEqual((CheckResult.FAILED,None), scan_result)
 
     def test_success(self):
@@ -25,5 +27,6 @@ class TestUserExists(unittest.TestCase):
         USER  me
         HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1 
         """
-        scan_result = check.scan_entity_conf(dfp.structure)
-        self.assertEqual((CheckResult.FAILED,None), scan_result)
+        conf = dfp_group_by_instructions(dfp)[0]
+        scan_result = check.scan_entity_conf(conf)
+        self.assertEqual(CheckResult.PASSED, scan_result[0])

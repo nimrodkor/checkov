@@ -4,16 +4,18 @@ from dockerfile_parse import DockerfileParser
 
 from checkov.common.models.enums import CheckResult
 from checkov.dockerfile.checks.UpdateNotAlone import check
+from checkov.dockerfile.parser import dfp_group_by_instructions
 
 
-class TestUpdateNotAlon(unittest.TestCase):
+class TestUpdateNotAlone(unittest.TestCase):
 
     def test_failure(self):
         dfp = DockerfileParser()
         dfp.content = """\
         RUN apk update
         """
-        scan_result = check.scan_entity_conf(dfp.structure)
+        conf = dfp_group_by_instructions(dfp)[0]
+        scan_result = check.scan_entity_conf(conf['RUN'])
         self.assertEqual(CheckResult.FAILED, scan_result[0])
 
     def test_success(self):
@@ -26,5 +28,7 @@ class TestUpdateNotAlon(unittest.TestCase):
             && apk add --no-cache suuu looo
         RUN apk --update add moo
         """
-        scan_result = check.scan_entity_conf(dfp.structure)
+        conf = dfp_group_by_instructions(dfp)[0]
+        scan_result = check.scan_entity_conf(conf['RUN'])
+
         self.assertEqual(CheckResult.PASSED, scan_result[0])
