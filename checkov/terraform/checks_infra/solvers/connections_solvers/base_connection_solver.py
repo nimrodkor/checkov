@@ -32,7 +32,7 @@ class BaseConnectionSolver(BaseSolver):
                                               self.resource_type_pred(v, self.resource_types)]
         self.vertices_under_connected_resources_types = [v for _, v in graph_connector.nodes(data=True) if
                                                          self.resource_type_pred(v, self.connected_resources_types)]
-        self.excluded_vertices = [v for v in self.vertices_under_resource_types + self.vertices_under_connected_resources_types if v not in exclude_vertices]
+        self.excluded_vertices = [v for v in self.vertices_under_resource_types + self.vertices_under_connected_resources_types if v in exclude_vertices]
 
     def get_operation(self, graph_connector):
         raise NotImplementedError
