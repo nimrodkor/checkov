@@ -5,7 +5,6 @@ from checkov.kubernetes.base_spec_check import BaseK8Check
 
 class ApiServerEtcdCaFile(BaseK8Check):
     def __init__(self):
-        # CIS-1.6 1.2.32
         id = "CKV_K8S_102"
         name = "Ensure that the --etcd-ca-file argument is set as appropriate"
         categories = [CheckCategories.KUBERNETES]
