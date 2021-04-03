@@ -1,6 +1,5 @@
 import logging
 import os
-import urllib
 from typing import Optional, List
 
 from checkov.common.util.consts import DEFAULT_EXTERNAL_MODULES_DIR
@@ -21,7 +20,7 @@ class ModuleLoaderRegistry:
 Search all registered loaders for the first one which is able to load the module source type. For more
 information, see `loader.ModuleLoader.load`.
         """
-        local_dir = os.path.join(current_dir, self.external_modules_folder_name, urllib.parse.quote(source, safe=''))
+        local_dir = os.path.join(current_dir, self.external_modules_folder_name, source)
         inner_module = ''
         next_url = source
         last_exception = None
