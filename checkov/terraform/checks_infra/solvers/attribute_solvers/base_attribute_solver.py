@@ -25,7 +25,7 @@ class BaseAttributeSolver(BaseSolver):
     def get_operation(self, vertex):
         if re.match(WILDCARD_PATTERN, self.attribute):
             attribute_patterns = self.get_attribute_patterns(self.attribute)
-            attribute_matches = [attr for attr in vertex if any(re.match(attribute_pattern, attr) for attribute_pattern in attribute_patterns)]
+            attribute_matches = [attr for attr in vertex if isinstance(attr, str) and any(re.match(attribute_pattern, attr) for attribute_pattern in attribute_patterns)]
             if attribute_matches:
                 return self.resource_type_pred(vertex, self.resource_types) and any(self._get_operation(vertex=vertex, attribute=attr) for attr in attribute_matches)
         return self.resource_type_pred(vertex, self.resource_types) and self._get_operation(vertex=vertex, attribute=self.attribute)
