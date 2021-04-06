@@ -1,3 +1,3 @@
 module "inner_module_call" {
-  source = "inner"
+  source = "./inner"
 }
