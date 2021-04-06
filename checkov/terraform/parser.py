@@ -431,9 +431,10 @@ class Parser:
         copy_of_tf_definitions = deepcopy(tf_definitions)
         for file_path in copy_of_tf_definitions:
             blocks = copy_of_tf_definitions.get(file_path)
+            dependencies = [dep_trail for dep_trail in module_dependency_map[os.path.dirname(file_path)]]
             for block_type in blocks:
                 try:
-                    module.add_blocks(block_type, blocks[block_type], file_path, source)
+                    module.add_blocks(block_type, blocks[block_type], file_path, source, dependencies)
                 except Exception as e:
                     logging.error(f'Failed to add block {blocks[block_type]}. Error:')
                     logging.error(e, exc_info=True)
@@ -477,6 +478,27 @@ class Parser:
         return result_values
 
     @staticmethod
+    def get_remaining_keys(evaluated_keys: list, unevaluated_keys: list) -> (list, list):
+        next_level, unevaluated, do_not_eval_yet = [], [], []
+        for key in unevaluated_keys:
+            found = False
+            for eval_key in evaluated_keys:
+                if eval_key in key:
+                    found = True
+                    break
+            if not found:
+                do_not_eval_yet.append(key.split('[')[0])
+                unevaluated.append(key)
+            else:
+                next_level.append(key)
+
+        move_to_uneval = list(filter(lambda k: k.split('[')[0] in do_not_eval_yet, next_level))
+        for k in move_to_uneval:
+            next_level.remove(k)
+            unevaluated.append(k)
+        return next_level, unevaluated
+
+    @staticmethod
     def get_module_dependency_map(tf_definitions):
         """
         :param tf_definitions, with paths in format 'dir/main.tf[module_dir/main.tf#0]'
@@ -486,13 +508,30 @@ class Parser:
         """
         module_dependency_map = {}
         copy_of_tf_definitions = {}
-        for file_path in tf_definitions.keys():
-            path, module_dependency, _ = remove_module_dependency_in_path(file_path)
-            dir_name = os.path.dirname(path)
-            if not module_dependency_map.get(dir_name):
-                module_dependency_map[dir_name] = set()
-            module_dependency_map[dir_name].add(module_dependency)
+        definitions_keys = list(tf_definitions.keys())
+        origin_keys = list(filter(lambda k: not k.endswith(']'), definitions_keys))
+        unevaluated_keys = list(filter(lambda k: k.endswith(']'), definitions_keys))
+        for file_path in origin_keys:
+            dir_name = os.path.dirname(file_path)
+            module_dependency_map[dir_name] = [[]]
             copy_of_tf_definitions[file_path] = deepcopy(tf_definitions[file_path])
+
+        next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
+        while next_level:
+            for file_path in next_level:
+                path, module_dependency, _ = remove_module_dependency_in_path(file_path)
+                dir_name = os.path.dirname(path)
+                current_deps = deepcopy(module_dependency_map[os.path.dirname(module_dependency)])
+                for dep in current_deps:
+                    dep.append(module_dependency)
+                if dir_name not in module_dependency_map:
+                    module_dependency_map[dir_name] = current_deps
+                elif current_deps not in module_dependency_map[dir_name]:
+                    module_dependency_map[dir_name] += current_deps
+                copy_of_tf_definitions[path] = deepcopy(tf_definitions[file_path])
+                origin_keys.append(path)
+            next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
+
         return module_dependency_map, copy_of_tf_definitions
 
     @staticmethod

@@ -79,7 +79,8 @@ class Runner(BaseRunner):
                 root_folder = os.path.abspath(root_folder)
 
                 local_graph, tf_definitions = \
-                    self.graph_manager.build_graph_from_source_directory(root_folder, self.graph_class,
+                    self.graph_manager.build_graph_from_source_directory(root_folder,
+                                                                         local_graph_class=self.graph_class,
                                                                          parsing_errors=parsing_errors)
             elif files:
                 files = [os.path.abspath(file) for file in files]

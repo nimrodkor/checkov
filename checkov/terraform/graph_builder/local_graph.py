@@ -75,7 +75,7 @@ class LocalGraph:
                 for variable_vertex_id in matching_variables:
                     variable_vertex = self.vertices[variable_vertex_id]
                     variable_dir = os.path.dirname(variable_vertex.path)
-                    if module_vertex.path in self.module_dependency_map.get(variable_dir):
+                    if module_vertex.path in self.module_dependency_map.get(variable_dir, []):
                         attribute_value = module_vertex.attributes[attribute_name]
                         has_var_reference = get_referenced_vertices_in_value(value=attribute_value, aliases={},
                                                             resources_types=self.get_resources_types_in_graph())
@@ -255,7 +255,7 @@ class LocalGraph:
             return list(relative_vertices.keys())[0]
         return self._find_vertex_with_longest_path_match(relevant_vertices_indexes, path)
 
-    def _find_vertex_with_longest_path_match(self, relevant_vertices_indexes, origin_path):
+    def _find_vertex_with_longest_path_match(self, relevant_vertices_indexes, origin_path) -> int:
         vertex_index_with_longest_common_prefix = -1
         longest_common_prefix = ''
         for vertex_index in relevant_vertices_indexes:
