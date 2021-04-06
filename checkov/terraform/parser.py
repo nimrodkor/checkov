@@ -22,6 +22,7 @@ from checkov.terraform.parser_utils import eval_string, find_var_blocks
 
 external_modules_download_path = os.environ.get('EXTERNAL_MODULES_DIR', DEFAULT_EXTERNAL_MODULES_DIR)
 
+
 def _filter_ignored_directories(d_names):
     filter_ignored_directories(d_names)
     [d_names.remove(d) for d in list(d_names) if d in [default_ml_registry.external_modules_folder_name]]
@@ -155,7 +156,7 @@ class Parser:
         var_value_and_file_map: Dict[str, Tuple[Any, str]] = {}
         hcl_tfvars: Optional[os.DirEntry] = None
         json_tfvars: Optional[os.DirEntry] = None
-        auto_vars_files: Optional[List[os.DirEntry]] = None      # lazy creation
+        auto_vars_files: Optional[List[os.DirEntry]] = None  # lazy creation
         for file in os.scandir(directory):
             # Ignore directories and hidden files
             try:
@@ -186,7 +187,7 @@ class Parser:
             else:
                 continue
 
-            if not data:        # failed loads or empty files
+            if not data:  # failed loads or empty files
                 continue
 
             self.out_definitions[file.path] = data
@@ -218,29 +219,29 @@ class Parser:
         #               their filenames.
         #          Overriding everything else, variables form `specified_vars`, which are considered
         #          directly set.
-        for key, value in self.env_vars.items():                                 # env vars
+        for key, value in self.env_vars.items():  # env vars
             if not key.startswith("TF_VAR_"):
                 continue
             var_value_and_file_map[key[7:]] = value, f"env:{key}"
             self.external_variables_data.append((key[7:], value, f"env:{key}"))
-        if hcl_tfvars:                                                      # terraform.tfvars
+        if hcl_tfvars:  # terraform.tfvars
             data = _load_or_die_quietly(hcl_tfvars, self.out_parsing_errors,
                                         clean_definitions=False)
             if data:
                 var_value_and_file_map.update({k: (_safe_index(v, 0), hcl_tfvars.path) for k, v in data.items()})
                 self.external_variables_data.extend([(k, _safe_index(v, 0), hcl_tfvars.path) for k, v in data.items()])
-        if json_tfvars:                                                     # terraform.tfvars.json
+        if json_tfvars:  # terraform.tfvars.json
             data = _load_or_die_quietly(json_tfvars, self.out_parsing_errors)
             if data:
                 var_value_and_file_map.update({k: (v, json_tfvars.path) for k, v in data.items()})
                 self.external_variables_data.extend([(k, v, json_tfvars.path) for k, v in data.items()])
-        if auto_vars_files:                                                 # *.auto.tfvars / *.auto.tfvars.json
+        if auto_vars_files:  # *.auto.tfvars / *.auto.tfvars.json
             for var_file in sorted(auto_vars_files, key=lambda e: e.name):
                 data = _load_or_die_quietly(var_file, self.out_parsing_errors)
                 if data:
                     var_value_and_file_map.update({k: (v, var_file.path) for k, v in data.items()})
                     self.external_variables_data.extend([(k, v, var_file.path) for k, v in data.items()])
-        if specified_vars:                                                  # specified
+        if specified_vars:  # specified
             var_value_and_file_map.update({k: (v, "manual specification") for k, v in specified_vars.items()})
             self.external_variables_data.extend([(k, v, "manual specification") for k, v in specified_vars.items()])
 
@@ -261,7 +262,7 @@ class Parser:
         #          parameters don't resolve. So, if we hit a spot where resolution doesn't change anything
         #          and there are still modules to be loaded, they will be forced on the next pass.
         force_final_module_load = False
-        for i in range(0, 10):      # circuit breaker - no more than 10 loops
+        for i in range(0, 10):  # circuit breaker - no more than 10 loops
             logging.debug("Module load loop %d", i)
 
             # Stage 4a: Load eligible modules
@@ -273,7 +274,7 @@ class Parser:
             # Stage 4b: Variable resolution round 2 - now with (possibly more) modules
             made_var_changes = False
             if not has_more_modules:
-                break       # nothing more to do
+                break  # nothing more to do
             elif not made_var_changes:
                 # If there are more modules to load but no variables were resolved, then to a final module
                 # load, forcing things through without complete resolution.
@@ -401,7 +402,7 @@ class Parser:
                                 del self.out_definitions[key]
                                 if new_key not in resolved_loc_list:
                                     resolved_loc_list.append(new_key)
-                            resolved_loc_list.sort()        # For testing, need predictable ordering
+                            resolved_loc_list.sort()  # For testing, need predictable ordering
 
                             deep_merge.merge(all_module_definitions, module_definitions)
                     except Exception as e:
@@ -531,7 +532,16 @@ class Parser:
                 copy_of_tf_definitions[path] = deepcopy(tf_definitions[file_path])
                 origin_keys.append(path)
             next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
-
+        for key, dep_trails in module_dependency_map.items():
+            hashes = set()
+            deduped = []
+            for trail in dep_trails:
+                hash = '->'.join(trail)
+                if hash in hashes:
+                    continue
+                hashes.add(hash)
+                deduped.append(trail)
+            module_dependency_map[key] = deduped
         return module_dependency_map, copy_of_tf_definitions
 
     @staticmethod
@@ -545,6 +555,7 @@ class Parser:
             if ".tfvars" in path:
                 block = {var_name: {"default": default}}
                 module.add_blocks(BlockType.TF_VARIABLE, block, path, source)
+
 
 def _load_or_die_quietly(file: os.PathLike, parsing_errors: Dict,
                          clean_definitions: bool = True) -> Optional[Mapping]:

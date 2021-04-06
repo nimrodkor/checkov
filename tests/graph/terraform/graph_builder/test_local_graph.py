@@ -160,7 +160,7 @@ class TestLocalGraph(TestCase):
                          list(map(lambda dep_list: dep_list + [f'{os.path.dirname(resources_dir)}/s3_inner_modules/main.tf'],
                                   expected_inner_modules)))
 
-    def test_vertices_from_local_graph_module(self):
+    def test_blocks_from_local_graph_module(self):
         resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../resources/modules/stacks'))
         hcl_config_parser = Parser()
         module, module_dependency_map, _ = hcl_config_parser.parse_hcl_module(resources_dir,
@@ -169,3 +169,13 @@ class TestLocalGraph(TestCase):
         self.assertEqual(len(list(filter(lambda block: block.block_type == BlockType.MODULE and block.name == 'inner_module_call', module.blocks))), 3)
         self.assertEqual(len(list(filter(lambda block: block.block_type == BlockType.MODULE and block.name == 's3', module.blocks))), 3)
         self.assertEqual(len(list(filter(lambda block: block.block_type == BlockType.MODULE and block.name == 'sub-module', module.blocks))), 1)
+
+    def test_vertices_from_local_graph_module(self):
+        resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../resources/modules/stacks'))
+        hcl_config_parser = Parser()
+        module, module_dependency_map, _ = hcl_config_parser.parse_hcl_module(resources_dir,
+                                                                              self.source)
+        local_graph = LocalGraph(module, module_dependency_map)
+        local_graph.build_graph(render_variables=True)
+
+        self.assertEqual(6, len(local_graph.edges))

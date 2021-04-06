@@ -120,6 +120,9 @@ class LocalGraph:
             if block_dirs_to_modules.get(dir_name):
                 continue
             for path_to_module in paths_to_modules:
+                if not path_to_module:
+                    continue
+                path_to_module = '->'.join(path_to_module)
                 module_list = self.map_path_to_module.get(path_to_module, [])
                 for module_index in module_list:
                     module_vertex = self.vertices[module_index]
@@ -231,29 +234,16 @@ class LocalGraph:
 
     def _find_vertex_index_relative_to_path(self, block_type, name, path):
         origin_path = PurePosixPath(os.path.realpath(path))
-        relative_vertices = {}
+        relative_vertices = []
         possible_vertices = self.vertices_block_name_map.get(block_type, {}).get(name, [])
         for vertex_index in possible_vertices:
             vertex = self.vertices[vertex_index]
-            if vertex.name == name:
-                vertex_dir = os.path.dirname(vertex.path)
-                paths_key_in_cache = f'{origin_path} {vertex_dir}'
-                if paths_key_in_cache in self.relative_paths_cache:
-                    found_path = self.relative_paths_cache[paths_key_in_cache]
-                    if found_path:
-                        relative_vertices[vertex_index] = found_path
-                else:
-                    try:
-                        found_path = origin_path.relative_to(os.path.realpath(vertex_dir))
-                        relative_vertices[vertex_index] = found_path
-                        self.relative_paths_cache[paths_key_in_cache] = found_path
-                    except ValueError:
-                        self.relative_paths_cache[paths_key_in_cache] = None
+            if vertex.module_dependency == path:
+                relative_vertices.append(vertex_index)
 
-        relevant_vertices_indexes = list(relative_vertices.keys())
-        if len(list(relative_vertices.keys())) == 1:
-            return list(relative_vertices.keys())[0]
-        return self._find_vertex_with_longest_path_match(relevant_vertices_indexes, path)
+        if len(relative_vertices) == 1:
+            return relative_vertices[0]
+        return self._find_vertex_with_longest_path_match(relative_vertices, path)
 
     def _find_vertex_with_longest_path_match(self, relevant_vertices_indexes, origin_path) -> int:
         vertex_index_with_longest_common_prefix = -1
