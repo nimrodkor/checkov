@@ -53,9 +53,13 @@ def get_checks(framework="all"):
         add_from_repository(cfn_registry, "resource", "Cloudformation")
     if framework == "kubernetes" or framework == "all":
         add_from_repository(k8_registry, "PodSecurityPolicy", "Kubernetes")
+        add_from_repository(k8_registry, "ClusterRole", "Kubernetes")
+        add_from_repository(k8_registry, "AdmissionConfiguration", "Kubernetes")
     if framework == "serverless" or framework == "all":
         add_from_repository(sls_registry, "resource", "serverless")
     if framework == "arm" or framework == "all":
+        add_from_repository(arm_registry, "resource", "arm")
+    if framework == "dockerfile" or framework == "all":
         add_from_repository(arm_registry, "resource", "arm")
     return sorted(printable_checks_list, key=get_compare_key)
 
