@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "s3_bucket" {
-  source = "..\/.."
+  source = "../.."
 
   user_enabled                 = true
   acl                          = var.acl

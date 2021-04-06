@@ -78,7 +78,7 @@ class TestLocalGraph(TestCase):
             else:
                 self.assertEqual(var_value, default_val)
 
-        local_graph._set_variables_values_from_modules()
+        local_graph.build_graph(resources_dir)
 
         expected_variables_after = {
             "cidr": "172.16.0.0/16",
@@ -178,4 +178,4 @@ class TestLocalGraph(TestCase):
         local_graph = LocalGraph(module, module_dependency_map)
         local_graph.build_graph(render_variables=True)
 
-        self.assertEqual(6, len(local_graph.edges))
+        self.assertEqual(12, len(local_graph.edges))

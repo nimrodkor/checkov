@@ -426,16 +426,15 @@ class Parser:
         return self.parse_hcl_module_from_tf_definitions(tf_definitions, source_dir, source)
 
     def parse_hcl_module_from_tf_definitions(self, tf_definitions, source_dir, source):
-        module = self.get_new_module(source_dir)
         self.add_tfvars(module, source)
-        module_dependency_map, tf_definitions = self.get_module_dependency_map(tf_definitions)
+        module_dependency_map, tf_definitions, dep_index_mapping = self.get_module_dependency_map(tf_definitions)
+        module = self.get_new_module(source_dir, module_dependency_map, dep_index_mapping)
         copy_of_tf_definitions = deepcopy(tf_definitions)
         for file_path in copy_of_tf_definitions:
             blocks = copy_of_tf_definitions.get(file_path)
-            dependencies = [dep_trail for dep_trail in module_dependency_map[os.path.dirname(file_path)]]
             for block_type in blocks:
                 try:
-                    module.add_blocks(block_type, blocks[block_type], file_path, source, dependencies)
+                    module.add_blocks(block_type, blocks[block_type], file_path, source)
                 except Exception as e:
                     logging.error(f'Failed to add block {blocks[block_type]}. Error:')
                     logging.error(e, exc_info=True)
@@ -509,6 +508,7 @@ class Parser:
         """
         module_dependency_map = {}
         copy_of_tf_definitions = {}
+        dep_index_mapping = {}
         definitions_keys = list(tf_definitions.keys())
         origin_keys = list(filter(lambda k: not k.endswith(']'), definitions_keys))
         unevaluated_keys = list(filter(lambda k: k.endswith(']'), definitions_keys))
@@ -520,7 +520,7 @@ class Parser:
         next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
         while next_level:
             for file_path in next_level:
-                path, module_dependency, _ = remove_module_dependency_in_path(file_path)
+                path, module_dependency, module_dependency_num = remove_module_dependency_in_path(file_path)
                 dir_name = os.path.dirname(path)
                 current_deps = deepcopy(module_dependency_map[os.path.dirname(module_dependency)])
                 for dep in current_deps:
@@ -531,6 +531,7 @@ class Parser:
                     module_dependency_map[dir_name] += current_deps
                 copy_of_tf_definitions[path] = deepcopy(tf_definitions[file_path])
                 origin_keys.append(path)
+                dep_index_mapping[path] = module_dependency_num
             next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
         for key, dep_trails in module_dependency_map.items():
             hashes = set()
@@ -542,11 +543,11 @@ class Parser:
                 hashes.add(hash)
                 deduped.append(trail)
             module_dependency_map[key] = deduped
-        return module_dependency_map, copy_of_tf_definitions
+        return module_dependency_map, copy_of_tf_definitions, dep_index_mapping
 
     @staticmethod
-    def get_new_module(source_dir):
-        return Module(source_dir, encode=False)
+    def get_new_module(source_dir, module_dependency_map, dep_index_mapping):
+        return Module(source_dir, module_dependency_map, dep_index_mapping, encode=False)
 
     def add_tfvars(self, module, source):
         if not self.external_variables_data:

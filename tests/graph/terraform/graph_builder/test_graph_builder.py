@@ -95,14 +95,13 @@ class TestGraphBuilder(TestCase):
             BlockType.VARIABLE: 5,
             BlockType.RESOURCE: 5,
             BlockType.OUTPUT: 3,
-            BlockType.MODULE: 3,
+            BlockType.MODULE: 2,
             BlockType.DATA: 1,
         }
 
         for block_type, count in expected_vertices_num_by_type.items():
             self.assertEqual(count, len(vertices_by_block_type[block_type]))
 
-        module_all_notifications = self.get_vertex_by_name_and_type(local_graph, BlockType.MODULE, 'all_notifications')
         output_this_lambda_func_arn = self.get_vertex_by_name_and_type(local_graph, BlockType.OUTPUT,
                                                                        'this_lambda_function_arn')
         output_this_lambda_func_name = self.get_vertex_by_name_and_type(local_graph, BlockType.OUTPUT,
@@ -118,12 +117,6 @@ class TestGraphBuilder(TestCase):
                         expected_label='value')
         self.check_edge(local_graph, node_from=output_this_lambda_func_name, node_to=resource_aws_lambda_function,
                         expected_label='value')
-        self.check_edge(local_graph, node_from=module_all_notifications, node_to=output_this_lambda_func_name,
-                        expected_label='lambda_notifications.lambda1.function_name')
-        self.check_edge(local_graph, node_from=module_all_notifications, node_to=output_this_lambda_func_arn,
-                        expected_label='lambda_notifications.lambda1.function_arn')
-        self.check_edge(local_graph, node_from=module_all_notifications, node_to=output_this_s3_bucket_id,
-                        expected_label='bucket')
         self.check_edge(local_graph, node_from=output_this_s3_bucket_id, node_to=resource_aws_s3_bucket_policy,
                         expected_label='value')
         self.check_edge(local_graph, node_from=output_this_s3_bucket_id, node_to=resource_aws_s3_bucket,

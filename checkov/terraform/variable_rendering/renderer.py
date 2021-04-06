@@ -112,6 +112,11 @@ class VariableRenderer:
             self.update_evaluated_value(changed_attribute_key=edge.label,
                                         changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=first_key_path)
 
+        # Avoid loops on output => output edges
+        if self.local_graph.vertices[edge.origin].block_type == BlockType.OUTPUT and \
+                self.local_graph.vertices[edge.dest].block_type == BlockType.OUTPUT:
+            self.done_edges.append(edge)
+
     def extract_value_from_vertex(self, key_path, attributes):
         for i in range(len(key_path)):
             key = join_trimmed_strings(char_to_join=".", str_lst=key_path, num_to_trim=i)

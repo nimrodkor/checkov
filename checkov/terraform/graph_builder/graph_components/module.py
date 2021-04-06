@@ -1,12 +1,15 @@
+import os
 from copy import deepcopy
-from typing import List, Optional
+from typing import List
 
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.graph_builder.graph_components.blocks import Block, get_inner_attributes
 
 
 class Module:
-    def __init__(self, source_dir, encode):
+    def __init__(self, source_dir, module_dependency_map, dep_index_mapping, encode):
+        self.dep_index_mapping = dep_index_mapping
+        self.module_dependency_map = module_dependency_map
         self.path = ''
         self.blocks: List[Block] = []
         self.customer_name = ''
@@ -16,20 +19,25 @@ class Module:
         self.source_dir = source_dir
         self.encode = encode
 
-    def add_blocks(self, block_type, blocks, path, source, dependencies: Optional[List[List[str]]]=None):
+    def add_blocks(self, block_type, blocks, path, source):
         self.source = source
+        if self._block_type_to_func.get(block_type):
+            self._block_type_to_func[block_type].__call__(self, blocks, path)
+
+    def _add_to_blocks(self, block: Block):
+        dependencies = [dep_trail for dep_trail in self.module_dependency_map[os.path.dirname(block.path)]]
         if dependencies is None:
             dependencies = [[]]
-        if self._block_type_to_func.get(block_type):
-            self._block_type_to_func[block_type].__call__(self, blocks, path, dependencies)
-
-    def _add_to_blocks(self, block: Block, dependencies: List[List[str]]):
+            module_dependency_num = ''
+        else:
+            module_dependency_num = self.dep_index_mapping[self.path]
         for dep_trail in dependencies:
             block = deepcopy(block)
             block.module_dependency = '->'.join(dep_trail)
+            block.module_dependency_num = module_dependency_num
             self.blocks.append(block)
 
-    def _add_provider(self, blocks, path, dependencies):
+    def _add_provider(self, blocks, path):
         for provider_dict in blocks:
             for name in provider_dict:
                 attributes = provider_dict[name]
@@ -45,9 +53,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(provider_block, dependencies)
+                self._add_to_blocks(provider_block)
 
-    def _add_variable(self, blocks, path, dependencies):
+    def _add_variable(self, blocks, path):
         for variable_dict in blocks:
             for name in variable_dict:
                 attributes = variable_dict[name]
@@ -60,9 +68,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(variable_block, dependencies)
+                self._add_to_blocks(variable_block)
 
-    def _add_locals(self, blocks, path, dependencies):
+    def _add_locals(self, blocks, path):
         for blocks_section in blocks:
             for name in blocks_section:
                 local_block = Block(
@@ -74,9 +82,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(local_block, dependencies)
+                self._add_to_blocks(local_block)
 
-    def _add_output(self, blocks, path, dependencies):
+    def _add_output(self, blocks, path):
         for output_dict in blocks:
             for name in output_dict:
                 if type(output_dict[name]) is not dict:
@@ -90,9 +98,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(output_block, dependencies)
+                self._add_to_blocks(output_block)
 
-    def _add_module(self, blocks, path, dependencies):
+    def _add_module(self, blocks, path):
         for module_dict in blocks:
             for name in module_dict:
                 module_block = Block(
@@ -104,9 +112,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(module_block, dependencies)
+                self._add_to_blocks(module_block)
 
-    def _add_resource(self, blocks, path, dependencies):
+    def _add_resource(self, blocks, path):
         for resource_dict in blocks:
             for resource_type in resource_dict:
                 self.resources_types.add(resource_type)
@@ -126,9 +134,9 @@ class Module:
                         source=self.source,
                         encode=self.encode
                     )
-                    self._add_to_blocks(resource_block, dependencies)
+                    self._add_to_blocks(resource_block)
 
-    def _add_data(self, blocks, path, dependencies):
+    def _add_data(self, blocks, path):
         for data_dict in blocks:
             for data_type in data_dict:
                 for name in data_dict[data_type]:
@@ -142,9 +150,9 @@ class Module:
                         source=self.source,
                         encode=self.encode
                     )
-                    self._add_to_blocks(data_block, dependencies)
+                    self._add_to_blocks(data_block)
 
-    def _add_terraform_block(self, blocks, path, dependencies):
+    def _add_terraform_block(self, blocks, path):
         for terraform_dict in blocks:
             for name in terraform_dict:
                 terraform_block = Block(
@@ -156,9 +164,9 @@ class Module:
                     source=self.source,
                     encode=self.encode
                 )
-                self._add_to_blocks(terraform_block, dependencies)
+                self._add_to_blocks(terraform_block)
 
-    def _add_tf_var(self, blocks, path, dependencies):
+    def _add_tf_var(self, blocks, path):
         for tf_var_name, attributes in blocks.items():
             tfvar_block = Block(
                 block_type=BlockType.TF_VARIABLE,
@@ -169,7 +177,7 @@ class Module:
                 source=self.source,
                 encode=self.encode
             )
-            self._add_to_blocks(tfvar_block, dependencies)
+            self._add_to_blocks(tfvar_block)
 
     @staticmethod
     def _handle_provisioner(provisioner, attributes):

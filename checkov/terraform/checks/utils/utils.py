@@ -165,7 +165,6 @@ def get_referenced_vertices_in_value(value, aliases, resources_types, cleanup_fu
                 value = func.__call__(value)
         references_vertices = get_vertices_references(value, aliases, resources_types)
 
-    references_vertices = list(filter(lambda v: v.block_type != BlockType.PROVIDER, references_vertices))
     return references_vertices
 
 

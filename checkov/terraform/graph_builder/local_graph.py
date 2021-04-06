@@ -170,7 +170,7 @@ class LocalGraph:
                             dest_node_index = self._find_vertex_index_relative_to_path(vertex_reference.block_type,
                                                                                        reference_name,
                                                                                        vertex.path,
-                                                                                       vertex.path)
+                                                                                       vertex.module_dependency)
                         if dest_node_index > -1 and origin_node_index > -1:
                             if vertex_reference.block_type == BlockType.MODULE:
                                 try:
@@ -197,7 +197,8 @@ class LocalGraph:
                     for v in target_variables:
                         if self.vertices[v].name == attribute:
                             target_variable = v
-                    self._create_edge(target_variable, origin_node_index, 'default')
+                    if target_variable is not None:
+                        self._create_edge(target_variable, origin_node_index, 'default')
 
 
     def _create_edge(self, origin_vertex_index, dest_vertex_index, label):
