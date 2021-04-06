@@ -16,7 +16,7 @@ from checkov.terraform.checks.module.registry import module_registry
 from checkov.terraform.checks.provider.registry import provider_registry
 from checkov.terraform.checks.resource.registry import resource_registry
 
-ID_PARTS_PATTERN = re.compile(r'(\D*)(\d*)')
+ID_PARTS_PATTERN = re.compile(r'([\D^2]*)(\d*)')
 
 
 def get_compare_key(c):
@@ -60,7 +60,7 @@ def get_checks(framework="all"):
     if framework == "serverless" or framework == "all":
         add_from_repository(dockerfile_registry, "resource", "serverless")
     if framework == "dockerfile" or framework == "all":
-            add_from_repository(sls_registry, "dockerfile", "dockerfile")
+        add_from_repository(sls_registry, "dockerfile", "dockerfile")
     if framework == "arm" or framework == "all":
         add_from_repository(arm_registry, "resource", "arm")
     if framework == "dockerfile" or framework == "all":
