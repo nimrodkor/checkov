@@ -2,7 +2,7 @@ import json
 import os
 from unittest import TestCase
 
-from checkov.graph.terraform.runner import Runner
+from checkov.terraform.runner import Runner
 
 TEST_DIRNAME = os.path.dirname(os.path.realpath(__file__))
 
@@ -14,8 +14,8 @@ class TestGraphBuilder(TestCase):
         source_files = ["pass_s3.tf", "variables.tf"]
         runner = Runner()
         report = runner.run(None, None, files=list(map(lambda f: f'{resources_path}/{f}', source_files)))
-        tf_definitions = runner.tf_runner.tf_definitions
-        self.assertEqual(5, len(report.failed_checks))
+        tf_definitions = runner.tf_definitions
+        self.assertEqual(6, len(report.failed_checks))
         for file, definitions in tf_definitions.items():
             if file.endswith('pass_s3.tf'):
                 s3_bucket_config = definitions['resource'][0]['aws_s3_bucket']['bucket_with_versioning']
@@ -28,9 +28,9 @@ class TestGraphBuilder(TestCase):
         resources_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "graph_files_test")
         runner = Runner()
         report = runner.run(root_folder=resources_path)
-        self.assertEqual(len(report.failed_checks), 4)
-        self.assertEqual(len(report.passed_checks), 7)
-        self.assertEqual(len(report.skipped_checks), 0)
+        self.assertEqual(5, len(report.failed_checks))
+        self.assertEqual(7, len(report.passed_checks))
+        self.assertEqual(0, len(report.skipped_checks))
 
     def test_run_persistent_data(self):
         resources_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "graph_files_test")
@@ -46,3 +46,26 @@ class TestGraphBuilder(TestCase):
         self.assertEqual(len(report.failed_checks), 4)
         self.assertEqual(len(report.passed_checks), 7)
         self.assertEqual(len(report.skipped_checks), 0)
+
+    def test_module_and_variables(self):
+        resources_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "modules-and-vars")
+        runner = Runner()
+        report = runner.run(root_folder=resources_path)
+        self.assertLessEqual(3, len(report.failed_checks))
+        self.assertLessEqual(41, len(report.passed_checks))
+        self.assertEqual(0, len(report.skipped_checks))
+
+        found_versioning_failure = False
+
+        for record in report.failed_checks:
+            self.assertIsNotNone(record.breadcrumbs)
+            if record.check_id == 'CKV_AWS_21':
+                found_versioning_failure = True
+                bc = record.breadcrumbs.get('versioning.enabled')
+                self.assertEqual(len(bc), 1)
+                bc = bc[0]
+                self.assertEqual(bc.get('type'), 'variable')
+                self.assertEqual(os.path.relpath(bc.get('path'), resources_path), 'variables.tf')
+
+        self.assertTrue(found_versioning_failure)
+

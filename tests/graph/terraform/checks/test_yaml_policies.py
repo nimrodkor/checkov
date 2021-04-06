@@ -4,9 +4,13 @@ import unittest
 import warnings
 
 import yaml
-from checkov.graph.terraform import checks
-from checkov.graph.terraform.checks_infra.nx_checks_parser import NXGraphCheckParser
-from checkov.graph.terraform.checks_infra.registry import Registry
+from checkov.terraform import checks
+from checkov.terraform.checks_infra.checks_parser import NXGraphCheckParser
+from checkov.terraform.checks_infra.registry import Registry
+from checkov.common.models.enums import CheckResult
+from typing import List
+from checkov.terraform.runner import Runner
+from checkov.runner_filter import RunnerFilter
 
 
 class TestYamlPolicies(unittest.TestCase):
@@ -159,13 +163,15 @@ class TestYamlPolicies(unittest.TestCase):
     def test_EFSAddedBackup(self):
         self.go("EFSAddedBackup")
 
+    def test_EFSAddedBackupSuppress(self):
+        self.go("EFSAddedBackupSuppress", "EFSAddedBackup")
+
     def test_registry_load(self):
         registry = Registry(parser=NXGraphCheckParser())
         registry.load_checks()
         self.assertGreater(len(registry.checks), 0)
 
-    @staticmethod
-    def go(dir_name):
+    def go(self, dir_name, check_name=None):
         dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 f"resources/{dir_name}")
         assert os.path.exists(dir_path)
@@ -174,13 +180,47 @@ class TestYamlPolicies(unittest.TestCase):
         found = False
         for root, d_names, f_names in os.walk(policy_dir_path):
             for f_name in f_names:
-                if f_name == f"{dir_name}.yaml":
+                check_name = dir_name if check_name is None else check_name
+                if f_name == f"{check_name}.yaml":
                     found = True
                     policy = load_yaml_data(f_name, root)
                     assert policy is not None
                     expected = load_yaml_data("expected.yaml", dir_path)
                     assert expected is not None
+                    report = get_policy_results(dir_path, policy)
+                    expected = load_yaml_data("expected.yaml", dir_path)
+
+                    expected_to_fail = expected.get('fail', [])
+                    expected_to_pass = expected.get('pass', [])
+                    expected_to_skip = expected.get('skip', [])
+                    self.assert_entities(expected_to_pass, report.passed_checks, True)
+                    self.assert_entities(expected_to_fail, report.failed_checks, False)
+                    self.assert_entities(expected_to_skip, report.skipped_checks, True)
+
         assert found
+
+    def assert_entities(self, expected_entities: List[str], results: List[CheckResult], assertion: bool):
+        self.assertEqual(len(expected_entities), len(results), f"mismatch in number of results in {'passed' if assertion else 'failed'}, expected: {len(expected_entities)}, got: {len(results)}")
+        for expected_entity in expected_entities:
+            found = False
+            for check_result in results:
+                entity_id = check_result.resource
+                if entity_id == expected_entity:
+                    found = True
+                    break
+            self.assertTrue(found, f"expected to find entity {expected_entity} in {'passed' if assertion else 'failed'}")
+
+
+def get_policy_results(root_folder, policy):
+    check_id = policy['metadata']['id']
+    graph_runner = Runner()
+    report = graph_runner.run(root_folder,runner_filter=RunnerFilter(checks=[check_id]))
+    return report
+
+
+def wrap_policy(policy):
+    policy['query'] = policy['definition']
+    del policy['definition']
 
 
 def load_yaml_data(source_file_name, dir_path):

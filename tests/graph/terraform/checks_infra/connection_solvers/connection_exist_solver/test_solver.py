@@ -12,11 +12,11 @@ class ConnectionSolver(TestBaseSolver):
     def test_connection_found(self):
         root_folder = '../../../resources/ec2_instance_network_interfaces'
         check_id = "NetworkInterfaceForInstance"
-        should_pass = ['aws_instance.foo', 'aws_network_interface.foo']
+        should_pass = ['aws_instance.instance_foo', 'aws_network_interface.network_interface_foo']
         should_fail = []
         expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
 
-        self.run_test(root_folder=root_folder, expected_results=expected_results)
+        self.run_test(root_folder=root_folder, expected_results=expected_results, check_id=check_id)
 
     def test_output_connection(self):
         root_folder = '../../../resources/output_example'
@@ -25,4 +25,4 @@ class ConnectionSolver(TestBaseSolver):
         should_fail = []
         expected_results = {check_id: {"should_pass": should_pass, "should_fail": should_fail}}
 
-        self.run_test(root_folder=root_folder, expected_results=expected_results)
+        self.run_test(root_folder=root_folder, expected_results=expected_results, check_id=check_id)

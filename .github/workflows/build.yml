@@ -3,7 +3,7 @@ name: build
 on: 
   push:
     branches:
-    - master
+      - master
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
@@ -43,11 +43,11 @@ jobs:
           path: 'kubernetes-goat'
       - name: Create checkov reports
         run: |
-          pipenv run checkov -s -d terragoat/terraform/ -o json > checkov_report_terragoat.json
+          pipenv run checkov -s --framework terraform -d terragoat/terraform/ -o json > checkov_report_terragoat.json
           pipenv run checkov -s -d cfngoat/ -o json > checkov_report_cfngoat.json
           pipenv run checkov -s -d kubernetes-goat/ --framework kubernetes -o json > checkov_report_kubernetes-goat.json
           pipenv run checkov -s -d kubernetes-goat/ --framework helm -o json > checkov_report_kubernetes-goat-helm.json
-          pipenv run checkov -s  --skip-check CKV_AWS_33,CKV_AWS_41 -d terragoat/terraform/ -o json > checkov_report_terragoat_with_skip.json
+          pipenv run checkov -s --framework terraform --skip-check CKV_AWS_33,CKV_AWS_41 -d terragoat/terraform/ -o json > checkov_report_terragoat_with_skip.json
           pipenv run checkov -s -d cfngoat/ -o json --quiet > checkov_report_cfngoat_quiet.json
 
       - name: Run integration tests
@@ -81,6 +81,7 @@ jobs:
           echo "latest tag: $latest_tag"
           new_tag=$(echo $latest_tag | awk -F. -v a="$1" -v b="$2" -v c="$3" '{printf("%d.%d.%d", $1+a, $2+b , $3+1)}')
           echo "new tag: $new_tag"
+          git pull
 
           ## update docs
           export PYTHONPATH='.'
@@ -93,7 +94,6 @@ jobs:
           echo "" >> $scansdoc
           echo "# Resource scans (auto generated)" >> $scansdoc
           echo "" >> $scansdoc
-          git pull
           pipenv run python ./checkov/common/util/docs_generator.py >> $scansdoc
 
           ## update python version
