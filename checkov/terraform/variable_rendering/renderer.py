@@ -76,6 +76,15 @@ class VariableRenderer:
         referenced_vertices = get_referenced_vertices_in_value(value=val_to_eval, aliases={},
                                                                resources_types=self.local_graph.get_resources_types_in_graph())
         extend_referenced_vertices_with_tf_vars(referenced_vertices)
+        if not referenced_vertices:
+            origin_vertex = self.local_graph.vertices[edge.origin]
+            destination_vertex = self.local_graph.vertices[edge.dest]
+            if origin_vertex.block_type == BlockType.VARIABLE and destination_vertex.block_type == BlockType.MODULE:
+                self.update_evaluated_value(changed_attribute_key=edge.label,
+                                            changed_attribute_value=destination_vertex.attributes[origin_vertex.name], vertex=edge.origin,
+                                            change_origin_id=edge.dest, attribute_at_dest=edge.label)
+                return
+
         modified_vertex_attributes = self.local_graph.vertices[edge.origin].attributes
         val_to_eval = deepcopy(modified_vertex_attributes.get(edge.label, ''))
         origin_val = deepcopy(val_to_eval)
@@ -98,6 +107,7 @@ class VariableRenderer:
                 if not multiple_edges and val_to_eval != origin_val:
                     self.update_evaluated_value(changed_attribute_key=edge.label,
                                                 changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=key_path_in_dest_vertex)
+
         if multiple_edges and val_to_eval != origin_val:
             self.update_evaluated_value(changed_attribute_key=edge.label,
                                         changed_attribute_value=val_to_eval, vertex=edge.origin, change_origin_id=edge.dest, attribute_at_dest=first_key_path)

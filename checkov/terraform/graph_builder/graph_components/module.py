@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List
+from typing import List, Optional
 
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.graph_builder.graph_components.blocks import Block, get_inner_attributes
@@ -16,8 +16,10 @@ class Module:
         self.source_dir = source_dir
         self.encode = encode
 
-    def add_blocks(self, block_type, blocks, path, source, dependencies: List[List[str]]):
+    def add_blocks(self, block_type, blocks, path, source, dependencies: Optional[List[List[str]]]=None):
         self.source = source
+        if dependencies is None:
+            dependencies = [[]]
         if self._block_type_to_func.get(block_type):
             self._block_type_to_func[block_type].__call__(self, blocks, path, dependencies)
 

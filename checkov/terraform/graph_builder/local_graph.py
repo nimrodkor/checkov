@@ -1,7 +1,6 @@
 import logging
 import os
 from copy import deepcopy
-from pathlib import PurePosixPath
 
 from checkov.common.graph.graph_builder import reserved_attribute_names, EncryptionValues
 from checkov.common.graph.graph_builder import Edge
@@ -160,14 +159,17 @@ class LocalGraph:
                         if vertex.module_dependency:
                             dest_node_index = self._find_vertex_index_relative_to_path(vertex_reference.block_type,
                                                                                        reference_name,
+                                                                                       vertex.path,
                                                                                        vertex.module_dependency)
                             if dest_node_index == -1:
                                 dest_node_index = self._find_vertex_index_relative_to_path(vertex_reference.block_type,
                                                                                            reference_name,
+                                                                                           vertex.path,
                                                                                            vertex.path)
                         else:
                             dest_node_index = self._find_vertex_index_relative_to_path(vertex_reference.block_type,
                                                                                        reference_name,
+                                                                                       vertex.path,
                                                                                        vertex.path)
                         if dest_node_index > -1 and origin_node_index > -1:
                             if vertex_reference.block_type == BlockType.MODULE:
@@ -181,6 +183,22 @@ class LocalGraph:
                             else:
                                 self._create_edge(origin_node_index, dest_node_index, attribute_key)
                             break
+
+            if vertex.block_type == BlockType.MODULE:
+                target_path = vertex.path
+                if vertex.module_dependency != '':
+                    target_path = '->'.join([vertex.module_dependency, vertex.path])
+                target_variables = list(filter(lambda v: self.vertices[v].module_dependency == target_path,
+                                               self.vertices_by_block_type.get(BlockType.VARIABLE, {})))
+                for attribute, value in vertex.attributes.items():
+                    if attribute in ('source', 'version'):
+                        continue
+                    target_variable = None
+                    for v in target_variables:
+                        if self.vertices[v].name == attribute:
+                            target_variable = v
+                    self._create_edge(target_variable, origin_node_index, 'default')
+
 
     def _create_edge(self, origin_vertex_index, dest_vertex_index, label):
         if origin_vertex_index == dest_vertex_index:
@@ -232,18 +250,17 @@ class LocalGraph:
                     break
         return os.path.realpath(dest_module_path)
 
-    def _find_vertex_index_relative_to_path(self, block_type, name, path):
-        origin_path = PurePosixPath(os.path.realpath(path))
+    def _find_vertex_index_relative_to_path(self, block_type, name, block_path, module_path):
         relative_vertices = []
         possible_vertices = self.vertices_block_name_map.get(block_type, {}).get(name, [])
         for vertex_index in possible_vertices:
             vertex = self.vertices[vertex_index]
-            if vertex.module_dependency == path:
+            if vertex.module_dependency == module_path:
                 relative_vertices.append(vertex_index)
 
         if len(relative_vertices) == 1:
             return relative_vertices[0]
-        return self._find_vertex_with_longest_path_match(relative_vertices, path)
+        return self._find_vertex_with_longest_path_match(relative_vertices, block_path)
 
     def _find_vertex_with_longest_path_match(self, relevant_vertices_indexes, origin_path) -> int:
         vertex_index_with_longest_common_prefix = -1

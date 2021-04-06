@@ -123,6 +123,7 @@ class Block:
         self.update_inner_attribute(attribute_key, self.attributes, attribute_value)
         attribute_key_parts = attribute_key.split('.')
         if len(attribute_key_parts) == 1:
+            self.attributes[attribute_key] = attribute_value
             self.changed_attributes[attribute_key] = previous_breadcrumbs
             return
         for i in range(len(attribute_key_parts)):

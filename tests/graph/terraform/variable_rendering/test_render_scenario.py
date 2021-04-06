@@ -126,6 +126,7 @@ class TestRendererScenarios(TestCase):
         self.go("bogus_function")
 
     def go(self, dir_name, different_expected=None, replace_expected=False):
+        os.environ['RENDER_VARIABLES_ASYNC'] = 'False'
         different_expected = {} if not different_expected else different_expected
         resources_dir = os.path.realpath(
             os.path.join(TEST_DIRNAME, '../../../terraform/parser/resources/parser_scenarios', dir_name))

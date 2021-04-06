@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from checkov.common.graph.db_connectors.networkx.networkx_db_connector import NetworkxConnector
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
+from checkov.terraform.graph_builder.graph_to_tf_definitions import convert_graph_vertices_to_tf_definitions
 from checkov.terraform.graph_manager import GraphManager
 from checkov.terraform.parser import external_modules_download_path
 
@@ -183,3 +184,21 @@ class TestGraphBuilder(TestCase):
                         expected_label="spec.template.spec.container.name")
         self.check_edge(local_graph, node_from=resource_kubernetes_deployment, node_to=locals_name,
                         expected_label="spec.template.spec.volume.1.config_map.name")
+
+    def test_blocks_from_local_graph_module(self):
+        # os.environ['RENDER_VARIABLES_ASYNC'] = 'False'
+        resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../resources/modules/stacks'))
+        graph_manager = GraphManager(NetworkxConnector())
+        local_graph, tf = graph_manager.build_graph_from_source_directory(resources_dir, render_variables=True)
+        tf, _ = convert_graph_vertices_to_tf_definitions(local_graph.vertices, resources_dir)
+        found_results = 0
+        for key, value in tf.items():
+            if key.startswith(os.path.join(os.path.dirname(resources_dir), 's3_inner_modules', 'inner', 'main.tf')):
+                conf = value['resource'][0]['aws_s3_bucket']['inner_s3']
+                if 'stage/main' in key or 'prod/main' in key:
+                    self.assertTrue(conf['versioning'][0]['enabled'][0])
+                    found_results += 1
+                elif 'test/main' in key:
+                    self.assertFalse(conf['versioning'][0]['enabled'][0])
+                    found_results += 1
+        self.assertEqual(found_results, 3)
