@@ -63,8 +63,6 @@ def get_checks(framework="all"):
         add_from_repository(sls_registry, "dockerfile", "dockerfile")
     if framework == "arm" or framework == "all":
         add_from_repository(arm_registry, "resource", "arm")
-    if framework == "dockerfile" or framework == "all":
-        add_from_repository(dockerfile_registry, "resource", "arm")
     return sorted(printable_checks_list, key=get_compare_key)
 
 
