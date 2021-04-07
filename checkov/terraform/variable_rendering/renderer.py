@@ -51,9 +51,8 @@ class VariableRenderer:
             self.done_edges += edges_to_render
             for edge in edges_to_render:
                 origin_vertex_index = edge.origin
-                unrendered_out_edges = list(filter(lambda edge: edge not in self.done_edges,
-                                                   self.local_graph.out_edges.get(origin_vertex_index)))
-                if not unrendered_out_edges:
+                out_edges = self.local_graph.out_edges.get(origin_vertex_index)
+                if all(e in self.done_edges for e in out_edges):
                     end_vertices_indexes.append(origin_vertex_index)
             edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
             edges_to_render = list(set([edge for edge in edges_to_render if edge not in self.done_edges]))
