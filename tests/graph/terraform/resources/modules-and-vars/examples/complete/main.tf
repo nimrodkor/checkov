@@ -12,6 +12,4 @@ module "s3_bucket" {
   versioning_enabled           = var.versioning_enabled
   allow_encrypted_uploads_only = var.allow_encrypted_uploads_only
   allowed_bucket_actions       = var.allowed_bucket_actions
-
-  context = module.this.context
 }

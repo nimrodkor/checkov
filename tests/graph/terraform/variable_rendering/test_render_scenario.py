@@ -127,6 +127,7 @@ class TestRendererScenarios(TestCase):
 
     def go(self, dir_name, different_expected=None, replace_expected=False):
         os.environ['RENDER_VARIABLES_ASYNC'] = 'False'
+        os.environ['LOG_LEVEL'] = 'INFO'
         different_expected = {} if not different_expected else different_expected
         resources_dir = os.path.realpath(
             os.path.join(TEST_DIRNAME, '../../../terraform/parser/resources/parser_scenarios', dir_name))
@@ -243,6 +244,14 @@ def _make_module_ref_absolute(match, dir_path) -> str:
         module_location = os.path.join(dir_path, module_location)
 
     module_referrer = match[2]
-    if not os.path.isabs(module_referrer):
+    if '->' in module_referrer:
+        module_referrer_fixed = []
+        if '#' in module_referrer:
+            module_referrer = module_referrer[:-2]
+        for ref in module_referrer.split('->'):
+            if not os.path.isabs(ref):
+                module_referrer_fixed.append(os.path.join(dir_path, ref))
+        module_referrer = '->'.join(module_referrer_fixed)
+    else:
         module_referrer = os.path.join(dir_path, module_referrer)
     return f"{module_location}[{module_referrer}#{match[3]}]"

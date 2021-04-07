@@ -179,7 +179,6 @@ class TestGraphBuilder(TestCase):
                         expected_label="spec.template.spec.volume.1.config_map.name")
 
     def test_blocks_from_local_graph_module(self):
-        # os.environ['RENDER_VARIABLES_ASYNC'] = 'False'
         resources_dir = os.path.realpath(os.path.join(TEST_DIRNAME, '../resources/modules/stacks'))
         graph_manager = GraphManager(NetworkxConnector())
         local_graph, tf = graph_manager.build_graph_from_source_directory(resources_dir, render_variables=True)

@@ -14,7 +14,6 @@ ATTRIBUTES_NO_EVAL = ['template_body', 'template']
 class VariableRenderer:
     def __init__(self, local_graph):
         self.local_graph = local_graph
-        self.copy_of_local_graph = deepcopy(local_graph)
         run_async = os.environ.get('RENDER_VARIABLES_ASYNC')
         if not run_async:
             run_async = True
@@ -49,9 +48,15 @@ class VariableRenderer:
             else:
                 for edge_group in edges_groups:
                     self._edge_evaluation_task([edge_group])
-            end_vertices_indexes = list(set([edge.origin for edge in edges_to_render]))
+            self.done_edges += edges_to_render
+            for edge in edges_to_render:
+                origin_vertex_index = edge.origin
+                unrendered_out_edges = list(filter(lambda edge: edge not in self.done_edges,
+                                                   self.local_graph.out_edges.get(origin_vertex_index)))
+                if not unrendered_out_edges:
+                    end_vertices_indexes.append(origin_vertex_index)
             edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
-            edges_to_render = [edge for edge in edges_to_render if edge not in self.done_edges]
+            edges_to_render = list(set([edge for edge in edges_to_render if edge not in self.done_edges]))
             loops += 1
             if loops >= 50:
                 logging.warning(f"Reached 50 graph edge iterations, breaking. Module: {self.local_graph.module.source_dir}")

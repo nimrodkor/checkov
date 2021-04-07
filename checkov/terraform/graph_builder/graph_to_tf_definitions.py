@@ -16,8 +16,7 @@ def convert_graph_vertices_to_tf_definitions(vertices: List[Block], root_folder)
             continue
         tf_path = block_path
         if vertex.module_dependency:
-            last_dep = vertex.module_dependency.split('->')[-1]
-            tf_path = f"{block_path}[{last_dep}#{vertex.module_dependency_num}]"
+            tf_path = f"{block_path}[{vertex.module_dependency}#{vertex.module_dependency_num}]"
         block_type = vertex.block_type.value
         if block_type == BlockType.TF_VARIABLE:
             continue

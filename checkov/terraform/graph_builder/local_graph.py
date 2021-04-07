@@ -203,7 +203,7 @@ class LocalGraph:
                     target_path = '->'.join([vertex.module_dependency, vertex.path])
                 # Assuming the tfvars file is in the same directory as the variables file (best practice)
                 target_variables = list(filter(lambda v: os.path.dirname(self.vertices[v].path) == os.path.dirname(vertex.path),
-                                               self.vertices_block_name_map.get(BlockType.VARIABLE, {}).get(vertex.name)))
+                                               self.vertices_block_name_map.get(BlockType.VARIABLE, {}).get(vertex.name, [])))
                 if len(target_variables) == 1:
                     self._create_edge(target_variables[0], origin_node_index, 'default')
 
