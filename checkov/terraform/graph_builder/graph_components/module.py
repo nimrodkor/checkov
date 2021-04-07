@@ -25,12 +25,12 @@ class Module:
             self._block_type_to_func[block_type].__call__(self, blocks, path)
 
     def _add_to_blocks(self, block: Block):
-        dependencies = [dep_trail for dep_trail in self.module_dependency_map[os.path.dirname(block.path)]]
-        if dependencies is None:
+        dependencies = [dep_trail for dep_trail in self.module_dependency_map.get(os.path.dirname(block.path), [])]
+        module_dependency_num = ''
+        if not dependencies:
             dependencies = [[]]
-            module_dependency_num = ''
         else:
-            module_dependency_num = self.dep_index_mapping[self.path]
+            module_dependency_num = self.dep_index_mapping.get(block.path, '')
         for dep_trail in dependencies:
             block = deepcopy(block)
             block.module_dependency = '->'.join(dep_trail)

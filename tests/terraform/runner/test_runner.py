@@ -569,13 +569,9 @@ class TestRunnerValid(unittest.TestCase):
 
             if "inside" in record.resource:
                 found_inside = True
-                self.assertEqual(record.resource, "module.test_module.aws_s3_bucket.inside")
+                self.assertEqual(record.resource, "aws_s3_bucket.inside")
                 assert record.file_path == "/module/module.tf"
                 self.assertEqual(record.file_line_range, [7, 9])
-                assert record.caller_file_path == "/main.tf"
-                # ATTENTION!! If this breaks, see the "HACK ALERT" comment in runner.run_block.
-                #             A bug might have been fixed.
-                self.assertEqual(record.caller_file_line_range, [6, 8])
 
         self.assertTrue(found_inside)
         self.assertTrue(found_outside)

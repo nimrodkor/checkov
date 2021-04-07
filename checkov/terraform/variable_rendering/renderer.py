@@ -3,8 +3,7 @@ import os
 from copy import deepcopy
 
 from checkov.terraform.checks.utils.utils import run_function_multithreaded, get_referenced_vertices_in_value, \
-    extend_referenced_vertices_with_tf_vars, join_trimmed_strings, remove_index_pattern_from_str, calculate_hash, \
-    attribute_has_nested_attributes
+    join_trimmed_strings, remove_index_pattern_from_str, calculate_hash, attribute_has_nested_attributes
 from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, reserved_attribute_names
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.variable_rendering.evaluate_terraform import replace_string_value, evaluate_terraform
@@ -70,18 +69,23 @@ class VariableRenderer:
     def evaluate_vertex_attribute_from_edge(self, edge_list):
         multiple_edges = len(edge_list) > 1
         edge = edge_list[0]
-        origin_vertex_attributes = self.copy_of_local_graph.vertices[edge.origin].attributes
+        origin_vertex_attributes = self.local_graph.vertices[edge.origin].attributes
         val_to_eval = deepcopy(origin_vertex_attributes.get(edge.label, ''))
 
         referenced_vertices = get_referenced_vertices_in_value(value=val_to_eval, aliases={},
                                                                resources_types=self.local_graph.get_resources_types_in_graph())
-        extend_referenced_vertices_with_tf_vars(referenced_vertices)
         if not referenced_vertices:
             origin_vertex = self.local_graph.vertices[edge.origin]
             destination_vertex = self.local_graph.vertices[edge.dest]
             if origin_vertex.block_type == BlockType.VARIABLE and destination_vertex.block_type == BlockType.MODULE:
                 self.update_evaluated_value(changed_attribute_key=edge.label,
                                             changed_attribute_value=destination_vertex.attributes[origin_vertex.name], vertex=edge.origin,
+                                            change_origin_id=edge.dest, attribute_at_dest=edge.label)
+                return
+            if origin_vertex.block_type == BlockType.VARIABLE and destination_vertex.block_type == BlockType.TF_VARIABLE:
+                self.update_evaluated_value(changed_attribute_key=edge.label,
+                                            changed_attribute_value=destination_vertex.attributes['default'],
+                                            vertex=edge.origin,
                                             change_origin_id=edge.dest, attribute_at_dest=edge.label)
                 return
 

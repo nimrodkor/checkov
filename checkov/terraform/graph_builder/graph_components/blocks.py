@@ -23,14 +23,13 @@ class Block:
         self.config = deepcopy(config)
         self.module_dependency = ""
         self.module_dependency_num = ""
+        self.path = path
         if path:
-            path, module_dependency, num = remove_module_dependency_in_path(path)
-            self.path = os.path.realpath(path)
+            self.path, module_dependency, num = remove_module_dependency_in_path(path)
+            self.path = os.path.realpath(self.path)
             if module_dependency:
                 self.module_dependency = module_dependency
                 self.module_dependency_num = num
-        else:
-            self.path = path
         self.block_type = block_type
         if attributes.get(RESOLVED_MODULE_ENTRY_NAME):
             del attributes[RESOLVED_MODULE_ENTRY_NAME]

@@ -10,8 +10,7 @@ from checkov.terraform.graph_builder.graph_components.generic_resource_encryptio
     ENCRYPTION_BY_RESOURCE_TYPE
 from checkov.terraform.graph_builder.utils import is_local_path
 from checkov.terraform.checks.utils.utils import get_referenced_vertices_in_value, update_dictionary_attribute, \
-    join_trimmed_strings, \
-    filter_sub_keys, extend_referenced_vertices_with_tf_vars, attribute_has_nested_attributes
+    join_trimmed_strings, filter_sub_keys, attribute_has_nested_attributes
 from checkov.terraform.checks.utils.utils import remove_index_pattern_from_str, calculate_hash
 from checkov.terraform.variable_rendering.renderer import VariableRenderer
 
@@ -149,7 +148,6 @@ class LocalGraph:
                 referenced_vertices = get_referenced_vertices_in_value(value=vertex.attributes[attribute_key],
                                                                        aliases=aliases,
                                                                        resources_types=self.get_resources_types_in_graph())
-                extend_referenced_vertices_with_tf_vars(referenced_vertices)
                 for vertex_reference in referenced_vertices:
                     # for certain blocks such as data and resource, the block name is composed from several parts.
                     # the purpose of the loop is to avoid not finding the node if the name has several parts
@@ -197,8 +195,17 @@ class LocalGraph:
                     for v in target_variables:
                         if self.vertices[v].name == attribute:
                             target_variable = v
+                            break
                     if target_variable is not None:
                         self._create_edge(target_variable, origin_node_index, 'default')
+            elif vertex.block_type == BlockType.TF_VARIABLE:
+                if vertex.module_dependency != '':
+                    target_path = '->'.join([vertex.module_dependency, vertex.path])
+                # Assuming the tfvars file is in the same directory as the variables file (best practice)
+                target_variables = list(filter(lambda v: os.path.dirname(self.vertices[v].path) == os.path.dirname(vertex.path),
+                                               self.vertices_block_name_map.get(BlockType.VARIABLE, {}).get(vertex.name)))
+                if len(target_variables) == 1:
+                    self._create_edge(target_variables[0], origin_node_index, 'default')
 
 
     def _create_edge(self, origin_vertex_index, dest_vertex_index, label):

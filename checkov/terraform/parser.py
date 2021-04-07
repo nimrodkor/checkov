@@ -426,9 +426,9 @@ class Parser:
         return self.parse_hcl_module_from_tf_definitions(tf_definitions, source_dir, source)
 
     def parse_hcl_module_from_tf_definitions(self, tf_definitions, source_dir, source):
-        self.add_tfvars(module, source)
         module_dependency_map, tf_definitions, dep_index_mapping = self.get_module_dependency_map(tf_definitions)
         module = self.get_new_module(source_dir, module_dependency_map, dep_index_mapping)
+        self.add_tfvars(module, source)
         copy_of_tf_definitions = deepcopy(tf_definitions)
         for file_path in copy_of_tf_definitions:
             blocks = copy_of_tf_definitions.get(file_path)
