@@ -2,6 +2,7 @@ import os
 from copy import deepcopy
 from typing import List
 
+from checkov.terraform.checks.utils.dependency_path_handler import unify_dependency_path
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.graph_builder.graph_components.blocks import Block, get_inner_attributes
 
@@ -33,7 +34,7 @@ class Module:
             module_dependency_num = self.dep_index_mapping.get(block.path, '')
         for dep_trail in dependencies:
             block = deepcopy(block)
-            block.module_dependency = '->'.join(dep_trail)
+            block.module_dependency = unify_dependency_path(dep_trail)
             block.module_dependency_num = module_dependency_num
             self.blocks.append(block)
 

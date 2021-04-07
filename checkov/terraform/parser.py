@@ -13,6 +13,7 @@ import hcl2
 from checkov.common.runners.base_runner import filter_ignored_directories
 from checkov.common.util.consts import DEFAULT_EXTERNAL_MODULES_DIR, RESOLVED_MODULE_ENTRY_NAME
 from checkov.common.variables.context import EvaluationContext
+from checkov.terraform.checks.utils.dependency_path_handler import unify_dependency_path
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.graph_builder.graph_components.module import Module
 from checkov.terraform.graph_builder.utils import remove_module_dependency_in_path
@@ -478,11 +479,31 @@ class Parser:
         return result_values
 
     @staticmethod
-    def get_remaining_keys(evaluated_keys: list, unevaluated_keys: list) -> (list, list):
+    def get_next_vertices(evaluated_files: list, unevaluated_files: list) -> (list, list):
+        """
+        This function implements a lazy separation of levels for the evaluated files. It receives the evaluated
+        files, and returns 2 lists:
+        1. The next level of files - files from the unevaluated_files which have no unresolved dependency (either
+            no dependency or all dependencies were evaluated).
+        2. unevaluated - files which have yet to be evaluated, and still have pending dependencies
+
+        Let's say we have this dependency tree:
+        a -> b
+        x -> b
+        y -> c
+        z -> b
+        b -> c
+        c -> d
+
+        The first run will return [a, y, x, z] as the next level since all of them have no dependencies
+        The second run with the evaluated being [a, y, x, z] will return [b] as the next level.
+        Please mind that [c] has some resolved dependencies (from y), but has unresolved dependencies from [b].
+        The third run will return [c], and the fourth will return [d].
+        """
         next_level, unevaluated, do_not_eval_yet = [], [], []
-        for key in unevaluated_keys:
+        for key in unevaluated_files:
             found = False
-            for eval_key in evaluated_keys:
+            for eval_key in evaluated_files:
                 if eval_key in key:
                     found = True
                     break
@@ -517,7 +538,7 @@ class Parser:
             module_dependency_map[dir_name] = [[]]
             copy_of_tf_definitions[file_path] = deepcopy(tf_definitions[file_path])
 
-        next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
+        next_level, unevaluated_keys = Parser.get_next_vertices(origin_keys, unevaluated_keys)
         while next_level:
             for file_path in next_level:
                 path, module_dependency, module_dependency_num = remove_module_dependency_in_path(file_path)
@@ -532,12 +553,12 @@ class Parser:
                 copy_of_tf_definitions[path] = deepcopy(tf_definitions[file_path])
                 origin_keys.append(path)
                 dep_index_mapping[path] = module_dependency_num
-            next_level, unevaluated_keys = Parser.get_remaining_keys(origin_keys, unevaluated_keys)
+            next_level, unevaluated_keys = Parser.get_next_vertices(origin_keys, unevaluated_keys)
         for key, dep_trails in module_dependency_map.items():
             hashes = set()
             deduped = []
             for trail in dep_trails:
-                hash = '->'.join(trail)
+                hash = unify_dependency_path(trail)
                 if hash in hashes:
                     continue
                 hashes.add(hash)

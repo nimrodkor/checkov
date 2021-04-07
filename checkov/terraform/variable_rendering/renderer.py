@@ -2,6 +2,8 @@ import logging
 import os
 from copy import deepcopy
 
+from lark.tree import Tree
+
 from checkov.terraform.checks.utils.utils import run_function_multithreaded, get_referenced_vertices_in_value, \
     join_trimmed_strings, remove_index_pattern_from_str, calculate_hash, attribute_has_nested_attributes
 from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes, reserved_attribute_names
@@ -27,6 +29,7 @@ class VariableRenderer:
             max_workers = int(max_workers)
         self.max_workers = max_workers
         self.done_edges = []
+        self.done_edges_by_origin_vertex = {}
         self.replace_cache = [{}] * len(local_graph.vertices)
 
     def render_variables_from_local_graph(self):
@@ -50,9 +53,15 @@ class VariableRenderer:
                     self._edge_evaluation_task([edge_group])
             self.done_edges += edges_to_render
             for edge in edges_to_render:
+                origin = edge.origin
+                if origin not in self.done_edges_by_origin_vertex:
+                    self.done_edges_by_origin_vertex[origin] = []
+                self.done_edges_by_origin_vertex[origin].append(edge)
+
+            for edge in edges_to_render:
                 origin_vertex_index = edge.origin
                 out_edges = self.local_graph.out_edges.get(origin_vertex_index)
-                if all(e in self.done_edges for e in out_edges):
+                if all(e in self.done_edges_by_origin_vertex.get(origin_vertex_index, []) for e in out_edges):
                     end_vertices_indexes.append(origin_vertex_index)
             edges_to_render = self.local_graph.get_in_edges(end_vertices_indexes)
             edges_to_render = list(set([edge for edge in edges_to_render if edge not in self.done_edges]))
@@ -236,6 +245,8 @@ class VariableRenderer:
                 lst_curr_val = curr_val
                 if not isinstance(lst_curr_val, list):
                     lst_curr_val = [lst_curr_val]
+                if len(lst_curr_val) > 0 and isinstance(lst_curr_val[0], Tree):
+                    lst_curr_val[0] = str(lst_curr_val[0])
                 evaluated_lst = []
                 for inner_val in lst_curr_val:
                     if isinstance(inner_val, str) and not any(c in inner_val for c in ["{", "}", "[", "]", "="])\

@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from checkov.common.graph.graph_builder import reserved_attribute_names, EncryptionValues
 from checkov.common.graph.graph_builder import Edge
+from checkov.terraform.checks.utils.dependency_path_handler import unify_dependency_path
 from checkov.terraform.graph_builder.graph_components.attribute_names import CustomAttributes
 from checkov.terraform.graph_builder.graph_components.block_types import BlockType
 from checkov.terraform.graph_builder.graph_components.generic_resource_encryption import \
@@ -13,6 +14,8 @@ from checkov.terraform.checks.utils.utils import get_referenced_vertices_in_valu
     join_trimmed_strings, filter_sub_keys, attribute_has_nested_attributes
 from checkov.terraform.checks.utils.utils import remove_index_pattern_from_str, calculate_hash
 from checkov.terraform.variable_rendering.renderer import VariableRenderer
+
+MODULE_RESERVED_ATTRIBUTES = ('source', 'version')
 
 
 class LocalGraph:
@@ -120,7 +123,7 @@ class LocalGraph:
             for path_to_module in paths_to_modules:
                 if not path_to_module:
                     continue
-                path_to_module = '->'.join(path_to_module)
+                path_to_module = unify_dependency_path(path_to_module)
                 module_list = self.map_path_to_module.get(path_to_module, [])
                 for module_index in module_list:
                     module_vertex = self.vertices[module_index]
@@ -185,11 +188,11 @@ class LocalGraph:
             if vertex.block_type == BlockType.MODULE:
                 target_path = vertex.path
                 if vertex.module_dependency != '':
-                    target_path = '->'.join([vertex.module_dependency, vertex.path])
+                    target_path = unify_dependency_path([vertex.module_dependency, vertex.path])
                 target_variables = list(filter(lambda v: self.vertices[v].module_dependency == target_path,
                                                self.vertices_by_block_type.get(BlockType.VARIABLE, {})))
                 for attribute, value in vertex.attributes.items():
-                    if attribute in ('source', 'version'):
+                    if attribute in MODULE_RESERVED_ATTRIBUTES:
                         continue
                     target_variable = None
                     for v in target_variables:
@@ -200,7 +203,7 @@ class LocalGraph:
                         self._create_edge(target_variable, origin_node_index, 'default')
             elif vertex.block_type == BlockType.TF_VARIABLE:
                 if vertex.module_dependency != '':
-                    target_path = '->'.join([vertex.module_dependency, vertex.path])
+                    target_path = unify_dependency_path([vertex.module_dependency, vertex.path])
                 # Assuming the tfvars file is in the same directory as the variables file (best practice)
                 target_variables = list(filter(lambda v: os.path.dirname(self.vertices[v].path) == os.path.dirname(vertex.path),
                                                self.vertices_block_name_map.get(BlockType.VARIABLE, {}).get(vertex.name, [])))
