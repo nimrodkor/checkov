@@ -16,7 +16,7 @@ from checkov.terraform.checks.module.registry import module_registry
 from checkov.terraform.checks.provider.registry import provider_registry
 from checkov.terraform.checks.resource.registry import resource_registry
 
-ID_PARTS_PATTERN = re.compile(r'([\D^2]*)(\d*)')
+ID_PARTS_PATTERN = re.compile(r'([\D]*)(\d*)')
 
 
 def get_compare_key(c):
